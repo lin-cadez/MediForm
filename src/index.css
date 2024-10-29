@@ -11,8 +11,7 @@
 }
 
 body {
-  background: url("./bg.svg") no-repeat center center fixed;
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, #646cff, #be6fff);
   background-size: cover;
   height: 100vh;
 }
@@ -32,7 +31,7 @@ h1 {
   line-height: 1.1;
 }
 
-button{
+button {
   outline: none;
   border: none;
 }
