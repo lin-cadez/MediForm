@@ -4,9 +4,9 @@ import {
 	Route,
 	NavLink,
 	Routes,
-	Navigate,
 } from "react-router-dom";
-import { List, Settings } from "lucide-react";
+import { List, Settings, Home } from "lucide-react";
+import Selector from "./selector/selector";
 import Checklist from "./checklist/checklist";
 import Export from "./export/export";
 
@@ -17,14 +17,20 @@ function App() {
 				<nav>
 					<ul>
 						<li>
+							<NavLink to="/">
+								<Home />
+								Seznami
+							</NavLink>
+						</li>
+						<li>
 							<NavLink to="/checklist">
-								<List /> Checklist
+								<List /> Seznam
 							</NavLink>
 						</li>
 						<li>
 							<NavLink to="/export">
 								<Settings />
-								Export
+								Izvoz
 							</NavLink>
 						</li>
 					</ul>
@@ -32,7 +38,7 @@ function App() {
         <Routes>
           <Route path="/checklist" element={<Checklist />} />
           <Route path="/export" element={<Export />} />
-          <Route path="*" element={<Navigate to="/checklist" />} />
+          <Route path="*" element={<Selector />} />
         </Routes>
 			</Router>
 		</div>

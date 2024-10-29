@@ -1,7 +1,10 @@
+import "./checklist.css";
+
 export default function Checklist() {
 	return (
-		<div>
-			nigger1
+		<div className="checklist-page">
+			<h1>Seznam opravil</h1>
+			
 		</div>
 	);
 }
