@@ -1,0 +1,19 @@
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    top: 0;
+    background: #fff;
+
+    .logo img{
+        width: 40px;
+        height: 40px;
+    }
+
+    a{
+        color: #000;
+        font-weight: 400;
+        font-size: 1rem;
+    }
+}

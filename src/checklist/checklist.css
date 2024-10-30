@@ -1,5 +1,4 @@
 .checklist-page {
-    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -10,8 +9,37 @@
         font-weight: 300;
     }
 
-    p{
+    p {
         color: #fff;
         font-weight: 200;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        top: 0;
+        background: #fff;
+
+        button {
+            padding: 10px;
+            background: transparent;
+            border-radius: 4px;
+            border: none;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 200;
+
+            img {
+                width: 20px;
+                height: 20px;
+                filter: invert(1);
+            }
+        }
     }
 }
