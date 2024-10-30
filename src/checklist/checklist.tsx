@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import Export from "../export.svg";
 import "./checklist.css";
 
 export default function Checklist() {
@@ -11,7 +12,7 @@ export default function Checklist() {
 						<ArrowLeft />
 					</button>
 				</NavLink>
-				<button>export</button>
+				<button><img src={Export} alt="export" /></button>
 			</nav>
 			<h1>Seznam opravil</h1>
 		</div>
