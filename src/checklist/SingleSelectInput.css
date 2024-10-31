@@ -1,0 +1,15 @@
+.single-select-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.input-wrapper {
+    display: flex;
+    gap: 8px;
+}
+
+.selected-display {
+    margin-top: 8px;
+    font-weight: bold;
+}

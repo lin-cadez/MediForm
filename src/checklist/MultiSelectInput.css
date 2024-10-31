@@ -1,0 +1,100 @@
+/* Container styling for general layout and spacing */
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  
+  /* Styling for the selected options (multi-choice) */
+  .selected-options-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .selected-option {
+    display: flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 14px;
+  }
+  
+  .selected-option button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    margin-left: 4px;
+    color: #666;
+  }
+  
+  .selected-option button:hover {
+    color: #333;
+  }
+  
+  /* Styling for input within dropdown */
+  .input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 4px;
+  }
+  
+  /* Dropdown styling */
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-list {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 180px;
+    overflow-y: auto;
+    margin-top: 4px;
+  }
+  
+  .dropdown-item {
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* Button styling for toggling dropdown */
+  .toggle-button {
+    background: none;
+    border: none;
+    margin-right: 8px;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  /* Styling for displaying selected single option */
+  .selected-option-display {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .selected-option-display span {
+    font-weight: 500;
+    color: #333;
+  }
+  

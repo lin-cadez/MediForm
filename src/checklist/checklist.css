@@ -112,3 +112,120 @@
         }
     }
 }
+
+/* General page styling */
+.checklist-page {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+}
+
+/* Category styling */
+.category {
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.2em;
+}
+
+.category > button {
+    font-weight: bold;
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: #000;
+    width: 100%;
+}
+
+.category > button:hover {
+    color: #555;
+}
+
+/* Subcategory styling */
+.subcategory-container {
+    margin-top: 10px;
+    padding-left: 10px;
+}
+
+.subcategory {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.subcategory h3 {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Elements styling */
+.element {
+    margin-top: 8px;
+    padding-left: 5px;
+    font-size: 1em;
+}
+
+.element label {
+    display: flex;
+    align-items: center;
+    color: #000;
+}
+
+/* Input field styling */
+input[type="text"] {
+    margin-left: 10px;
+    padding: 5px;
+    font-size: 1em;
+    color: #333;
+    border: 1px solid #333;
+    border-radius: 4px;
+    width: calc(100% - 20px);
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Drawer styling */
+.drawer-content {
+    background-color: #ffffff;
+    color: #000;
+}
+
+.drawer-header {
+    border-bottom: 2px solid #000000;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.drawer-description {
+    margin-bottom: 15px;
+}
+
+.export-buttons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.export-buttons button img {
+    margin-left: 10px;
+}
+
+.export-buttons button:hover {
+    background-color: #333;
+}
