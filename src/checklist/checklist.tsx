@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/drawer";
 import ExportSVG from "../export.svg";
 import Pdf from "../pdf.svg";
-import Word from "../word.svg";
+import Excel from "../excel.svg";
 import "./checklist.css";
 
 export default function Checklist() {
@@ -59,7 +59,7 @@ export default function Checklist() {
 								Izvozi kot PDF <img src={Pdf} alt="pdf" />
 							</button>
 							<button>
-								Izvozi kot Word <img src={Word} alt="word" />
+								Izvozi kot Excel <img src={Excel} alt="excel" />
 							</button>
 						</div>
 					</div>

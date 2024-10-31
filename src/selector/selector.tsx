@@ -6,6 +6,7 @@ import Logo from "../logo.jpg";
 interface Category {
 	title: string;
 	description: string | null;
+	url: string;
 }
 
 interface CategoriesData {
@@ -79,7 +80,7 @@ export default function Selector() {
 					{Object.entries(categories).map(([key, category]) => (
 						<div key={key}>
 							<NavLink
-								to={`/checklist/${key}`}
+								to={`/checklist/${category.url}`}
 								className="seznam">
 								<h2>{category.title}</h2>
 								{category.description && (
