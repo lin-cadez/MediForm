@@ -12,7 +12,7 @@ function App() {
 		<div>
 			<Router>
 				<Routes>
-					<Route path="/checklist" element={<Checklist />} />
+					<Route path="/checklist/*" element={<Checklist />} />
 					<Route path="/" element={<Selector />} />
 					<Route path="*" element={<Selector />} />
 				</Routes>

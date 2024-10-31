@@ -58,7 +58,6 @@ export default function Checklist() {
 							<button>
 								Izvozi kot PDF <img src={Pdf} alt="pdf" />
 							</button>
-							<button>Izvozi kot CSV</button>
 							<button>
 								Izvozi kot Word <img src={Word} alt="word" />
 							</button>
