@@ -47,7 +47,7 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
     }
   };
 
-  const handleInputBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleInputBlur = (_e: FocusEvent<HTMLInputElement>) => {
     setTimeout(() => {
       if (
         document.activeElement !== inputRef.current &&

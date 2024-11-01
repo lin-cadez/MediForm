@@ -13,8 +13,8 @@ import ExportSVG from "../export.svg";
 import Pdf from "../pdf.svg";
 import Excel from "../excel.svg";
 import "./checklist.css";
-import MultiSelectInput from "./MultiSelectInput";
-import SingleSelectComponent from "./SingleSelectComponent";
+/* import MultiSelectInput from "./MultiSelectInput";
+import SingleSelectComponent from "./SingleSelectComponent"; */
 
 interface List {
 	title: string;
