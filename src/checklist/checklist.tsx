@@ -76,13 +76,10 @@ export default function Checklist() {
 						predefinedOptions={["1", "2", "3"]}
 					/> */}
 
-					<h1>
-						{List.title}
-					</h1>
+					<h1>{List.title}</h1>
 					<p>{List.description}</p>
 				</div>
 				<DrawerContent>
-					<div aria-hidden className="drawer-close" />
 					<DrawerHeader>
 						<DrawerTitle>Izvozi seznam</DrawerTitle>
 					</DrawerHeader>
