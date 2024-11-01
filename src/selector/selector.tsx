@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 import "./selector.css";
 import Logo from "../logo.jpg";
 
-interface Category {
+interface List {
 	title: string;
 	description: string | null;
 	url: string;
 }
 
-interface CategoriesData {
-	categories: {
-		[key: string]: Category;
+interface ListsData {
+	lists: {
+		[key: string]: List;
 	};
 }
 
@@ -20,39 +20,57 @@ const API_URL =
 	"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json";
 
 export default function Selector() {
-	const [categories, setCategories] = useState<CategoriesData["categories"]>(
-		{}
-	);
+	const [lists, setLists] = useState<ListsData["lists"]>({});
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		const fetchCategories = async () => {
+		const fetchLists = async () => {
 			try {
 				// Check localStorage first
 				const storedData = localStorage.getItem(STORAGE_KEY);
 				if (storedData) {
-					setCategories(JSON.parse(storedData).categories);
+					const parsedStoredData = JSON.parse(storedData);
+					setLists(parsedStoredData.lists);
 					setIsLoading(false);
+
+					// Fetch new data to compare
+					const response = await fetch(API_URL);
+					if (!response.ok) {
+						throw new Error("Failed to fetch lists");
+					}
+					const fetchedData: ListsData = await response.json();
+
+					// Compare fetched data with stored data
+					if (
+						JSON.stringify(parsedStoredData) !==
+						JSON.stringify(fetchedData)
+					) {
+						localStorage.setItem(
+							STORAGE_KEY,
+							JSON.stringify(fetchedData)
+						);
+						setLists(fetchedData.lists);
+					}
 					return;
 				}
 
 				const response = await fetch(API_URL);
 				if (!response.ok) {
-					throw new Error("Failed to fetch categories");
+					throw new Error("Failed to fetch lists");
 				}
-				const data: CategoriesData = await response.json();
-				setCategories(data.categories);
+				const data: ListsData = await response.json();
+				setLists(data.lists);
 
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 			} catch (err) {
-				setError("Error fetching categories. Please try again later.");
+				setError("Error fetching lists. Please try again later.");
 			} finally {
 				setIsLoading(false);
 			}
 		};
 
-		fetchCategories();
+		fetchLists();
 	}, []);
 
 	if (isLoading) {
@@ -67,7 +85,9 @@ export default function Selector() {
 		<div>
 			<nav>
 				<div className="logo">
-					<img src={Logo} alt="logo" />
+					<NavLink to="/">
+						<img src={Logo} alt="logo" />
+					</NavLink>
 				</div>
 				<div className="about">
 					<NavLink to="/about">O nas</NavLink>
@@ -77,15 +97,13 @@ export default function Selector() {
 				<h1>Seznami</h1>
 				<p>Izberi seznam, ki ga želiš izpolniti.</p>
 				<div className="seznami">
-					{Object.entries(categories).map(([key, category]) => (
+					{lists && Object.entries(lists).map(([key, list]) => (
 						<div key={key}>
 							<NavLink
-								to={`/checklist/${category.url}`}
+								to={`/checklist/${list.url}`}
 								className="seznam">
-								<h2>{category.title}</h2>
-								{category.description && (
-									<p>{category.description}</p>
-								)}
+								<h2>{list.title}</h2>
+								{list.description && <p>{list.description}</p>}
 							</NavLink>
 						</div>
 					))}

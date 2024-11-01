@@ -3,8 +3,6 @@
     flex-direction: column;
     gap: 20px;
 
-   
-
     nav {
         display: flex;
         justify-content: space-between;
@@ -35,14 +33,38 @@
 
     .vsebina {
         padding: 10px;
+
+        h1 {
+            color: #000;
+            font-weight: 300;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #271f53;
+            font-weight: 300;
+            font-size: 1.2rem;
+        }
+
+        .single-select-input {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .selected-display {
+            margin-top: 8px;
+            font-weight: bold;
+        }
     }
 }
 
-.drawer-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.144);
-}
+/* Export */
 
 .drawer-content {
     background: #f3f4f6;
@@ -86,10 +108,10 @@
 
     button {
         padding: 10px;
-        background: transparent;
+        background: #000;
         border-radius: 4px;
-        border: 1px solid #000;
-        color: #000;
+        border: 1px solid #fff;
+        color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -100,45 +122,7 @@
         img {
             width: 20px;
             height: 20px;
+            filter: invert(1);
         }
     }
-}
-
-
-
-/* Drawer styling */
-.drawer-content {
-    background-color: #ffffff;
-    color: #000;
-}
-
-.drawer-header {
-    border-bottom: 2px solid #000000;
-    padding: 10px;
-    font-weight: bold;
-}
-
-.drawer-description {
-    margin-bottom: 15px;
-}
-
-.export-buttons button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color: #000;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.export-buttons button img {
-    margin-left: 10px;
-}
-
-.export-buttons button:hover {
-    background-color: #333;
 }

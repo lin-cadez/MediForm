@@ -16,7 +16,7 @@
 }
 
 body {
-  background: white;
+  background: linear-gradient(135deg, #646cff, #be6fff);
   background-size: cover;
   height: 100vh;
 }
