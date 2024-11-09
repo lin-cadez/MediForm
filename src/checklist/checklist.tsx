@@ -225,7 +225,6 @@ export default function Checklist() {
 							<ArrowLeft />
 						</button>
 					</NavLink>
-					<h1>{list.title}</h1>
 					<DrawerTrigger>
 						<img
 							src={ExportSVG}
@@ -234,7 +233,8 @@ export default function Checklist() {
 						/>
 					</DrawerTrigger>
 				</nav>
-				<div className="description">
+				<div className="title">
+					<h1>{list.title}</h1>
 					<p>{list.description}</p>
 				</div>
 				<div className="content">
