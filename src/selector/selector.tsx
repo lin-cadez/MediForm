@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./selector.css";
 import Logo from "../logo.jpg";
+import { Info } from "lucide-react";
 
 interface List {
 	title: string;
@@ -90,23 +91,30 @@ export default function Selector() {
 					</NavLink>
 				</div>
 				<div className="about">
-					<NavLink to="/about">O nas</NavLink>
+					<NavLink to="/about">
+						<button>
+							<Info />
+						</button>
+					</NavLink>
 				</div>
 			</nav>
 			<main>
 				<h1>Seznami</h1>
 				<p>Izberi seznam, ki ga želiš izpolniti.</p>
 				<div className="seznami">
-					{lists && Object.entries(lists).map(([key, list]) => (
-						<div key={key}>
-							<NavLink
-								to={`/checklist/${list.url}`}
-								className="seznam">
-								<h2>{list.title}</h2>
-								{list.description && <p>{list.description}</p>}
-							</NavLink>
-						</div>
-					))}
+					{lists &&
+						Object.entries(lists).map(([key, list]) => (
+							<div key={key}>
+								<NavLink
+									to={`/checklist/${list.url}`}
+									className="seznam">
+									<h2>{list.title}</h2>
+									{list.description && (
+										<p>{list.description}</p>
+									)}
+								</NavLink>
+							</div>
+						))}
 				</div>
 			</main>
 		</div>

@@ -1,6 +1,7 @@
 import "./App.css";
 import Checklist from "./checklist/checklist";
 import Selector from "./selector/selector";
+import About from "./about/about";
 import {
 	BrowserRouter as Router,
 	Route,
@@ -13,6 +14,7 @@ function App() {
 			<Router>
 				<Routes>
 					<Route path="/checklist/*" element={<Checklist />} />
+					<Route path="/about" element={<About />} />
 					<Route path="/" element={<Selector />} />
 					<Route path="*" element={<Selector />} />
 				</Routes>
