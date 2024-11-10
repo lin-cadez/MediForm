@@ -90,7 +90,7 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 				{isDropdownOpen && (
 					<ul
 						ref={dropdownRef}
-						className="absolute z-10 bg-background border rounded-md shadow-lg max-h-60 overflow-auto mt-1"
+						className="absolute z-10 border rounded-md shadow-lg max-h-60 overflow-auto mt-1 bg-white"
 						style={{
 							width: containerRef.current?.offsetWidth || "100%",
 						}}

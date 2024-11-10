@@ -79,7 +79,7 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto p-4">
+		<div className="w-full max-w-md mx-auto pt-4 pb-4">
 			<div className="border rounded-md p-2" ref={containerRef}>
 				<div className="flex flex-wrap gap-2 mb-2">
 					{selectedOptions.map((option) => (
@@ -119,7 +119,7 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 				{isDropdownOpen && filteredOptions.length > 0 && (
 					<ul
 						ref={dropdownRef}
-						className="absolute z-10 bg-background border rounded-md shadow-lg max-h-60 overflow-auto mt-1"
+						className="absolute z-10 bg-white border rounded-md shadow-lg max-h-60 overflow-auto mt-1"
 						style={{
 							width: containerRef.current?.offsetWidth || "100%",
 						}}

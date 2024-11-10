@@ -2,9 +2,11 @@
     --background: #f3f4f6ab;
     --foreground: #000;
     --muted-foreground: #6b7280;
-    --card: #ffffff6e;
+    --card: #ffffff5d;
     --card-foreground: #000;
     --border: #f8fafd;
+    --bg-accent: #f3f4f6;
+    --dropdown-bg: #fff;
 }
 
 .checklist-page {
@@ -50,8 +52,7 @@
 
         h1 {
             font-weight: 300;
-            font-size: 2rem;
-
+            font-size: 1.8rem;
         }
     }
 }
@@ -84,6 +85,7 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    text-align: left;
     padding: 0.5rem 0;
     width: 100%;
 }
@@ -108,7 +110,7 @@
     transform: rotate(180deg);
 }
 
-.category-content{
+.category-content {
     background: var(--card);
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -137,6 +139,8 @@
 
 .element {
     margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .element label {
