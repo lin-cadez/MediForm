@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import {
 	Drawer,
 	DrawerContent,
@@ -14,6 +14,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
 import ExportSVG from "../export.svg";
@@ -58,6 +63,9 @@ interface ListsData {
 export default function Checklist() {
 	const [list, setList] = useState<List | null>(null);
 	const [formData, setFormData] = useState<Record<string, any>>({});
+	const [openCategories, setOpenCategories] = useState<
+		Record<string, boolean>
+	>({});
 
 	useEffect(() => {
 		const fetchData = () => {
@@ -74,6 +82,14 @@ export default function Checklist() {
 
 				if (matchingList) {
 					setList(matchingList);
+					// Initialize all categories as closed
+					const initialOpenState = Object.keys(
+						matchingList.categories
+					).reduce((acc, categoryId) => {
+						acc[categoryId] = false;
+						return acc;
+					}, {} as Record<string, boolean>);
+					setOpenCategories(initialOpenState);
 				}
 			}
 		};
@@ -96,6 +112,13 @@ export default function Checklist() {
 					[elementId]: value,
 				},
 			},
+		}));
+	};
+
+	const toggleCategory = (categoryId: string) => {
+		setOpenCategories((prevState) => ({
+			...prevState,
+			[categoryId]: !prevState[categoryId],
 		}));
 	};
 
@@ -240,46 +263,72 @@ export default function Checklist() {
 				<div className="content">
 					{Object.entries(list.categories).map(
 						([categoryId, category]) => (
-							<div key={categoryId} className="category">
-								<h2>{category.title}</h2>
-								<p>{category.description}</p>
-								{Object.entries(category.subcategories).map(
-									([subcategoryId, subcategory]) => (
-										<div
-											key={subcategoryId}
-											className="subcategory">
-											<h3>{subcategory.title}</h3>
-											{subcategory.description && (
-												<p>{subcategory.description}</p>
-											)}
-											{Object.entries(
-												subcategory.elements
-											).map(([elementId, element]) => (
-												<div
-													key={elementId}
-													className="element">
-													<Label htmlFor={elementId}>
-														{element.title}
-													</Label>
-													<div className="input-wrapper">
-														{renderElement(
-															categoryId,
-															subcategoryId,
-															elementId,
-															element
-														)}
-														{element.unit && (
-															<span className="unit">
-																{element.unit}
-															</span>
-														)}
-													</div>
-												</div>
-											))}
-										</div>
-									)
-								)}
-							</div>
+							<Collapsible
+								key={categoryId}
+								open={openCategories[categoryId]}
+								onOpenChange={() => toggleCategory(categoryId)}
+								className="category">
+								<CollapsibleTrigger className="category-header">
+									<h2>{category.title}</h2>
+									<ChevronDown
+										className={`chevron ${
+											openCategories[categoryId]
+												? "open"
+												: ""
+										}`}
+									/>
+								</CollapsibleTrigger>
+								<CollapsibleContent className="category-content">
+									<p>{category.description}</p>
+									{Object.entries(category.subcategories).map(
+										([subcategoryId, subcategory]) => (
+											<div
+												key={subcategoryId}
+												className="subcategory">
+												<h3>{subcategory.title}</h3>
+												{subcategory.description && (
+													<p>
+														{
+															subcategory.description
+														}
+													</p>
+												)}
+												{Object.entries(
+													subcategory.elements
+												).map(
+													([elementId, element]) => (
+														<div
+															key={elementId}
+															className="element">
+															<Label
+																htmlFor={
+																	elementId
+																}>
+																{element.title}
+															</Label>
+															<div className="input-wrapper">
+																{renderElement(
+																	categoryId,
+																	subcategoryId,
+																	elementId,
+																	element
+																)}
+																{element.unit && (
+																	<span className="unit">
+																		{
+																			element.unit
+																		}
+																	</span>
+																)}
+															</div>
+														</div>
+													)
+												)}
+											</div>
+										)
+									)}
+								</CollapsibleContent>
+							</Collapsible>
 						)
 					)}
 				</div>
