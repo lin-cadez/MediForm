@@ -8,6 +8,9 @@
     --bg-accent: #f3f4f6;
     --dropdown-bg: #fff;
 }
+.placeholder_fix::placeholder {
+    color: var(--muted-foreground);
+  }
 
 .checklist-page {
     display: flex;
@@ -52,7 +55,7 @@
 
         h1 {
             font-weight: 300;
-            font-size: 1.8rem;
+            font-size: 1.3rem;
         }
     }
 }
@@ -151,19 +154,21 @@
 }
 
 .input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	position: relative;
 }
 
 .unit {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 0.875rem;
+	color: var(--muted-foreground);
 }
+
 
 .loading {
     display: flex;

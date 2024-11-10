@@ -106,8 +106,8 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 						onKeyDown={handleInputKeyDown}
 						onBlur={handleInputBlur}
 						onFocus={handleInputFocus}
-						className="flex-grow border-none shadow-none focus-visible:ring-0"
-						placeholder="Type or select options..."
+						className="placeholder_fix flex-grow border-none shadow-none focus-visible:ring-0"
+						placeholder="Piši ali izberi med možnostimi..."
 					/>
 					<Button
 						variant="outline"

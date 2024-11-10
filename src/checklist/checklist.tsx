@@ -4,20 +4,20 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerHeader,
-	DrawerTitle,
-	DrawerTrigger,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
@@ -27,344 +27,265 @@ import Excel from "../excel.svg";
 import "./checklist.css";
 
 interface Element {
-	title: string;
-	unit: string | null;
-	value: string | number | boolean | null;
-	hint: string | null;
-	type: string;
-	options?: string[];
-	option_type?: "one" | "multiple";
+  title: string;
+  unit: string | null;
+  value: string | number | boolean | null;
+  hint: string | null;
+  type: string;
+  options?: string[];
+  option_type?: "one" | "multiple";
 }
 
 interface Subcategory {
-	title: string;
-	description: string | null;
-	elements: Record<string, Element>;
+  title: string;
+  description: string | null;
+  elements: Record<string, Element>;
 }
 
 interface Category {
-	title: string;
-	description: string;
-	url: string;
-	subcategories: Record<string, Subcategory>;
+  title: string;
+  description: string;
+  url: string;
+  subcategories: Record<string, Subcategory>;
 }
 
 interface List {
-	title: string;
-	description: string;
-	url: string;
-	categories: Record<string, Category>;
+  title: string;
+  description: string;
+  url: string;
+  categories: Record<string, Category>;
 }
 
 interface ListsData {
-	lists: Record<string, List>;
+  lists: Record<string, List>;
 }
 
 export default function Checklist() {
-	const [list, setList] = useState<List | null>(null);
-	const [formData, setFormData] = useState<Record<string, any>>({});
-	const [openCategories, setOpenCategories] = useState<
-		Record<string, boolean>
-	>({});
+  const [list, setList] = useState<List | null>(null);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
+    {}
+  );
 
-	useEffect(() => {
-		const fetchData = () => {
-			const path = window.location.pathname;
-			const urlSegment = path.split("/checklist/")[1];
+  useEffect(() => {
+    const fetchData = () => {
+      const path = window.location.pathname;
+      const urlSegment = path.split("/checklist/")[1];
 
-			const storedData = localStorage.getItem("fetchedData");
-			if (storedData) {
-				const data: ListsData = JSON.parse(storedData);
+      const storedData = localStorage.getItem("fetchedData");
+      if (storedData) {
+        const data: ListsData = JSON.parse(storedData);
 
-				const matchingList = Object.values(data.lists).find(
-					(cat) => cat.url === urlSegment
-				);
+        const matchingList = Object.values(data.lists).find(
+          (cat) => cat.url === urlSegment
+        );
 
-				if (matchingList) {
-					setList(matchingList);
-					// Initialize all categories as closed
-					const initialOpenState = Object.keys(
-						matchingList.categories
-					).reduce((acc, categoryId) => {
-						acc[categoryId] = false;
-						return acc;
-					}, {} as Record<string, boolean>);
-					setOpenCategories(initialOpenState);
+        if (matchingList) {
+          setList(matchingList);
+          // Initialize all categories as closed
+          const initialOpenState = Object.keys(matchingList.categories).reduce(
+            (acc, categoryId) => {
+              acc[categoryId] = false;
+              return acc;
+            },
+            {} as Record<string, boolean>
+          );
+          setOpenCategories(initialOpenState);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleInputChange = (
+    categoryId: string,
+    subcategoryId: string,
+    elementId: string,
+    value: any
+  ) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [categoryId]: {
+        ...prevData[categoryId],
+        [subcategoryId]: {
+          ...prevData[categoryId]?.[subcategoryId],
+          [elementId]: value,
+        },
+      },
+    }));
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setOpenCategories((prevState) => ({
+      ...prevState,
+      [categoryId]: !prevState[categoryId],
+    }));
+  };
+
+  const renderElement = (
+    categoryId: string,
+    subcategoryId: string,
+    elementId: string,
+    element: Element
+  ) => {
+    switch (element.type) {
+      case "str":
+        if (element.options && element.option_type === "one") {
+          return (
+				<SingleSelectInput
+				predefinedOptions={element.options}
+				value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
+				onChange={(value) =>
+					handleInputChange(categoryId, subcategoryId, elementId, value)
 				}
-			}
-		};
+				/>
+          );
+        } else if (element.options && element.option_type === "multiple") {
+          return (
+            <MultiSelectInput
+              predefinedOptions={element.options}
+              value={formData[categoryId]?.[subcategoryId]?.[elementId] || []}
+              onChange={(value) =>
+                handleInputChange(categoryId, subcategoryId, elementId, value)
+              }
+            />
+          );
+        } else {
+          return (
+			<div className="w-full max-w-md mx-auto pt-4 pb-4"> 
+			<div className="border rounded-md p-2 w-full">
+            <Input
+              type="text"
+			   className="placeholder_fix"
+			style={{border: 0, boxShadow: 'none'}}
+              value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
+              onChange={(e) =>
+                handleInputChange(
+                  categoryId,
+                  subcategoryId,
+                  elementId,
+                  e.target.value
+                )
+              }
+              placeholder={element.hint || ""}
 
-		fetchData();
-	}, []);
+            />
+			</div>
+			</div>
+          );
+        }
+      case "bool":
+        return (
+          <Checkbox
+            checked={
+              formData[categoryId]?.[subcategoryId]?.[elementId] || false
+            }
+            onCheckedChange={(checked) =>
+              handleInputChange(categoryId, subcategoryId, elementId, checked)
+            }
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-	const handleInputChange = (
-		categoryId: string,
-		subcategoryId: string,
-		elementId: string,
-		value: any
-	) => {
-		setFormData((prevData) => ({
-			...prevData,
-			[categoryId]: {
-				...prevData[categoryId],
-				[subcategoryId]: {
-					...prevData[categoryId]?.[subcategoryId],
-					[elementId]: value,
-				},
-			},
-		}));
-	};
+  if (!list) {
+    return <div className="loading">Loading...</div>;
+  }
 
-	const toggleCategory = (categoryId: string) => {
-		setOpenCategories((prevState) => ({
-			...prevState,
-			[categoryId]: !prevState[categoryId],
-		}));
-	};
-
-	const renderElement = (
-		categoryId: string,
-		subcategoryId: string,
-		elementId: string,
-		element: Element
-	) => {
-		switch (element.type) {
-			case "str":
-				if (element.options && element.option_type === "one") {
-					return (
-						<SingleSelectInput
-							predefinedOptions={element.options}
-							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || ""
-							}
-							onChange={(value) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									value
-								)
-							}
-						/>
-					);
-				} else if (
-					element.options &&
-					element.option_type === "multiple"
-				) {
-					return (
-						<MultiSelectInput
-							predefinedOptions={element.options}
-							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || []
-							}
-							onChange={(value) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									value
-								)
-							}
-						/>
-					);
-				} else {
-					return (
-						<Input
-							type="text"
-							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || ""
-							}
-							onChange={(e) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									e.target.value
-								)
-							}
-							placeholder={element.hint || ""}
-						/>
-					);
-				}
-			case "int":
-				return (
-					<Input
-						type="number"
-						value={
-							formData[categoryId]?.[subcategoryId]?.[
-								elementId
-							] || ""
-						}
-						onChange={(e) =>
-							handleInputChange(
-								categoryId,
-								subcategoryId,
-								elementId,
-								parseInt(e.target.value, 10)
-							)
-						}
-						placeholder={element.hint || ""}
-					/>
-				);
-			case "bool":
-				return (
-					<Checkbox
-						checked={
-							formData[categoryId]?.[subcategoryId]?.[
-								elementId
-							] || false
-						}
-						onCheckedChange={(checked) =>
-							handleInputChange(
-								categoryId,
-								subcategoryId,
-								elementId,
-								checked
-							)
-						}
-					/>
-				);
-			default:
-				return null;
-		}
-	};
-
-	if (!list) {
-		return <div className="loading">Loading...</div>;
-	}
-
-	return (
-		<div className="checklist-page">
-			<Drawer>
-				<nav>
-					<NavLink to="/" end>
-						<ArrowLeft />
-					</NavLink>
-					<div className="title">
-						<h1 title="{list.title}">
-							{list.title.length > 12
-								? `${list.title.substring(0, 12)}...`
-								: list.title}
-						</h1>
-					</div>
-					<DrawerTrigger>
-						<img
-							src={ExportSVG}
-							alt="export"
-							className="export-icon"
-						/>
-					</DrawerTrigger>
-				</nav>
-				<div className="content">
-					{Object.entries(list.categories).map(
-						([categoryId, category]) => (
-							<Collapsible
-								key={categoryId}
-								open={openCategories[categoryId]}
-								onOpenChange={() => toggleCategory(categoryId)}
-								className="category">
-								<CollapsibleTrigger className="category-header">
-									<h2>{category.title}</h2>
-									<ChevronDown
-										className={`chevron ${
-											openCategories[categoryId]
-												? "open"
-												: ""
-										}`}
-									/>
-								</CollapsibleTrigger>
-								<CollapsibleContent className="category-content">
-									<p>{category.description}</p>
-									{Object.entries(category.subcategories).map(
-										([subcategoryId, subcategory]) => (
-											<div
-												key={subcategoryId}
-												className="subcategory">
-												<h3>{subcategory.title}</h3>
-												{subcategory.description && (
-													<p>
-														{
-															subcategory.description
-														}
-													</p>
-												)}
-												{Object.entries(
-													subcategory.elements
-												).map(
-													([elementId, element]) => (
-														<div
-															key={elementId}
-															className="element">
-															<Label
-																htmlFor={
-																	elementId
-																}>
-																{element.title}
-															</Label>
-															<div className="input-wrapper">
-																{renderElement(
-																	categoryId,
-																	subcategoryId,
-																	elementId,
-																	element
-																)}
-																{element.unit && (
-																	<span className="unit">
-																		{
-																			element.unit
-																		}
-																	</span>
-																)}
-															</div>
-														</div>
-													)
-												)}
-											</div>
-										)
-									)}
-								</CollapsibleContent>
-							</Collapsible>
-						)
-					)}
-				</div>
-				<div className="export">
-					<DrawerContent>
-						<DrawerHeader>
-							<DrawerTitle>Izvozi seznam</DrawerTitle>
-						</DrawerHeader>
-						<div className="export-page">
-							<DrawerDescription>
-								Izberi format datoteke, v katerem želiš izvoziti
-								svoj seznam.
-							</DrawerDescription>
-							<div className="export-buttons">
-								<button className="export-button">
-									Izvozi kot PDF{" "}
-									<img
-										src={Pdf}
-										alt="pdf"
-										className="export-icon"
-									/>
-								</button>
-								<button className="export-button">
-									Izvozi kot Excel{" "}
-									<img
-										src={Excel}
-										alt="excel"
-										className="export-icon"
-									/>
-								</button>
-							</div>
-						</div>
-					</DrawerContent>
-				</div>
-			</Drawer>
-		</div>
-	);
+  return (
+    <div className="checklist-page">
+      <Drawer>
+        <nav>
+          <NavLink to="/" end>
+            <ArrowLeft />
+          </NavLink>
+          <div className="title">
+            <h1 title="{list.title}">
+              {list.title.length > 12
+                ? `${list.title.substring(0, 12)}...`
+                : list.title}
+            </h1>
+          </div>
+          <DrawerTrigger>
+            <img src={ExportSVG} alt="export" className="export-icon" />
+          </DrawerTrigger>
+        </nav>
+        <div className="content">
+          {Object.entries(list.categories).map(([categoryId, category]) => (
+            <Collapsible
+              key={categoryId}
+              open={openCategories[categoryId]}
+              onOpenChange={() => toggleCategory(categoryId)}
+              className="category"
+            >
+              <CollapsibleTrigger className="category-header">
+                <h2>{category.title}</h2>
+                <ChevronDown
+                  className={`chevron ${
+                    openCategories[categoryId] ? "open" : ""
+                  }`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="category-content">
+                <p>{category.description}</p>
+                {Object.entries(category.subcategories).map(
+                  ([subcategoryId, subcategory]) => (
+                    <div key={subcategoryId} className="subcategory">
+                      <h3>{subcategory.title}</h3>
+                      {subcategory.description && (
+                        <p>{subcategory.description}</p>
+                      )}
+                      {Object.entries(subcategory.elements).map(
+                        ([elementId, element]) => (
+                          <div key={elementId} className="element">
+                            <Label htmlFor={elementId}>{element.title}</Label>
+                            <div className="input-wrapper">
+                              {renderElement(
+                                categoryId,
+                                subcategoryId,
+                                elementId,
+                                element
+                              )}
+                              {element.unit && (
+                                <span className="unit">{element.unit}</span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
+        </div>
+        <div className="export">
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Izvozi seznam</DrawerTitle>
+            </DrawerHeader>
+            <div className="export-page">
+              <DrawerDescription>
+                Izberi format datoteke, v katerem želiš izvoziti svoj seznam.
+              </DrawerDescription>
+              <div className="export-buttons">
+                <button className="export-button">
+                  Izvozi kot PDF{" "}
+                  <img src={Pdf} alt="pdf" className="export-icon" />
+                </button>
+                <button className="export-button">
+                  Izvozi kot Excel{" "}
+                  <img src={Excel} alt="excel" className="export-icon" />
+                </button>
+              </div>
+            </div>
+          </DrawerContent>
+        </div>
+      </Drawer>
+    </div>
+  );
 }

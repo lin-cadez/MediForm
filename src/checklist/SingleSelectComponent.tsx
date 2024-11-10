@@ -8,7 +8,6 @@ import React, {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-
 interface SingleSelectInputProps {
 	predefinedOptions: string[];
 	value: any;
@@ -66,9 +65,9 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto p-4">
-			<div className="border rounded-md p-2" ref={containerRef}>
-				<div className="flex items-center">
+		<div className="w-full max-w-md mx-auto pt-4 pb-4"> {/* Removed max-w-md to allow full width */}
+			<div className="border rounded-md p-2 w-full" ref={containerRef}> {/* Set container div to full width */}
+				<div className="flex items-center w-full">
 					<Input
 						ref={inputRef}
 						type="text"
@@ -77,8 +76,8 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 						onKeyDown={handleInputKeyDown}
 						onBlur={handleInputBlur}
 						onFocus={handleInputFocus}
-						className="flex-grow border-none shadow-none focus-visible:ring-0"
-						placeholder="Type or select an option..."
+						className="placeholder_fix flex-grow w-full border-none shadow-none focus-visible:ring-0"
+						placeholder="Piši ali izberi med možnostimi..."
 					/>
 					<Button
 						variant="outline"
@@ -90,11 +89,11 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 				{isDropdownOpen && (
 					<ul
 						ref={dropdownRef}
-						className="absolute z-10 border rounded-md shadow-lg max-h-60 overflow-auto mt-1 bg-white"
+						className="absolute z-10 border rounded-md shadow-lg max-h-60 overflow-auto mt-1 bg-white w-full"
 						style={{
 							width: containerRef.current?.offsetWidth || "100%",
 						}}
-						onMouseDown={(e: MouseEvent) => e.preventDefault()} // Prevent dropdown from closing on click
+						onMouseDown={(e: MouseEvent) => e.preventDefault()}
 					>
 						{predefinedOptions.map((option) => (
 							<li
