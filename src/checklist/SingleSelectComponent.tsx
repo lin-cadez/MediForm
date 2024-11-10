@@ -11,9 +11,7 @@ import { ChevronDown } from "lucide-react";
 
 interface SingleSelectInputProps {
 	predefinedOptions: string[];
-
 	value: any;
-
 	onChange: (value: any) => void;
 }
 

@@ -46,33 +46,18 @@
 
     .title {
         color: #000;
-        margin-top: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        padding: 1rem;
-        background: #9ea2db;
-        position: fixed;
-        width: 100%;
-        z-index: 99;
+        max-width: 80%;
 
         h1 {
             font-weight: 300;
             font-size: 2rem;
 
         }
-
-        p {
-            font-size: 1.1rem;
-            font-weight: 300;
-            margin: 0;
-        }
     }
 }
 
 .content {
-    margin-top: 140px;
+    margin-top: 60px;
     padding: 1rem;
 }
 

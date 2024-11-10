@@ -244,10 +244,15 @@ export default function Checklist() {
 			<Drawer>
 				<nav>
 					<NavLink to="/" end>
-						<button className="back-button">
-							<ArrowLeft />
-						</button>
+						<ArrowLeft />
 					</NavLink>
+					<div className="title">
+						<h1 title="{list.title}">
+							{list.title.length > 12
+								? `${list.title.substring(0, 12)}...`
+								: list.title}
+						</h1>
+					</div>
 					<DrawerTrigger>
 						<img
 							src={ExportSVG}
@@ -256,10 +261,6 @@ export default function Checklist() {
 						/>
 					</DrawerTrigger>
 				</nav>
-				<div className="title">
-					<h1>{list.title}</h1>
-					<p>{list.description}</p>
-				</div>
 				<div className="content">
 					{Object.entries(list.categories).map(
 						([categoryId, category]) => (
