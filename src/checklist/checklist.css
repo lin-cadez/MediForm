@@ -12,10 +12,29 @@
     color: var(--muted-foreground);
   }
 
+  .card_bg{
+    background: var(--card);
+  }
+  .icon-container {
+    width: 24px; /* Fixed width to maintain consistent alignment */
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .title-text {
+    margin-left: 0; /* Ensures text starts immediately after the icon */
+  }
+  .flex.items-center {
+    gap: 8px; /* Adjust spacing between icon and text */
+  }
+  
 .checklist-page {
     display: flex;
     flex-direction: column;
     gap: 20px;
+
 
     nav {
         display: flex;
@@ -43,8 +62,7 @@
             font-weight: 200;
 
             img {
-                width: 20px;
-                height: 20px;
+                height: 100px;
             }
         }
     }
@@ -62,6 +80,7 @@
 
 .content {
     margin-top: 60px;
+    
     padding: 1rem;
 }
 
@@ -91,12 +110,14 @@
     text-align: left;
     padding: 0.5rem 0;
     width: 100%;
+    
 }
 
 .category-header h2 {
     font-size: 1.4rem;
-    font-weight: 350;
+    font-weight: 700;
     max-width: 80%;
+
 }
 
 .category-header p {
@@ -114,13 +135,12 @@
 }
 
 .category-content {
-    background: var(--card);
     border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
 .subcategory {
+    
     background-color: var(--card);
     color: var(--card-foreground);
     padding: 1rem;
@@ -136,12 +156,11 @@
 
 .subcategory h3 {
     font-size: 1.25rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
 .element {
-    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
 }
@@ -149,7 +168,8 @@
 .element label {
     display: block;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
+    
     margin-bottom: 0.25rem;
 }
 

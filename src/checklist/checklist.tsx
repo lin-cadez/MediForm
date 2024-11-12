@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Drawer,
   DrawerContent,
@@ -11,14 +15,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
 import ExportSVG from "../export.svg";
@@ -63,9 +59,7 @@ interface ListsData {
 export default function Checklist() {
   const [list, setList] = useState<List | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchData = () => {
@@ -76,13 +70,10 @@ export default function Checklist() {
       if (storedData) {
         const data: ListsData = JSON.parse(storedData);
 
-        const matchingList = Object.values(data.lists).find(
-          (cat) => cat.url === urlSegment
-        );
+        const matchingList = Object.values(data.lists).find((cat) => cat.url === urlSegment);
 
         if (matchingList) {
           setList(matchingList);
-          // Initialize all categories as closed
           const initialOpenState = Object.keys(matchingList.categories).reduce(
             (acc, categoryId) => {
               acc[categoryId] = false;
@@ -133,58 +124,49 @@ export default function Checklist() {
       case "str":
         if (element.options && element.option_type === "one") {
           return (
-				<SingleSelectInput
-				predefinedOptions={element.options}
-				value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
-				onChange={(value) =>
-					handleInputChange(categoryId, subcategoryId, elementId, value)
-				}
-				/>
+            <SingleSelectInput
+              predefinedOptions={element.options}
+              value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
+              onChange={(value) => handleInputChange(categoryId, subcategoryId, elementId, value)}
+            />
           );
         } else if (element.options && element.option_type === "multiple") {
           return (
             <MultiSelectInput
               predefinedOptions={element.options}
               value={formData[categoryId]?.[subcategoryId]?.[elementId] || []}
-              onChange={(value) =>
-                handleInputChange(categoryId, subcategoryId, elementId, value)
-              }
+              onChange={(value) => handleInputChange(categoryId, subcategoryId, elementId, value)}
             />
           );
         } else {
           return (
-			<div className="w-full max-w-md mx-auto pt-4 pb-4"> 
-			<div className="border rounded-md p-2 w-full">
-            <Input
-              type="text"
-			   className="placeholder_fix"
-			style={{border: 0, boxShadow: 'none'}}
-              value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
-              onChange={(e) =>
-                handleInputChange(
-                  categoryId,
-                  subcategoryId,
-                  elementId,
-                  e.target.value
-                )
-              }
-              placeholder={element.hint || ""}
-
-            />
-			</div>
-			</div>
+            <div className="w-full max-w-md mx-auto pt-4 pb-4">
+              <div className="border rounded-md p-2 w-full">
+                <Input
+                  type="text"
+                  className="placeholder_fix"
+                  style={{ border: 0, boxShadow: "none" }}
+                  value={formData[categoryId]?.[subcategoryId]?.[elementId] || ""}
+                  onChange={(e) =>
+                    handleInputChange(categoryId, subcategoryId, elementId, e.target.value)
+                  }
+                  placeholder={element.hint || ""}
+                />
+              </div>
+            </div>
           );
         }
       case "bool":
         return (
-          <Checkbox
-            checked={
-              formData[categoryId]?.[subcategoryId]?.[elementId] || false
-            }
-            onCheckedChange={(checked) =>
-              handleInputChange(categoryId, subcategoryId, elementId, checked)
-            }
-          />
+          <div className="py-4 flex items-center space-x-2">
+            <Checkbox
+              className="w-6 h-6"
+              checked={formData[categoryId]?.[subcategoryId]?.[elementId] || false}
+              onCheckedChange={(checked) =>
+                handleInputChange(categoryId, subcategoryId, elementId, checked)
+              }
+            />
+          </div>
         );
       default:
         return null;
@@ -198,93 +180,88 @@ export default function Checklist() {
   return (
     <div className="checklist-page">
       <Drawer>
-        <nav>
+        <nav className="navbar">
           <NavLink to="/" end>
             <ArrowLeft />
           </NavLink>
           <div className="title">
-            <h1 title="{list.title}">
-              {list.title.length > 12
-                ? `${list.title.substring(0, 12)}...`
-                : list.title}
+            <h1 title={list.title}>
+              {list.title.length > 12 ? `${list.title.substring(0, 12)}...` : list.title}
             </h1>
           </div>
-          <DrawerTrigger>
-            <img src={ExportSVG} alt="export" className="export-icon" />
+          <DrawerTrigger asChild>
+            <img src={ExportSVG} alt="export" className="h-7 cursor-pointer" />
           </DrawerTrigger>
         </nav>
         <div className="content">
-          {Object.entries(list.categories).map(([categoryId, category]) => (
-            <Collapsible
-              key={categoryId}
-              open={openCategories[categoryId]}
-              onOpenChange={() => toggleCategory(categoryId)}
-              className="category"
-            >
-              <CollapsibleTrigger className="category-header">
-                <h2>{category.title}</h2>
-                <ChevronDown
-                  className={`chevron ${
-                    openCategories[categoryId] ? "open" : ""
-                  }`}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="category-content">
-                <p>{category.description}</p>
-                {Object.entries(category.subcategories).map(
-                  ([subcategoryId, subcategory]) => (
-                    <div key={subcategoryId} className="subcategory">
-                      <h3>{subcategory.title}</h3>
-                      {subcategory.description && (
-                        <p>{subcategory.description}</p>
-                      )}
-                      {Object.entries(subcategory.elements).map(
-                        ([elementId, element]) => (
-                          <div key={elementId} className="element">
-                            <Label htmlFor={elementId}>{element.title}</Label>
-                            <div className="input-wrapper">
-                              {renderElement(
-                                categoryId,
-                                subcategoryId,
-                                elementId,
-                                element
-                              )}
-                              {element.unit && (
-                                <span className="unit">{element.unit}</span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
-        </div>
-        <div className="export">
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Izvozi seznam</DrawerTitle>
-            </DrawerHeader>
-            <div className="export-page">
-              <DrawerDescription>
-                Izberi format datoteke, v katerem želiš izvoziti svoj seznam.
-              </DrawerDescription>
-              <div className="export-buttons">
-                <button className="export-button">
-                  Izvozi kot PDF{" "}
-                  <img src={Pdf} alt="pdf" className="export-icon" />
-                </button>
-                <button className="export-button">
-                  Izvozi kot Excel{" "}
-                  <img src={Excel} alt="excel" className="export-icon" />
-                </button>
+        {Object.entries(list.categories).map(([categoryId, category]) => (
+  <Card
+    key={categoryId}
+    className="category-card p-4 mb-4 shadow-md card_bg"
+  >
+    <CardHeader
+      className="flex items-left justify-between cursor-pointer"
+      onClick={() => toggleCategory(categoryId)}
+    >
+<CardTitle className="flex items-center text-lg font-semibold">
+  <div className="icon-container">
+    {openCategories[categoryId] ? (
+      <ChevronDown size={24} />
+    ) : (
+      <ChevronRight size={24} />
+    )}
+  </div>
+  <span className="title-text">{category.title}</span>
+</CardTitle>
+
+
+
+
+    </CardHeader>
+    {openCategories[categoryId] && (
+      <CardContent className="category-content">
+        <p className="opacity-50 mb-4">{category.description}</p>
+        {Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
+          <div key={subcategoryId} className="subcategory mb-4">
+            <h3 className="font-semibold">{subcategory.title}</h3>
+            {subcategory.description && (
+              <p className="text-sm opacity-75 mb-2">{subcategory.description}</p>
+            )}
+            {Object.entries(subcategory.elements).map(([elementId, element]) => (
+              <div key={elementId} className="element mb-4">
+                <Label htmlFor={elementId}>{element.title}</Label>
+                <div className="input-wrapper flex items-center space-x-2">
+                  {renderElement(categoryId, subcategoryId, elementId, element)}
+                  {element.unit && (
+                    <span className="unit text-gray-500">{element.unit}</span>
+                  )}
+                </div>
               </div>
-            </div>
-          </DrawerContent>
+            ))}
+          </div>
+        ))}
+      </CardContent>
+    )}
+  </Card>
+))}
         </div>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Možnosti izvoza</DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4">
+            <DrawerDescription>Izberi format izvoza tvojega seznama opravil.</DrawerDescription>
+          <div className="export-buttons mt-4">
+            <button className="export-button">
+              Izvozi kot PDF <img src={Pdf} alt="pdf" className="inline ml-2" />
+            </button>
+            <button className="export-button">
+            Izvozi kot Excel <img src={Excel} alt="excel" className="inline ml-2" />
+            </button>
+          </div>
+          </div>
+
+        </DrawerContent>
       </Drawer>
     </div>
   );

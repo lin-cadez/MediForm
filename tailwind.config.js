@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 import tailwindcssAnimate from 'tailwindcss-animate';
 
 export default {
@@ -6,6 +6,7 @@ export default {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
         extend: {
+        
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
