@@ -74,6 +74,10 @@ export default function Selector() {
 		fetchLists();
 	}, []);
 
+	const openList = (url: string) => {
+		localStorage.setItem(url, JSON.stringify(lists[url]));
+	};
+
 	if (isLoading) {
 		return <div className="loading">Loading...</div>;
 	}
@@ -107,7 +111,8 @@ export default function Selector() {
 							<div key={key}>
 								<NavLink
 									to={`/checklist/${list.url}`}
-									className="seznam">
+									className="seznam"
+									onClick={() => openList(list.url)}>
 									<h2>{list.title}</h2>
 									{list.description && (
 										<p>{list.description}</p>

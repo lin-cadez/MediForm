@@ -8,33 +8,35 @@
     --bg-accent: #f3f4f6;
     --dropdown-bg: #fff;
 }
+
 .placeholder_fix::placeholder {
     color: var(--muted-foreground);
-  }
+}
 
-  .card_bg{
-    background: var(--card);
-  }
-  .icon-container {
-    width: 24px; /* Fixed width to maintain consistent alignment */
+.icon-container {
+    width: 24px;
     height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .title-text {
-    margin-left: 0; /* Ensures text starts immediately after the icon */
-  }
-  .flex.items-center {
-    gap: 8px; /* Adjust spacing between icon and text */
-  }
-  
+}
+
+.title-text {
+    margin-left: 0;
+}
+
+.flex.items-center {
+    gap: 8px;
+}
+
+.card-bg {
+    background: var(--card);
+}
+
 .checklist-page {
     display: flex;
     flex-direction: column;
     gap: 20px;
-
 
     nav {
         display: flex;
@@ -80,7 +82,6 @@
 
 .content {
     margin-top: 60px;
-    
     padding: 1rem;
 }
 
@@ -110,7 +111,6 @@
     text-align: left;
     padding: 0.5rem 0;
     width: 100%;
-    
 }
 
 .category-header h2 {
@@ -140,7 +140,6 @@
 }
 
 .subcategory {
-    
     background-color: var(--card);
     color: var(--card-foreground);
     padding: 1rem;
@@ -169,24 +168,23 @@
     display: block;
     font-size: 0.875rem;
     font-weight: 600;
-    
     margin-bottom: 0.25rem;
 }
 
 .input-wrapper {
-	width: 100%;
-	display: flex;
-	align-items: center;
-	position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
 }
 
 .unit {
-	position: absolute;
-	right: 0.5rem;
-	top: 50%;
-	transform: translateY(-50%);
-	font-size: 0.875rem;
-	color: var(--muted-foreground);
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
 }
 
 
