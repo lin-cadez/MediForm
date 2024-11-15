@@ -163,7 +163,9 @@ export default function Checklist() {
 						<SingleSelectInput
 							predefinedOptions={element.options}
 							value={
-								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								formData[categoryId]?.[subcategoryId]?.[
+									elementId
+								] ??
 								element.value ??
 								""
 							}
@@ -185,7 +187,9 @@ export default function Checklist() {
 						<MultiSelectInput
 							predefinedOptions={element.options}
 							value={
-								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								formData[categoryId]?.[subcategoryId]?.[
+									elementId
+								] ??
 								element.value ??
 								[]
 							}
@@ -208,7 +212,9 @@ export default function Checklist() {
 									className="placeholder_fix"
 									style={{ border: 0, boxShadow: "none" }}
 									value={
-										formData[categoryId]?.[subcategoryId]?.[elementId] ??
+										formData[categoryId]?.[subcategoryId]?.[
+											elementId
+										] ??
 										element.value ??
 										""
 									}
@@ -220,7 +226,9 @@ export default function Checklist() {
 											e.target.value
 										)
 									}
-									placeholder={element.value ? "" : element.hint || ""}
+									placeholder={
+										element.value ? "" : element.hint || ""
+									}
 								/>
 							</div>
 						</div>
@@ -232,7 +240,9 @@ export default function Checklist() {
 						<Checkbox
 							className="w-6 h-6 shadow-4"
 							checked={
-								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								formData[categoryId]?.[subcategoryId]?.[
+									elementId
+								] ??
 								element.value ??
 								false
 							}
