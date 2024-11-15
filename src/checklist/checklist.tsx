@@ -63,9 +63,14 @@ export default function Checklist() {
 		Record<string, boolean>
 	>({});
 
-	const fetchData = () => {
+	const updateLocalStorage = (newList: List) => {
 		const path = window.location.pathname;
 		const urlSegment = path.split("/checklist/")[1];
+		localStorage.setItem(urlSegment, JSON.stringify(newList));
+	};
+
+	const fetchData = () => {
+		const urlSegment = window.location.pathname.split("/checklist/")[1];
 
 		const storedData = localStorage.getItem(urlSegment);
 		if (storedData) {
@@ -74,27 +79,69 @@ export default function Checklist() {
 		}
 	};
 
-	useEffect(() => {
-		fetchData();
-	}, []);
-
 	const handleInputChange = (
 		categoryId: string,
 		subcategoryId: string,
 		elementId: string,
 		value: any
 	) => {
-		setFormData((prevData) => ({
-			...prevData,
-			[categoryId]: {
-				...prevData[categoryId],
-				[subcategoryId]: {
-					...prevData[categoryId]?.[subcategoryId],
-					[elementId]: value,
+		setFormData((prevData) => {
+			const newFormData = {
+				...prevData,
+				[categoryId]: {
+					...prevData[categoryId],
+					[subcategoryId]: {
+						...prevData[categoryId]?.[subcategoryId],
+						[elementId]: value,
+					},
 				},
-			},
-		}));
+			};
+
+			// Update the list state
+			setList((prevList) => {
+				if (!prevList) return null;
+				const newList = {
+					...prevList,
+					categories: {
+						...prevList.categories,
+						[categoryId]: {
+							...prevList.categories[categoryId],
+							subcategories: {
+								...prevList.categories[categoryId]
+									.subcategories,
+								[subcategoryId]: {
+									...prevList.categories[categoryId]
+										.subcategories[subcategoryId],
+									elements: {
+										...prevList.categories[categoryId]
+											.subcategories[subcategoryId]
+											.elements,
+										[elementId]: {
+											...prevList.categories[categoryId]
+												.subcategories[subcategoryId]
+												.elements[elementId],
+											value: value,
+										},
+									},
+								},
+							},
+						},
+					},
+				};
+
+				// Update localStorage
+				updateLocalStorage(newList);
+
+				return newList;
+			});
+
+			return newFormData;
+		});
 	};
+
+	useEffect(() => {
+		fetchData();
+	}, []);
 
 	const toggleCategory = (categoryId: string) => {
 		setOpenCategories((prevState) => ({
@@ -116,9 +163,9 @@ export default function Checklist() {
 						<SingleSelectInput
 							predefinedOptions={element.options}
 							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || ""
+								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								element.value ??
+								""
 							}
 							onChange={(value) =>
 								handleInputChange(
@@ -138,9 +185,9 @@ export default function Checklist() {
 						<MultiSelectInput
 							predefinedOptions={element.options}
 							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || []
+								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								element.value ??
+								[]
 							}
 							onChange={(value) =>
 								handleInputChange(
@@ -161,9 +208,9 @@ export default function Checklist() {
 									className="placeholder_fix"
 									style={{ border: 0, boxShadow: "none" }}
 									value={
-										formData[categoryId]?.[subcategoryId]?.[
-											elementId
-										] || ""
+										formData[categoryId]?.[subcategoryId]?.[elementId] ??
+										element.value ??
+										""
 									}
 									onChange={(e) =>
 										handleInputChange(
@@ -173,7 +220,7 @@ export default function Checklist() {
 											e.target.value
 										)
 									}
-									placeholder={element.hint || ""}
+									placeholder={element.value ? "" : element.hint || ""}
 								/>
 							</div>
 						</div>
@@ -185,9 +232,9 @@ export default function Checklist() {
 						<Checkbox
 							className="w-6 h-6 shadow-4"
 							checked={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] || false
+								formData[categoryId]?.[subcategoryId]?.[elementId] ??
+								element.value ??
+								false
 							}
 							onCheckedChange={(checked) =>
 								handleInputChange(
