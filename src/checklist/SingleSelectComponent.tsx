@@ -1,6 +1,7 @@
 import React, {
 	useState,
 	useRef,
+	useEffect,
 	KeyboardEvent,
 	FocusEvent,
 	MouseEvent,
@@ -8,38 +9,53 @@ import React, {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+
 interface SingleSelectInputProps {
 	predefinedOptions: string[];
-	value: any;
-	onChange: (value: any) => void;
+	value: string | null; // Initial selected value
+	onChange: (value: string | null) => void;
 }
 
-function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
-	const [, setSelectedOption] = useState<string | null>(null);
-	const [inputValue, setInputValue] = useState("");
+function SingleSelectInput({
+	predefinedOptions,
+	value,
+	onChange,
+}: SingleSelectInputProps) {
+	const [selectedOption, setSelectedOption] = useState<string | null>(value);
+	const [inputValue, setInputValue] = useState(value || "");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const dropdownRef = useRef<HTMLUListElement>(null);
 
+	useEffect(() => {
+		// Sync external `value` prop with internal state
+		setSelectedOption(value);
+		setInputValue(value || "");
+	}, [value]);
+
 	const handleSelect = (option: string) => {
 		setSelectedOption(option);
 		setInputValue(option);
+		onChange(option); // Notify parent
 		setIsDropdownOpen(false);
 		inputRef.current?.focus();
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setInputValue(value);
-		setSelectedOption(value); // Set the manually entered value as the selected option
-		setIsDropdownOpen(false); // Close the dropdown when typing starts
+		const newValue = e.target.value;
+		setInputValue(newValue);
+		setSelectedOption(null); // Clear selection when manually entering text
+		onChange(null); // Notify parent that no predefined option is selected
+		setIsDropdownOpen(false);
 	};
 
 	const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter" && inputValue.trim() !== "") {
 			e.preventDefault();
-			handleSelect(inputValue.trim());
+			if (predefinedOptions.includes(inputValue.trim())) {
+				handleSelect(inputValue.trim());
+			}
 		}
 	};
 
@@ -54,19 +70,14 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 		}, 150);
 	};
 
-	// Remove dropdown opening when focusing on the input
-	const handleInputFocus = () => {
-		// Do nothing when the input is focused to prevent dropdown from opening
-	};
-
 	const toggleDropdown = () => {
 		setIsDropdownOpen((prev) => !prev);
 		inputRef.current?.focus();
 	};
 
 	return (
-		<div className="w-full max-w-md mx-auto pt-4 pb-4"> {/* Removed max-w-md to allow full width */}
-			<div className="border rounded-md p-2 w-full" ref={containerRef}> {/* Set container div to full width */}
+		<div className="w-full max-w-md mx-auto pt-4 pb-4">
+			<div className="border rounded-md p-2 w-full" ref={containerRef}>
 				<div className="flex items-center w-full">
 					<Input
 						ref={inputRef}
@@ -75,7 +86,6 @@ function SingleSelectInput({ predefinedOptions }: SingleSelectInputProps) {
 						onChange={handleInputChange}
 						onKeyDown={handleInputKeyDown}
 						onBlur={handleInputBlur}
-						onFocus={handleInputFocus}
 						className="placeholder_fix flex-grow w-full border-none shadow-none focus-visible:ring-0"
 						placeholder="Piši ali izberi med možnostimi..."
 					/>

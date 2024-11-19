@@ -1,6 +1,7 @@
 import React, {
 	useState,
 	useRef,
+	useEffect,
 	KeyboardEvent,
 	FocusEvent,
 	MouseEvent,
@@ -11,17 +12,26 @@ import { X, ChevronDown } from "lucide-react";
 
 interface MultiSelectInputProps {
 	predefinedOptions: string[];
-	value: any;
-	onChange: (value: any) => void;
+	value: string[];
+	onChange: (value: string[]) => void;
 }
 
-function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
-	const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+function MultiSelectInput({
+	predefinedOptions,
+	value,
+	onChange,
+}: MultiSelectInputProps) {
+	const [selectedOptions, setSelectedOptions] = useState<string[]>(value || []);
 	const [inputValue, setInputValue] = useState("");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [highlightedIndex, setHighlightedIndex] = useState(-1); // For keyboard navigation
+
 	const inputRef = useRef<HTMLInputElement>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
 	const dropdownRef = useRef<HTMLUListElement>(null);
+
+	useEffect(() => {
+		setSelectedOptions(value); // Sync initial value with state
+	}, [value]);
 
 	const filteredOptions = predefinedOptions.filter(
 		(option) =>
@@ -30,38 +40,61 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 	);
 
 	const handleSelect = (option: string) => {
-		setSelectedOptions([...selectedOptions, option]);
+		const updatedOptions = [...selectedOptions, option];
+		setSelectedOptions(updatedOptions);
+		onChange(updatedOptions);
 		setInputValue("");
 		setIsDropdownOpen(false);
+		setHighlightedIndex(-1);
 		inputRef.current?.focus();
 	};
 
 	const handleRemove = (option: string) => {
-		setSelectedOptions(selectedOptions.filter((item) => item !== option));
+		const updatedOptions = selectedOptions.filter((item) => item !== option);
+		setSelectedOptions(updatedOptions);
+		onChange(updatedOptions);
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(e.target.value);
 		setIsDropdownOpen(true);
+		setHighlightedIndex(-1);
 	};
 
 	const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter" && inputValue.trim() !== "") {
-			e.preventDefault();
-			if (!selectedOptions.includes(inputValue.trim())) {
-				setSelectedOptions([...selectedOptions, inputValue.trim()]);
-			}
-			setInputValue("");
-			setIsDropdownOpen(false);
+		switch (e.key) {
+			case "Enter":
+				e.preventDefault();
+				if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+					handleSelect(filteredOptions[highlightedIndex]);
+				} else if (inputValue.trim() !== "") {
+					if (!selectedOptions.includes(inputValue.trim())) {
+						handleSelect(inputValue.trim());
+					}
+				}
+				break;
+			case "ArrowDown":
+				e.preventDefault();
+				setHighlightedIndex((prevIndex) =>
+					Math.min(prevIndex + 1, filteredOptions.length - 1)
+				);
+				break;
+			case "ArrowUp":
+				e.preventDefault();
+				setHighlightedIndex((prevIndex) =>
+					Math.max(prevIndex - 1, 0)
+				);
+				break;
+			case "Escape":
+				setIsDropdownOpen(false);
+				setHighlightedIndex(-1);
+				break;
 		}
 	};
 
 	const handleInputBlur = (_e: FocusEvent<HTMLInputElement>) => {
 		setTimeout(() => {
-			if (
-				document.activeElement !== inputRef.current &&
-				!dropdownRef.current?.contains(document.activeElement)
-			) {
+			if (!dropdownRef.current?.contains(document.activeElement)) {
 				setIsDropdownOpen(false);
 			}
 		}, 150);
@@ -78,9 +111,30 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 		inputRef.current?.focus();
 	};
 
+	const handleOutsideClick = (e: globalThis.MouseEvent) => {
+		if (
+			!dropdownRef.current?.contains(e.target as Node) &&
+			!inputRef.current?.contains(e.target as Node)
+		) {
+			setIsDropdownOpen(false);
+		}
+	};
+	
+	useEffect(() => {
+		if (isDropdownOpen) {
+			document.addEventListener("mousedown", handleOutsideClick);
+		} else {
+			document.removeEventListener("mousedown", handleOutsideClick);
+		}
+		return () => {
+			document.removeEventListener("mousedown", handleOutsideClick);
+		};
+	}, [isDropdownOpen]);
+	
+
 	return (
-		<div className="w-full max-w-md mx-auto pt-4 pb-4">
-			<div className="border rounded-md p-2" ref={containerRef}>
+		<div className="relative w-full max-w-md mx-auto pt-4 pb-4">
+			<div className="border rounded-md p-2">
 				<div className="flex flex-wrap gap-2 mb-2">
 					{selectedOptions.map((option) => (
 						<span
@@ -107,7 +161,7 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 						onBlur={handleInputBlur}
 						onFocus={handleInputFocus}
 						className="placeholder_fix flex-grow border-none shadow-none focus-visible:ring-0"
-						placeholder="Piši ali izberi med možnostimi..."
+						placeholder="Type or select an option..."
 					/>
 					<Button
 						variant="outline"
@@ -119,16 +173,14 @@ function MultiSelectInput({ predefinedOptions }: MultiSelectInputProps) {
 				{isDropdownOpen && filteredOptions.length > 0 && (
 					<ul
 						ref={dropdownRef}
-						className="absolute z-10 bg-white border rounded-md shadow-lg max-h-60 overflow-auto mt-1"
-						style={{
-							width: containerRef.current?.offsetWidth || "100%",
-						}}
-						onMouseDown={(e: MouseEvent) => e.preventDefault()} // Prevent dropdown from closing on click
-					>
-						{filteredOptions.map((option) => (
+						className="absolute z-10 bg-white border rounded-md shadow-lg max-h-60 overflow-auto mt-1 w-full">
+						{filteredOptions.map((option, index) => (
 							<li
 								key={option}
-								className="px-4 py-2 hover:bg-accent cursor-pointer"
+								className={`px-4 py-2 cursor-pointer ${
+									index === highlightedIndex ? "bg-accent" : ""
+								}`}
+								onMouseEnter={() => setHighlightedIndex(index)}
 								onClick={() => handleSelect(option)}>
 								{option}
 							</li>
