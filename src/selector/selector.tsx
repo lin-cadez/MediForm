@@ -94,6 +94,9 @@ export default function Selector() {
 						<img src={Logo} alt="logo" />
 					</NavLink>
 				</div>
+				<div className="title">
+					<h1>Seznami</h1>
+				</div>
 				<div className="about">
 					<NavLink to="/about">
 						<button>
@@ -103,8 +106,9 @@ export default function Selector() {
 				</div>
 			</nav>
 			<main>
-				<h1>Seznami</h1>
-				<p>Izberi seznam, ki ga želiš izpolniti.</p>
+				<div className="desc">
+					<p>Izberi seznam, ki ga želiš izpolniti.</p>
+				</div>
 				<div className="seznami">
 					{lists &&
 						Object.entries(lists).map(([key, list]) => (
@@ -113,10 +117,12 @@ export default function Selector() {
 									to={`/checklist/${list.url}`}
 									className="seznam"
 									onClick={() => openList(list.url)}>
+										<div className="rounded-xl border bg-card text-card-foreground p-4 mb-4 shadow-md card-bg">
 									<h2>{list.title}</h2>
 									{list.description && (
 										<p>{list.description}</p>
 									)}
+									</div>
 								</NavLink>
 							</div>
 						))}

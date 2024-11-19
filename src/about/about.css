@@ -1,8 +1,7 @@
 .about-content {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-top: 2rem;
+    padding: 20px;
 
     h1{
         color: #fff;
