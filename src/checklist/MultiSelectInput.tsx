@@ -12,19 +12,20 @@ import { X, ChevronDown } from "lucide-react";
 
 interface MultiSelectInputProps {
 	predefinedOptions: string[];
-	value: string[];
+	value: string[]; 
 	onChange: (value: string[]) => void;
 }
+
 
 function MultiSelectInput({
 	predefinedOptions,
 	value,
 	onChange,
 }: MultiSelectInputProps) {
-	const [selectedOptions, setSelectedOptions] = useState<string[]>(value || []);
+	const [selectedOptions, setSelectedOptions] = useState<string[]>(value);
 	const [inputValue, setInputValue] = useState("");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [highlightedIndex, setHighlightedIndex] = useState(-1); // For keyboard navigation
+	const [highlightedIndex, setHighlightedIndex] = useState(-1); 
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const dropdownRef = useRef<HTMLUListElement>(null);

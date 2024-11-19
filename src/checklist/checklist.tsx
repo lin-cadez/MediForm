@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
 	Drawer,
-	DrawerClose,
 	DrawerContent,
 	DrawerDescription,
 	DrawerHeader,
@@ -28,34 +27,21 @@ import Logo from "../logotip_vegova_brez_naziva_leze.png";
 interface Element {
 	title: string;
 	unit: string | null;
-	value: string | number | boolean | null;
-	hint: string | null;
-	type: string;
-	options?: string[];
-	option_type?: "one" | "multiple";
-	title: string;
-	unit: string | null;
-	value: string | number | boolean | null;
+	value: string | number | boolean | string[] | null;
 	hint: string | null;
 	type: string;
 	options?: string[];
 	option_type?: "one" | "multiple";
 }
 
+
 interface Subcategory {
-	title: string;
-	description: string | null;
-	elements: Record<string, Element>;
 	title: string;
 	description: string | null;
 	elements: Record<string, Element>;
 }
 
 interface Category {
-	title: string;
-	description: string;
-	url: string;
-	subcategories: Record<string, Subcategory>;
 	title: string;
 	description: string;
 	url: string;
@@ -67,15 +53,6 @@ interface List {
 	description: string;
 	url: string;
 	categories: Record<string, Category>;
-	title: string;
-	description: string;
-	url: string;
-	categories: Record<string, Category>;
-}
-
-interface ListsData {
-	lists: Record<string, List>;
-	lists: Record<string, List>;
 }
 
 export default function Checklist() {
@@ -93,15 +70,36 @@ export default function Checklist() {
 	};
 	
 
+	const castToArray = (value: any): string[] => {
+		return Array.isArray(value) ? value : [];
+	};
+	
 	const fetchData = async () => {
 		const urlSegment = window.location.pathname.split("/checklist/")[1];
 	
+		// Retrieve data from localStorage
 		const storedData = localStorage.getItem(urlSegment);
 		if (storedData) {
-			setList(JSON.parse(storedData));
+			// Parse and cast values in the stored data
+			const parsedData: List = JSON.parse(storedData);
+	
+			// Ensure all multi-select elements have their `value` cast to arrays
+			Object.values(parsedData.categories).forEach((category) => {
+				Object.values(category.subcategories).forEach((subcategory) => {
+					Object.entries(subcategory.elements).forEach(([elementId, element]) => {
+						if (element.option_type === "multiple") {
+							// Ensure the value is cast to an array
+							element.value = castToArray(element.value);
+						}
+					});
+				});
+			});
+	
+			setList(parsedData);
 			return;
 		}
 	
+		// Fetch data from the external source if not found in localStorage
 		try {
 			const response = await fetch(
 				"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json"
@@ -109,13 +107,28 @@ export default function Checklist() {
 			if (!response.ok) {
 				throw new Error("Failed to fetch the data.");
 			}
-			const data = await response.json();
-			setList(data); // Assume data is in the correct format for `list`
-			updateLocalStorage(data); // Save fetched data to localStorage
+			const data: List = await response.json();
+	
+			// Cast values in the fetched data
+			Object.values(data.categories).forEach((category) => {
+				Object.values(category.subcategories).forEach((subcategory) => {
+					Object.entries(subcategory.elements).forEach(([elementId, element]) => {
+						if (element.option_type === "multiple") {
+							// Ensure the value is cast to an array
+							element.value = castToArray(element.value);
+						}
+					});
+				});
+			});
+	
+			// Save the data to state and localStorage
+			setList(data);
+			updateLocalStorage(data);
 		} catch (error) {
 			console.error("Error fetching data:", error);
 		}
 	};
+	
 	
 
 	const handleInputChange = (
@@ -178,12 +191,7 @@ export default function Checklist() {
 	}, []);
 	
 
-	const toggleCategory = (categoryId: string) => {
-		setOpenCategories((prevState) => ({
-			...prevState,
-			[categoryId]: !prevState[categoryId],
-		}));
-	};
+
 	const toggleCategory = (categoryId: string) => {
 		setOpenCategories((prevState) => ({
 			...prevState,
@@ -220,23 +228,22 @@ export default function Checklist() {
 							}
 						/>
 					);
-				} else if (
-					element.options &&
-					element.option_type === "multiple"
-				) {
-					console.log(formData[categoryId]?.[subcategoryId]?.[elementId] || []);					
+				} else if (element.options && element.option_type === "multiple") {
 					return (
-						
 						<MultiSelectInput
 							predefinedOptions={element.options || []}
-							value={formData[categoryId]?.[subcategoryId]?.[elementId] || []}
+							value={
+								(Array.isArray(formData[categoryId]?.[subcategoryId]?.[elementId])
+									? formData[categoryId]?.[subcategoryId]?.[elementId]
+									: []) as string[]
+							}
 							onChange={(value) =>
 								handleInputChange(categoryId, subcategoryId, elementId, value)
 							}
-							/>
-
+						/>
 					);
-				} else {
+				}
+				 else {
 					return (
 						<div className="w-full max-w-md mx-auto pt-4 pb-4">
 							<div className="border rounded-md p-2 w-full">
