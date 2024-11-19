@@ -13,12 +13,12 @@ const About = () => {
 				</NavLink>
 			</nav>
             <div className="about-content">
-                <h1>About</h1>
+                <h1>O aplikaciji</h1>
                 <p>
-                    This is a simple app that fetches data from a JSON file and displays it in a checklist format. The data is fetched from a JSON file hosted on GitHub. The app uses React Router for navigation.
+                    Aplikacija je namenjena izpolnjevanju seznamov. Sezname lahko ustvariš sam ali pa izbereš med obstoječimi.
                 </p>
                 <p>
-                    The app is built using React, TypeScript, and Lucide icons.
+                    Sezname lahko deliš s prijatelji, ki jih lahko izpolnijo skupaj s tabo.
                 </p>
             </div>
 		</div>

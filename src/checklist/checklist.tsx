@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
 	Drawer,
+	DrawerClose,
 	DrawerContent,
 	DrawerDescription,
 	DrawerHeader,
@@ -22,7 +23,16 @@ import Pdf from "../pdf.svg";
 import Excel from "../excel.svg";
 import "./checklist.css";
 
+import Logo from "../logotip_vegova_brez_naziva_leze.png";
+
 interface Element {
+	title: string;
+	unit: string | null;
+	value: string | number | boolean | null;
+	hint: string | null;
+	type: string;
+	options?: string[];
+	option_type?: "one" | "multiple";
 	title: string;
 	unit: string | null;
 	value: string | number | boolean | null;
@@ -36,9 +46,16 @@ interface Subcategory {
 	title: string;
 	description: string | null;
 	elements: Record<string, Element>;
+	title: string;
+	description: string | null;
+	elements: Record<string, Element>;
 }
 
 interface Category {
+	title: string;
+	description: string;
+	url: string;
+	subcategories: Record<string, Subcategory>;
 	title: string;
 	description: string;
 	url: string;
@@ -50,9 +67,14 @@ interface List {
 	description: string;
 	url: string;
 	categories: Record<string, Category>;
+	title: string;
+	description: string;
+	url: string;
+	categories: Record<string, Category>;
 }
 
 interface ListsData {
+	lists: Record<string, List>;
 	lists: Record<string, List>;
 }
 
@@ -60,7 +82,9 @@ export default function Checklist() {
 	const [list, setList] = useState<List | null>(null);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 	const [openCategories, setOpenCategories] = useState<
-		Record<string, boolean>>({});
+		Record<string, boolean>
+	>({});
+	const [isOpen, setIsOpen] = useState(false);
 
 	const updateLocalStorage = (newList: List) => {
 		const path = window.location.pathname;
@@ -154,6 +178,12 @@ export default function Checklist() {
 	}, []);
 	
 
+	const toggleCategory = (categoryId: string) => {
+		setOpenCategories((prevState) => ({
+			...prevState,
+			[categoryId]: !prevState[categoryId],
+		}));
+	};
 	const toggleCategory = (categoryId: string) => {
 		setOpenCategories((prevState) => ({
 			...prevState,
@@ -269,9 +299,38 @@ export default function Checklist() {
 		return <div className="loading">Loading...</div>;
 	}
 
+	const exportPdf = () => {
+		setIsOpen(false);
+		const success = document.querySelector(".success");
+		if (success) {
+			success.classList.add("show");
+			setTimeout(() => {
+				success.classList.remove("show");
+			}, 15000);
+		}
+	};
+
+	const exportExcel = () => {
+		setIsOpen(false);
+		const success = document.querySelector(".success");
+		if (success) {
+			success.classList.add("show");
+			setTimeout(() => {
+				success.classList.remove("show");
+			}, 15000);
+		}
+	};
+
+	const closeSuccess = () => {
+		const success = document.querySelector(".success");
+		if (success) {
+			success.classList.remove("show");
+		}
+	};
+
 	return (
 		<div className="checklist-page">
-			<Drawer>
+			<Drawer open={isOpen} onOpenChange={setIsOpen}>
 				<nav className="navbar">
 					<NavLink to="/" end>
 						<ArrowLeft />
@@ -283,7 +342,7 @@ export default function Checklist() {
 								: list.title}
 						</h1>
 					</div>
-					<DrawerTrigger asChild>
+					<DrawerTrigger asChild onClick={() => closeSuccess()}>
 						<img src={ExportSVG} alt="export" className="h-6" />
 					</DrawerTrigger>
 				</nav>
@@ -385,7 +444,9 @@ export default function Checklist() {
 							Izberi format izvoza tvojega seznama opravil.
 						</DrawerDescription>
 						<div className="export-buttons mt-4">
-							<button className="export-button">
+							<button
+								className="export-button"
+								onClick={exportPdf}>
 								Izvozi kot PDF{" "}
 								<img
 									src={Pdf}
@@ -393,7 +454,9 @@ export default function Checklist() {
 									className="inline ml-2"
 								/>
 							</button>
-							<button className="export-button">
+							<button
+								className="export-button"
+								onClick={exportExcel}>
 								Izvozi kot Excel{" "}
 								<img
 									src={Excel}
@@ -404,6 +467,10 @@ export default function Checklist() {
 						</div>
 					</div>
 				</DrawerContent>
+				<div className="success">
+					<p>Seznam je bil uspešno izvožen.</p>
+					<img src={Logo} alt="logo" />
+				</div>
 			</Drawer>
 		</div>
 	);

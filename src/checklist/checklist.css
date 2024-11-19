@@ -278,3 +278,37 @@
         }
     }
 }
+
+.success {
+    background: #fff;
+    color: #034200;
+    border-radius: 0.5rem 0.5rem 0 0;
+    gap: 10px;
+    bottom: 0;
+    position: fixed;
+    text-align: center;
+    overflow: hidden;
+    height: 0px;
+    z-index: 9999;
+    transition: height 0.3s;
+    border-top: 0.5px solid #034200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    p {
+        margin: 0;
+        padding: 1rem;
+    }
+
+    img {
+        width: 60%;
+        margin: 0 auto;
+    }
+}
+
+.success.show {
+    height: 200px;
+    transition: height 0.3s;
+}
