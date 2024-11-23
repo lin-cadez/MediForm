@@ -34,7 +34,6 @@ interface Element {
 	option_type?: "one" | "multiple";
 }
 
-
 interface Subcategory {
 	title: string;
 	description: string | null;
@@ -68,37 +67,38 @@ export default function Checklist() {
 		const urlSegment = path.split("/checklist/")[1];
 		localStorage.setItem(urlSegment, JSON.stringify(newList));
 	};
-	
 
 	const castToArray = (value: any): string[] => {
 		return Array.isArray(value) ? value : [];
 	};
-	
+
 	const fetchData = async () => {
 		const urlSegment = window.location.pathname.split("/checklist/")[1];
-	
+
 		// Retrieve data from localStorage
 		const storedData = localStorage.getItem(urlSegment);
 		if (storedData) {
 			// Parse and cast values in the stored data
 			const parsedData: List = JSON.parse(storedData);
-	
+
 			// Ensure all multi-select elements have their `value` cast to arrays
 			Object.values(parsedData.categories).forEach((category) => {
 				Object.values(category.subcategories).forEach((subcategory) => {
-					Object.entries(subcategory.elements).forEach(([elementId, element]) => {
-						if (element.option_type === "multiple") {
-							// Ensure the value is cast to an array
-							element.value = castToArray(element.value);
+					Object.entries(subcategory.elements).forEach(
+						([, element]) => {
+							if (element.option_type === "multiple") {
+								// Ensure the value is cast to an array
+								element.value = castToArray(element.value);
+							}
 						}
-					});
+					);
 				});
 			});
-	
+
 			setList(parsedData);
 			return;
 		}
-	
+
 		// Fetch data from the external source if not found in localStorage
 		try {
 			const response = await fetch(
@@ -108,19 +108,21 @@ export default function Checklist() {
 				throw new Error("Failed to fetch the data.");
 			}
 			const data: List = await response.json();
-	
+
 			// Cast values in the fetched data
 			Object.values(data.categories).forEach((category) => {
 				Object.values(category.subcategories).forEach((subcategory) => {
-					Object.entries(subcategory.elements).forEach(([elementId, element]) => {
-						if (element.option_type === "multiple") {
-							// Ensure the value is cast to an array
-							element.value = castToArray(element.value);
+					Object.entries(subcategory.elements).forEach(
+						([, element]) => {
+							if (element.option_type === "multiple") {
+								// Ensure the value is cast to an array
+								element.value = castToArray(element.value);
+							}
 						}
-					});
+					);
 				});
 			});
-	
+
 			// Save the data to state and localStorage
 			setList(data);
 			updateLocalStorage(data);
@@ -128,8 +130,6 @@ export default function Checklist() {
 			console.error("Error fetching data:", error);
 		}
 	};
-	
-	
 
 	const handleInputChange = (
 		categoryId: string,
@@ -159,13 +159,19 @@ export default function Checklist() {
 						[categoryId]: {
 							...prevList.categories[categoryId],
 							subcategories: {
-								...prevList.categories[categoryId].subcategories,
+								...prevList.categories[categoryId]
+									.subcategories,
 								[subcategoryId]: {
-									...prevList.categories[categoryId].subcategories[subcategoryId],
+									...prevList.categories[categoryId]
+										.subcategories[subcategoryId],
 									elements: {
-										...prevList.categories[categoryId].subcategories[subcategoryId].elements,
+										...prevList.categories[categoryId]
+											.subcategories[subcategoryId]
+											.elements,
 										[elementId]: {
-											...prevList.categories[categoryId].subcategories[subcategoryId].elements[elementId],
+											...prevList.categories[categoryId]
+												.subcategories[subcategoryId]
+												.elements[elementId],
 											value: value,
 										},
 									},
@@ -174,13 +180,12 @@ export default function Checklist() {
 						},
 					},
 				};
-			
+
 				// Update localStorage
 				updateLocalStorage(newList);
-			
+
 				return newList;
 			});
-			
 
 			return newFormData;
 		});
@@ -189,8 +194,6 @@ export default function Checklist() {
 	useEffect(() => {
 		fetchData();
 	}, []);
-	
-
 
 	const toggleCategory = (categoryId: string) => {
 		setOpenCategories((prevState) => ({
@@ -228,22 +231,35 @@ export default function Checklist() {
 							}
 						/>
 					);
-				} else if (element.options && element.option_type === "multiple") {
+				} else if (
+					element.options &&
+					element.option_type === "multiple"
+				) {
 					return (
 						<MultiSelectInput
 							predefinedOptions={element.options || []}
 							value={
-								(Array.isArray(formData[categoryId]?.[subcategoryId]?.[elementId])
-									? formData[categoryId]?.[subcategoryId]?.[elementId]
+								(Array.isArray(
+									formData[categoryId]?.[subcategoryId]?.[
+										elementId
+									]
+								)
+									? formData[categoryId]?.[subcategoryId]?.[
+											elementId
+									  ]
 									: []) as string[]
 							}
 							onChange={(value) =>
-								handleInputChange(categoryId, subcategoryId, elementId, value)
+								handleInputChange(
+									categoryId,
+									subcategoryId,
+									elementId,
+									value
+								)
 							}
 						/>
 					);
-				}
-				 else {
+				} else {
 					return (
 						<div className="w-full max-w-md mx-auto pt-4 pb-4">
 							<div className="border rounded-md p-2 w-full">

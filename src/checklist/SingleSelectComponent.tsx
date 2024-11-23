@@ -21,7 +21,7 @@ function SingleSelectInput({
 	value,
 	onChange,
 }: SingleSelectInputProps) {
-	const [selectedOption, setSelectedOption] = useState<string | null>(value);
+	const [, setSelectedOption] = useState<string | null>(value);
 	const [inputValue, setInputValue] = useState(value || "");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -103,8 +103,7 @@ function SingleSelectInput({
 						style={{
 							width: containerRef.current?.offsetWidth || "100%",
 						}}
-						onMouseDown={(e: MouseEvent) => e.preventDefault()}
-					>
+						onMouseDown={(e: MouseEvent) => e.preventDefault()}>
 						{predefinedOptions.map((option) => (
 							<li
 								key={option}

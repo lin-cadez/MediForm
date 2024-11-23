@@ -4,7 +4,6 @@ import React, {
 	useEffect,
 	KeyboardEvent,
 	FocusEvent,
-	MouseEvent,
 } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,10 +11,9 @@ import { X, ChevronDown } from "lucide-react";
 
 interface MultiSelectInputProps {
 	predefinedOptions: string[];
-	value: string[]; 
+	value: string[];
 	onChange: (value: string[]) => void;
 }
-
 
 function MultiSelectInput({
 	predefinedOptions,
@@ -25,7 +23,7 @@ function MultiSelectInput({
 	const [selectedOptions, setSelectedOptions] = useState<string[]>(value);
 	const [inputValue, setInputValue] = useState("");
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [highlightedIndex, setHighlightedIndex] = useState(-1); 
+	const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const dropdownRef = useRef<HTMLUListElement>(null);
@@ -51,7 +49,9 @@ function MultiSelectInput({
 	};
 
 	const handleRemove = (option: string) => {
-		const updatedOptions = selectedOptions.filter((item) => item !== option);
+		const updatedOptions = selectedOptions.filter(
+			(item) => item !== option
+		);
 		setSelectedOptions(updatedOptions);
 		onChange(updatedOptions);
 	};
@@ -66,7 +66,10 @@ function MultiSelectInput({
 		switch (e.key) {
 			case "Enter":
 				e.preventDefault();
-				if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
+				if (
+					highlightedIndex >= 0 &&
+					filteredOptions[highlightedIndex]
+				) {
 					handleSelect(filteredOptions[highlightedIndex]);
 				} else if (inputValue.trim() !== "") {
 					if (!selectedOptions.includes(inputValue.trim())) {
@@ -82,9 +85,7 @@ function MultiSelectInput({
 				break;
 			case "ArrowUp":
 				e.preventDefault();
-				setHighlightedIndex((prevIndex) =>
-					Math.max(prevIndex - 1, 0)
-				);
+				setHighlightedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
 				break;
 			case "Escape":
 				setIsDropdownOpen(false);
@@ -120,7 +121,7 @@ function MultiSelectInput({
 			setIsDropdownOpen(false);
 		}
 	};
-	
+
 	useEffect(() => {
 		if (isDropdownOpen) {
 			document.addEventListener("mousedown", handleOutsideClick);
@@ -131,7 +132,6 @@ function MultiSelectInput({
 			document.removeEventListener("mousedown", handleOutsideClick);
 		};
 	}, [isDropdownOpen]);
-	
 
 	return (
 		<div className="relative w-full max-w-md mx-auto pt-4 pb-4">
@@ -179,7 +179,9 @@ function MultiSelectInput({
 							<li
 								key={option}
 								className={`px-4 py-2 cursor-pointer ${
-									index === highlightedIndex ? "bg-accent" : ""
+									index === highlightedIndex
+										? "bg-accent"
+										: ""
 								}`}
 								onMouseEnter={() => setHighlightedIndex(index)}
 								onClick={() => handleSelect(option)}>
