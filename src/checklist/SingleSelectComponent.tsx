@@ -45,10 +45,11 @@ function SingleSelectInput({
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
 		setInputValue(newValue);
-		setSelectedOption(null); // Clear selection when manually entering text
-		onChange(null); // Notify parent that no predefined option is selected
+		setSelectedOption(newValue); // Treat the typed value as the selected option
+		onChange(newValue); // Notify parent with the custom value
 		setIsDropdownOpen(false);
 	};
+	
 
 	const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter" && inputValue.trim() !== "") {
