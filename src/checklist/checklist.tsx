@@ -333,9 +333,11 @@ export default function Checklist() {
 
     if (success) {
       success.classList.add("show");
+	const urlSegment = window.location.pathname.split("/checklist/")[1];
+	localStorage.removeItem(urlSegment);
       setTimeout(() => {
         success.classList.remove("show");
-      }, 15000);
+      }, 3000);
     }
   };
 

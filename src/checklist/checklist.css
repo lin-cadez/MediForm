@@ -309,10 +309,6 @@
     transition: height 0.3s;
 }
 
-
-/* ... (keep existing styles) */
-
-/* Add these new styles for animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -337,9 +333,7 @@
     transition: all 0.3s ease;
   }
   
-  .input-wrapper:focus-within {
-    transform: scale(1.02);
-  }
+  
   
   .export-button {
     transition: all 0.3s ease;
