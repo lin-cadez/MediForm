@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { generatePdfFromJson } from "./pdfGenerator";
 import { NavLink } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,10 +21,11 @@ import MultiSelectInput from "./MultiSelectInput";
 import ExportSVG from "../export.svg";
 import Pdf from "../pdf.svg";
 import Excel from "../excel.svg";
+import { motion, AnimatePresence } from "framer-motion";
 import "./checklist.css";
+import Confetti from 'react-confetti';
 
 import Logo from "../logotip_vegova_brez_naziva_leze.png";
-
 interface JsonData {
   title: string;
   description: string;
@@ -356,82 +357,112 @@ export default function Checklist() {
     }
   };
 
-  return (
-    <div className="checklist-page">
-      <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <nav className="navbar">
-          <NavLink to="/" end>
+    const categoryVariants = {
+		hidden: { opacity: 0, height: 0 },
+		visible: { opacity: 1, height: "auto" }
+	  };
+	
+	  return (
+		<div className="checklist-page">
+		  <Drawer open={isOpen} onOpenChange={setIsOpen}>
+			<nav 
+			  className="navbar">
+		
+			  <NavLink to="/" end>
+
             <ArrowLeft />
-          </NavLink>
-          <div className="title">
-            <h1 title={list.title}>
-              {list.title.length > 12
-                ? `${list.title.substring(0, 12)}...`
-                : list.title}
-            </h1>
-          </div>
-          <DrawerTrigger asChild onClick={() => closeSuccess()}>
-            <img src={ExportSVG} alt="export" className="h-6" />
-          </DrawerTrigger>
-        </nav>
-        <div className="content">
-          {Object.entries(list.categories).map(([categoryId, category]) => (
-            <Card key={categoryId} className="p-4 mb-4 shadow-md card-bg">
-              <CardHeader
-                className="flex items-left justify-between"
-                onClick={() => toggleCategory(categoryId)}
-              >
-                <CardTitle className="flex items-center text-lg font-semibold">
-                  <div className="icon-container">
-                    {openCategories[categoryId] ? (
-                      <ChevronDown size={24} />
-                    ) : (
-                      <ChevronRight size={24} />
-                    )}
-                  </div>
-                  <span className="title-text">{category.title}</span>
-                </CardTitle>
-              </CardHeader>
-              {openCategories[categoryId] && (
-                <CardContent className="category-content">
-                  <p className="opacity-50 mb-4">{category.description}</p>
-                  {Object.entries(category.subcategories).map(
-                    ([subcategoryId, subcategory]) => (
-                      <div key={subcategoryId} className="subcategory mb-4">
-                        <h3 className="font-semibold">{subcategory.title}</h3>
-                        {subcategory.description && (
-                          <p className="text-sm opacity-75 mb-2">
-                            {subcategory.description}
-                          </p>
-                        )}
-                        {Object.entries(subcategory.elements).map(
-                          ([elementId, element]) => (
-                            <div key={elementId} className="element mb-4">
-                              <Label htmlFor={elementId}>{element.title}</Label>
-                              <div className="input-wrapper flex items-center space-x-2">
-                                {renderElement(
-                                  categoryId,
-                                  subcategoryId,
-                                  elementId,
-                                  element
-                                )}
-                                {element.unit && (
-                                  <span className="unit text-gray-500">
-                                    {element.unit}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )
-                  )}
-                </CardContent>
-              )}
-            </Card>
-          ))}
-        </div>
+			  </NavLink>
+			  <div className="title">
+				<h1 title={list.title}>
+				  {list.title.length > 12
+					? `${list.title.substring(0, 12)}...`
+					: list.title}
+				</h1>
+			  </div>
+			  <DrawerTrigger asChild onClick={() => closeSuccess()}>
+				<img src={ExportSVG} alt="export" className="h-6" />
+			  </DrawerTrigger>
+			  </nav>
+			<div className="content">
+			  {Object.entries(list.categories).map(([categoryId, category]) => (
+				
+				  <Card className="p-4 mb-4 shadow-md card-bg">
+					<CardHeader
+					  className="flex items-left justify-between cursor-pointer"
+					  onClick={() => toggleCategory(categoryId)}
+					>
+					  <CardTitle className="flex items-center text-lg font-semibold">
+						<motion.div 
+						  className="icon-container"
+						  animate={{ rotate: openCategories[categoryId] ? 90 : 0 }}
+						  transition={{ duration: 0.3 }}
+						>
+						  <ChevronRight size={24} />
+						</motion.div>
+						<span className="title-text">{category.title}</span>
+					  </CardTitle>
+					</CardHeader>
+					<AnimatePresence>
+					  {openCategories[categoryId] && (
+						<motion.div
+						  variants={categoryVariants}
+						  initial="hidden"
+						  animate="visible"
+						  exit="hidden"
+						  transition={{ duration: 0.3 }}
+						>
+						  <CardContent className="category-content">
+							<p className="opacity-50 mb-4">{category.description}</p>
+							{Object.entries(category.subcategories).map(
+							  ([subcategoryId, subcategory]) => (
+								<motion.div 
+								  key={subcategoryId} 
+								  className="subcategory mb-4"
+								  initial={{ opacity: 0 }}
+								  animate={{ opacity: 1 }}
+								  transition={{ duration: 0.3, delay: 0.1 }}
+								>
+								  <h3 className="font-semibold">{subcategory.title}</h3>
+								  {subcategory.description && (
+									<p className="text-sm opacity-75 mb-2">
+									  {subcategory.description}
+									</p>
+								  )}
+								  {Object.entries(subcategory.elements).map(
+									([elementId, element]) => (
+									  <motion.div 
+										key={elementId} 
+										className="element mb-4"
+							
+									  >
+										<Label htmlFor={elementId}>{element.title}</Label>
+										<div className="input-wrapper flex items-center space-x-2">
+										  {renderElement(
+											categoryId,
+											subcategoryId,
+											elementId,
+											element
+										  )}
+										  {element.unit && (
+											<span className="unit text-gray-500">
+											  {element.unit}
+											</span>
+										  )}
+										</div>
+									  </motion.div>
+									)
+								  )}
+								</motion.div>
+							  )
+							)}
+						  </CardContent>
+						</motion.div>
+					  )}
+					</AnimatePresence>
+				  </Card>
+				
+			  ))}
+			</div>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Možnosti izvoza</DrawerTitle>

@@ -149,10 +149,6 @@
     transition: box-shadow 0.2s;
 }
 
-.subcategory:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
 .subcategory h3 {
     font-size: 1.25rem;
     font-weight: 600;
@@ -312,3 +308,46 @@
     height: 200px;
     transition: height 0.3s;
 }
+
+
+/* ... (keep existing styles) */
+
+/* Add these new styles for animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  
+  
+  .card-bg {
+    transition: all 0.3s ease;
+  }
+
+  .icon-container {
+    transition: transform 0.3s ease;
+  }
+  
+  .input-wrapper {
+    transition: all 0.3s ease;
+  }
+  
+  .input-wrapper:focus-within {
+    transform: scale(1.02);
+  }
+  
+  .export-button {
+    transition: all 0.3s ease;
+  }
+  
+  
+  .success {
+    animation: slideIn 0.5s ease-out;
+  }
+  
+  
