@@ -10,60 +10,36 @@ interface List {
 	url: string;
 }
 
-interface ListsData {
-	lists: {
-		[key: string]: List;
-	};
-}
-
 const STORAGE_KEY = "fetchedData";
-const API_URL =
-	"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json";
 
 export default function Selector() {
-	const [lists, setLists] = useState<ListsData["lists"]>({});
+	const [lists, setLists] = useState<{ [key: string]: List } | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const allLists = [
+		"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json",
+		"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test2.json",
+	];
 
 	useEffect(() => {
 		const fetchLists = async () => {
 			try {
-				// Check localStorage first
 				const storedData = localStorage.getItem(STORAGE_KEY);
-				if (storedData) {
-					const parsedStoredData = JSON.parse(storedData);
-					setLists(parsedStoredData.lists);
-					setIsLoading(false);
+				let fetchedLists: { [key: string]: List } = storedData
+					? JSON.parse(storedData)
+					: {};
 
-					// Fetch new data to compare
-					const response = await fetch(API_URL);
+				for (const url of allLists) {
+					const response = await fetch(url);
 					if (!response.ok) {
-						throw new Error("Failed to fetch lists");
+						throw new Error(`Failed to fetch list from ${url}`);
 					}
-					const fetchedData: ListsData = await response.json();
-
-					// Compare fetched data with stored data
-					if (
-						JSON.stringify(parsedStoredData) !==
-						JSON.stringify(fetchedData)
-					) {
-						localStorage.setItem(
-							STORAGE_KEY,
-							JSON.stringify(fetchedData)
-						);
-						setLists(fetchedData.lists);
-					}
-					return;
+					const fetchedData = await response.json();
+					fetchedLists = { ...fetchedLists, ...fetchedData };
 				}
 
-				const response = await fetch(API_URL);
-				if (!response.ok) {
-					throw new Error("Failed to fetch lists");
-				}
-				const data: ListsData = await response.json();
-				setLists(data.lists);
-
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedLists));
+				setLists(fetchedLists);
 			} catch (err) {
 				setError("Error fetching lists. Please try again later.");
 			} finally {
@@ -75,7 +51,7 @@ export default function Selector() {
 	}, []);
 
 	const openList = (url: string) => {
-		localStorage.setItem(url, JSON.stringify(lists[url]));
+		localStorage.setItem(url, JSON.stringify(lists?.[url]));
 	};
 
 	if (isLoading) {
@@ -117,11 +93,11 @@ export default function Selector() {
 									to={`/checklist/${list.url}`}
 									className="seznam"
 									onClick={() => openList(list.url)}>
-										<div className="rounded-xl border bg-card text-card-foreground p-4 mb-4 shadow-md card-bg">
-									<h2>{list.title}</h2>
-									{list.description && (
-										<p>{list.description}</p>
-									)}
+									<div className="rounded-xl border bg-card text-card-foreground p-4 mb-4 shadow-md card-bg">
+										<h2>{list.title}</h2>
+										{list.description && (
+											<p>{list.description}</p>
+										)}
 									</div>
 								</NavLink>
 							</div>
