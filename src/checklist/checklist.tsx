@@ -106,7 +106,6 @@ export default function Checklist() {
 		const storedData = localStorage.getItem(urlSegment);
 		
 		if (storedData) {
-			// Parse and cast values in the stored data
 			const parsedData = JSON.parse(storedData);
 
 			if (parsedData) {

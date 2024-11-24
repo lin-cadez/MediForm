@@ -11,53 +11,35 @@ interface List {
 }
 
 const STORAGE_KEY = "fetchedData";
-const API_URL =
-	"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json";
 
 export default function Selector() {
 	const [lists, setLists] = useState<{ [key: string]: List } | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const allLists = [
+		"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json",
+		"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test2.json",
+	];
 
 	useEffect(() => {
 		const fetchLists = async () => {
 			try {
-				// Check localStorage first
 				const storedData = localStorage.getItem(STORAGE_KEY);
-				if (storedData) {
-					const parsedStoredData = JSON.parse(storedData);
-					setLists(parsedStoredData);
-					setIsLoading(false);
+				let fetchedLists: { [key: string]: List } = storedData
+					? JSON.parse(storedData)
+					: {};
 
-					// Fetch new data to compare
-					const response = await fetch(API_URL);
+				for (const url of allLists) {
+					const response = await fetch(url);
 					if (!response.ok) {
-						throw new Error("Failed to fetch lists");
+						throw new Error(`Failed to fetch list from ${url}`);
 					}
 					const fetchedData = await response.json();
-
-					// Compare fetched data with stored data
-					if (
-						JSON.stringify(parsedStoredData) !==
-						JSON.stringify(fetchedData)
-					) {
-						localStorage.setItem(
-							STORAGE_KEY,
-							JSON.stringify(fetchedData)
-						);
-						setLists(fetchedData);
-					}
-					return;
+					fetchedLists = { ...fetchedLists, ...fetchedData };
 				}
 
-				const response = await fetch(API_URL);
-				if (!response.ok) {
-					throw new Error("Failed to fetch lists");
-				}
-				const data = await response.json();
-				setLists(data);
-
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedLists));
+				setLists(fetchedLists);
 			} catch (err) {
 				setError("Error fetching lists. Please try again later.");
 			} finally {
