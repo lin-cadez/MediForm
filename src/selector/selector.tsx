@@ -10,18 +10,12 @@ interface List {
 	url: string;
 }
 
-interface ListsData {
-	lists: {
-		[key: string]: List;
-	};
-}
-
 const STORAGE_KEY = "fetchedData";
 const API_URL =
 	"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json";
 
 export default function Selector() {
-	const [lists, setLists] = useState<ListsData["lists"]>({});
+	const [lists, setLists] = useState<{ [key: string]: List } | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +26,7 @@ export default function Selector() {
 				const storedData = localStorage.getItem(STORAGE_KEY);
 				if (storedData) {
 					const parsedStoredData = JSON.parse(storedData);
-					setLists(parsedStoredData.lists);
+					setLists(parsedStoredData);
 					setIsLoading(false);
 
 					// Fetch new data to compare
@@ -40,7 +34,7 @@ export default function Selector() {
 					if (!response.ok) {
 						throw new Error("Failed to fetch lists");
 					}
-					const fetchedData: ListsData = await response.json();
+					const fetchedData = await response.json();
 
 					// Compare fetched data with stored data
 					if (
@@ -51,7 +45,7 @@ export default function Selector() {
 							STORAGE_KEY,
 							JSON.stringify(fetchedData)
 						);
-						setLists(fetchedData.lists);
+						setLists(fetchedData);
 					}
 					return;
 				}
@@ -60,8 +54,8 @@ export default function Selector() {
 				if (!response.ok) {
 					throw new Error("Failed to fetch lists");
 				}
-				const data: ListsData = await response.json();
-				setLists(data.lists);
+				const data = await response.json();
+				setLists(data);
 
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 			} catch (err) {
@@ -75,7 +69,7 @@ export default function Selector() {
 	}, []);
 
 	const openList = (url: string) => {
-		localStorage.setItem(url, JSON.stringify(lists[url]));
+		localStorage.setItem(url, JSON.stringify(lists?.[url]));
 	};
 
 	if (isLoading) {
@@ -117,11 +111,11 @@ export default function Selector() {
 									to={`/checklist/${list.url}`}
 									className="seznam"
 									onClick={() => openList(list.url)}>
-										<div className="rounded-xl border bg-card text-card-foreground p-4 mb-4 shadow-md card-bg">
-									<h2>{list.title}</h2>
-									{list.description && (
-										<p>{list.description}</p>
-									)}
+									<div className="rounded-xl border bg-card text-card-foreground p-4 mb-4 shadow-md card-bg">
+										<h2>{list.title}</h2>
+										{list.description && (
+											<p>{list.description}</p>
+										)}
 									</div>
 								</NavLink>
 							</div>

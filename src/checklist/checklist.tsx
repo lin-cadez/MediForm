@@ -103,58 +103,37 @@ export default function Checklist() {
 
 	const fetchData = async () => {
 		const urlSegment = window.location.pathname.split("/checklist/")[1];
-
 		const storedData = localStorage.getItem(urlSegment);
+		
 		if (storedData) {
 			// Parse and cast values in the stored data
-			const parsedData: List = JSON.parse(storedData);
+			const parsedData = JSON.parse(storedData);
 
-			// Ensure all multi-select elements have their `value` cast to arrays
-			Object.values(parsedData.categories).forEach((category) => {
-				Object.values(category.subcategories).forEach((subcategory) => {
-					Object.entries(subcategory.elements).forEach(
-						([, element]) => {
-							if (element.option_type === "multiple") {
-								// Ensure the value is cast to an array
-								element.value = castToArray(element.value);
-							}
+			if (parsedData) {
+				// Ensure all multi-select elements have their `value` cast to arrays
+				Object.values(parsedData.categories).forEach((category) => {
+					Object.values((category as Category).subcategories).forEach(
+						(subcategory) => {
+							Object.entries(subcategory.elements).forEach(
+								([, element]) => {
+									if (element.option_type === "multiple") {
+										// Ensure the value is cast to an array
+										element.value = castToArray(
+											element.value
+										);
+									}
+								}
+							);
 						}
 					);
 				});
-			});
 
-			setList(parsedData);
-			return;
-		}
-
-		try {
-			const response = await fetch(
-				"https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json"
-			);
-			if (!response.ok) {
-				throw new Error("Failed to fetch the data.");
+				setList(parsedData);
+				return;
 			}
-			const data: List = await response.json();
-
-			// Cast values in the fetched data
-			Object.values(data.categories).forEach((category) => {
-				Object.values(category.subcategories).forEach((subcategory) => {
-					Object.entries(subcategory.elements).forEach(
-						([, element]) => {
-							if (element.option_type === "multiple") {
-								// Ensure the value is cast to an array
-								element.value = castToArray(element.value);
-							}
-						}
-					);
-				});
-			});
-
-			setList(data);
-			updateLocalStorage(data);
-		} catch (error) {
-			console.error("Error fetching data:", error);
 		}
+
+		console.error("No data found in localStorage.");
 	};
 
 	const handleInputChange = (
