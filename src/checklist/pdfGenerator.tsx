@@ -44,8 +44,8 @@ export const generatePdfFromJson = async (data: JsonData): Promise<Blob> => {
   pdfDoc.registerFontkit(fontkit);
 
   // Fetch and embed fonts
-  const fontBytes = await fetchFont("/public/fonts/Roboto-Regular.ttf");
-  const fontBoldBytes = await fetchFont("/public/fonts/Roboto-Bold.ttf");
+  const fontBytes = await fetchFont("/fonts/Roboto-Regular.ttf");
+  const fontBoldBytes = await fetchFont("/fonts/Roboto-Bold.ttf");
   const font = await pdfDoc.embedFont(fontBytes);
   const fontBold = await pdfDoc.embedFont(fontBoldBytes);
 
