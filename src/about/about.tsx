@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import "./about.css";
 
 const About = () => {
-    return (
+	return (
 		<div>
 			<nav>
 				<NavLink to="/" end>
@@ -12,17 +12,38 @@ const About = () => {
 					</button>
 				</NavLink>
 			</nav>
-            <div className="about-content">
-                <h1>O aplikaciji</h1>
-                <p>
-                    Aplikacija je namenjena izpolnjevanju seznamov. Sezname lahko ustvariš sam ali pa izbereš med obstoječimi.
-                </p>
-                <p>
-                    Sezname lahko deliš s prijatelji, ki jih lahko izpolnijo skupaj s tabo.
-                </p>
-            </div>
+			<div className="about-content">
+				<h1>O aplikaciji</h1>
+				<p>Narejeno z ❤️ na Vegovi.</p>
+				<p>
+					Avtorji:
+					<ul>
+						<li>
+							<a
+								href="https://github.com/lin-cadez"
+								target="_blank">
+								Lin Čadež
+							</a>
+						</li>
+						<li>
+							<a
+								href="https://github.com/jakecernet"
+								target="_blank">
+								Jaka Černetič
+							</a>
+						</li>
+						<li>
+							<a
+								href="https://github.com/jonontop"
+								target="_blank">
+								Jon Pečar
+							</a>
+						</li>
+					</ul>
+				</p>
+			</div>
 		</div>
 	);
-}
+};
 
 export default About;
