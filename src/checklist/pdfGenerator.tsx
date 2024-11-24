@@ -96,7 +96,7 @@ export const generatePdfFromJson = async (data: JsonData): Promise<Blob> => {
     colWidths: number[]
   ) => {
     let currentY = y;
-    tableData.forEach((row, rowIndex) => {
+    tableData.forEach((row) => {
       let currentX = x;
       let rowHeight = 20;
 
