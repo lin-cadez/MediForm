@@ -5,6 +5,7 @@ import { generatePdfFromJson } from "./pdfGenerator";
 import { NavLink } from "react-router-dom";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -18,12 +19,13 @@ import {
 } from "@/components/ui/drawer";
 import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
+
 import ExportSVG from "../export.svg";
 import Pdf from "../pdf.svg";
 import Excel from "../excel.svg";
-import { motion, AnimatePresence } from "framer-motion";
-import "./checklist.css";
 import Logo from "../logotip_vegova_brez_naziva_leze.png";
+
+import "./checklist.css";
 
 interface JsonData {
 	title: string;
@@ -104,7 +106,7 @@ export default function Checklist() {
 	const fetchData = async () => {
 		const urlSegment = window.location.pathname.split("/checklist/")[1];
 		const storedData = localStorage.getItem(urlSegment);
-		
+
 		if (storedData) {
 			const parsedData = JSON.parse(storedData);
 
@@ -387,9 +389,9 @@ export default function Checklist() {
 						([categoryId, category]) => (
 							<Card className="p-4 mb-4 shadow-md card-bg">
 								<CardHeader
-									className="flex items-left justify-between cursor-pointer"
+									className="flex items-left justify-between"
 									onClick={() => toggleCategory(categoryId)}>
-									<CardTitle className="flex items-center text-lg font-semibold">
+									<CardTitle className="flex items-center text-lg">
 										<motion.div
 											className="icon-container"
 											animate={{
