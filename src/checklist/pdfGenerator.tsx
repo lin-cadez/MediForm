@@ -1,11 +1,6 @@
 import { PDFDocument, rgb } from "pdf-lib"
 import fontkit from "@pdf-lib/fontkit"
 
-interface UserInfo {
-  ime: string
-  priimek: string
-  razred: string
-}
 
 interface JsonData {
   title: string
@@ -43,7 +38,6 @@ const fetchFont = async (url: string): Promise<Uint8Array> => {
 
 export const generatePdfFromJson = async (
   data: JsonData,
-  userInfo: UserInfo,
 ): Promise<Blob> => {
   if (!data || !data.categories) {
     throw new Error("Invalid data: 'categories' key is missing.")
@@ -149,14 +143,7 @@ export const generatePdfFromJson = async (
   }
 
   const drawHeader = () => {
-    const infoHeight =
-      drawWrappedText(`Ime: ${userInfo.ime}`, margin, yOffset, pageWidth - 2 * margin, fontBold, 12, [0, 0, 0]) +
-      drawWrappedText(`Priimek: ${userInfo.priimek}`, margin, yOffset - 15, pageWidth - 2 * margin, fontBold, 12, [
-        0, 0, 0,
-      ]) +
-      drawWrappedText(`Razred: ${userInfo.razred}`, margin, yOffset - 30, pageWidth - 2 * margin, fontBold, 12, [
-        0, 0, 0,
-      ])
+
 
     yOffset -= 45
 

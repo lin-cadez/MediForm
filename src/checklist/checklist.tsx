@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { generatePdfFromJson } from "./pdfGenerator"
 import { NavLink } from "react-router-dom"
-import { ArrowLeft, ChevronRight, Download, FileText, CheckCircle2, Loader2, Settings } from "lucide-react"
+import { ArrowLeft, ChevronRight, Download, FileText, CheckCircle2, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,14 +18,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import SingleSelectInput from "./SingleSelectComponent"
 import MultiSelectInput from "./MultiSelectInput"
@@ -107,7 +100,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [showUserInfo, setShowUserInfo] = useState(false)
 
   const updateLocalStorage = (newList: List) => {
     const path = window.location.pathname
@@ -258,7 +250,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     setIsExportOpen(false)
 
     try {
-      const pdfBlob = await generatePdfFromJson(list as JsonData, userInfo)
+      const pdfBlob = await generatePdfFromJson(list as JsonData)
       const link = document.createElement("a")
       link.href = URL.createObjectURL(pdfBlob)
       link.download = `${list?.title || "checklist"}_${userInfo.ime}_${userInfo.priimek}.pdf`
@@ -326,8 +318,8 @@ export default function Checklist({ userInfo }: ChecklistProps) {
           </NavLink>
 
           <div className="flex-1 text-center px-4">
-            <h1 className="text-lg font-semibold text-slate-900 truncate" title={list.title}>
-              {list.title}
+            <h1 className="text-lg font-semibold text-slate-900 truncate" title={list!.title}>
+              {list!.title}
             </h1>
             <div className="flex items-center justify-center gap-2 mt-1">
       
@@ -383,17 +375,17 @@ export default function Checklist({ userInfo }: ChecklistProps) {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 mb-8">
         {/* Description */}
-        {list.description && (
+        {list!.description && (
           <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm border border-violet-100">
             <CardContent className="p-6">
-              <p className="text-slate-600 leading-relaxed">{list.description}</p>
+              <p className="text-slate-600 leading-relaxed">{list!.description}</p>
             </CardContent>
           </Card>
         )}
 
         {/* Categories */}
         <div className="space-y-4">
-          {Object.entries(list.categories).map(([categoryId, category]) => (
+          {Object.entries(list!.categories).map(([categoryId, category]) => (
             <Card
               key={categoryId}
               className="border-0 shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-blue-100"
@@ -441,8 +433,8 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                           </div>
 
                           <div className="space-y-4">
-                        {Object.entries(subcategory.elements).map(([elementId, element], index) => {
-  const allElements = Object.values(list.categories)
+                        {Object.entries(subcategory.elements).map(([elementId, element]) => {
+  const allElements = Object.values(list!.categories)
     .flatMap((cat) => Object.values(cat.subcategories))
     .flatMap((sub) => Object.entries(sub.elements))
 

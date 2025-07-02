@@ -6,7 +6,6 @@ import { Info, Loader2, AlertCircle, FileText, ChevronRight } from "lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface List {
