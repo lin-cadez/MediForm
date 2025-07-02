@@ -1,542 +1,507 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { generatePdfFromJson } from "./pdfGenerator";
-import { NavLink } from "react-router-dom";
-import { ArrowLeft, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react"
+import { generatePdfFromJson } from "./pdfGenerator"
+import { NavLink } from "react-router-dom"
+import { ArrowLeft, ChevronRight, Download, FileText, CheckCircle2, Loader2, Settings } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerHeader,
-	DrawerTitle,
-	DrawerTrigger,
-} from "@/components/ui/drawer";
-import SingleSelectInput from "./SingleSelectComponent";
-import MultiSelectInput from "./MultiSelectInput";
-import ExportSVG from "../export.svg";
-import Pdf from "../pdf.svg";
-import Excel from "../excel.svg";
-import { motion, AnimatePresence } from "framer-motion";
-import "./checklist.css";
-import Logo from "../logotip_vegova_brez_naziva_leze.png";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import SingleSelectInput from "./SingleSelectComponent"
+import MultiSelectInput from "./MultiSelectInput"
+import { motion, AnimatePresence } from "framer-motion"
+
+interface UserInfo {
+  ime: string
+  priimek: string
+  razred: string
+}
 
 interface JsonData {
-	title: string;
-	description: string;
-	categories: Record<
-		string,
-		{
-			title: string;
-			description: string;
-			subcategories: Record<
-				string,
-				{
-					title: string;
-					description: string | null;
-					elements: Record<
-						string,
-						{
-							title: string;
-							unit: string | null;
-							value: string | boolean | string[] | null;
-							hint: string | null;
-						}
-					>;
-				}
-			>;
-		}
-	>;
+  title: string
+  description: string
+  categories: Record<
+    string,
+    {
+      title: string
+      description: string
+      subcategories: Record<
+        string,
+        {
+          title: string
+          description: string | null
+          elements: Record<
+            string,
+            {
+              title: string
+              unit: string | null
+              value: string | boolean | string[] | null
+              hint: string | null
+            }
+          >
+        }
+      >
+    }
+  >
 }
 
 interface Element {
-	title: string;
-	unit: string | null;
-	value: string | number | boolean | string[] | null;
-	hint: string | null;
-	type: string;
-	options?: string[];
-	option_type?: "one" | "multiple";
+  title: string
+  unit: string | null
+  value: string | number | boolean | string[] | null
+  hint: string | null
+  type: string
+  options?: string[]
+  option_type?: "one" | "multiple"
 }
 
 interface Subcategory {
-	title: string;
-	description: string | null;
-	elements: Record<string, Element>;
+  title: string
+  description: string | null
+  elements: Record<string, Element>
 }
 
 interface Category {
-	title: string;
-	description: string;
-	url: string;
-	subcategories: Record<string, Subcategory>;
+  title: string
+  description: string
+  url: string
+  subcategories: Record<string, Subcategory>
 }
 
 interface List {
-	title: string;
-	description: string;
-	url: string;
-	categories: Record<string, Category>;
+  title: string
+  description: string
+  url: string
+  categories: Record<string, Category>
 }
 
-export default function Checklist() {
-	const [list, setList] = useState<List | null>(null);
-	const [formData, setFormData] = useState<Record<string, any>>({});
-	const [openCategories, setOpenCategories] = useState<
-		Record<string, boolean>
-	>({});
-	const [isOpen, setIsOpen] = useState(false);
+interface ChecklistProps {
+  userInfo: UserInfo
+}
 
-	const updateLocalStorage = (newList: List) => {
-		const path = window.location.pathname;
-		const urlSegment = path.split("/checklist/")[1];
-		localStorage.setItem(urlSegment, JSON.stringify(newList));
-	};
+export default function Checklist({ userInfo }: ChecklistProps) {
+  const [list, setList] = useState<List | null>(null)
+  const [formData, setFormData] = useState<Record<string, any>>({})
+  const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({})
+  const [isExportOpen, setIsExportOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [showUserInfo, setShowUserInfo] = useState(false)
 
-	const castToArray = (value: any): string[] => {
-		return Array.isArray(value) ? value : [];
-	};
+  const updateLocalStorage = (newList: List) => {
+    const path = window.location.pathname
+    const urlSegment = path.split("/checklist/")[1]
+    localStorage.setItem(urlSegment, JSON.stringify(newList))
+  }
 
-	const fetchData = async () => {
-		const urlSegment = window.location.pathname.split("/checklist/")[1];
-		const storedData = localStorage.getItem(urlSegment);
-		
-		if (storedData) {
-			const parsedData = JSON.parse(storedData);
+  const castToArray = (value: any): string[] => {
+    return Array.isArray(value) ? value : []
+  }
 
-			if (parsedData) {
-				// Ensure all multi-select elements have their `value` cast to arrays
-				Object.values(parsedData.categories).forEach((category) => {
-					Object.values((category as Category).subcategories).forEach(
-						(subcategory) => {
-							Object.entries(subcategory.elements).forEach(
-								([, element]) => {
-									if (element.option_type === "multiple") {
-										// Ensure the value is cast to an array
-										element.value = castToArray(
-											element.value
-										);
-									}
-								}
-							);
-						}
-					);
-				});
+  const fetchData = async () => {
+    setIsLoading(true)
+    const urlSegment = window.location.pathname.split("/checklist/")[1]
+    const storedData = localStorage.getItem(urlSegment)
 
-				setList(parsedData);
-				return;
-			}
-		}
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      if (parsedData) {
+        Object.values(parsedData.categories).forEach((category) => {
+          Object.values((category as Category).subcategories).forEach((subcategory) => {
+            Object.entries(subcategory.elements).forEach(([, element]) => {
+              if (element.option_type === "multiple") {
+                element.value = castToArray(element.value)
+              }
+            })
+          })
+        })
+        setList(parsedData)
+        setIsLoading(false)
+        return
+      }
+    }
 
-		console.error("No data found in localStorage.");
-	};
+    console.error("No data found in localStorage.")
+    setIsLoading(false)
+  }
 
-	const handleInputChange = (
-		categoryId: string,
-		subcategoryId: string,
-		elementId: string,
-		value: any
-	) => {
-		setFormData((prevData) => {
-			const newFormData = {
-				...prevData,
-				[categoryId]: {
-					...prevData[categoryId],
-					[subcategoryId]: {
-						...prevData[categoryId]?.[subcategoryId],
-						[elementId]: value,
-					},
-				},
-			};
+  const handleInputChange = (categoryId: string, subcategoryId: string, elementId: string, value: any) => {
+    setFormData((prevData) => {
+      const newFormData = {
+        ...prevData,
+        [categoryId]: {
+          ...prevData[categoryId],
+          [subcategoryId]: {
+            ...prevData[categoryId]?.[subcategoryId],
+            [elementId]: value,
+          },
+        },
+      }
 
-			// Update the list state
-			setList((prevList) => {
-				if (!prevList) return null;
-				const newList = {
-					...prevList,
-					categories: {
-						...prevList.categories,
-						[categoryId]: {
-							...prevList.categories[categoryId],
-							subcategories: {
-								...prevList.categories[categoryId]
-									.subcategories,
-								[subcategoryId]: {
-									...prevList.categories[categoryId]
-										.subcategories[subcategoryId],
-									elements: {
-										...prevList.categories[categoryId]
-											.subcategories[subcategoryId]
-											.elements,
-										[elementId]: {
-											...prevList.categories[categoryId]
-												.subcategories[subcategoryId]
-												.elements[elementId],
-											value: value,
-										},
-									},
-								},
-							},
-						},
-					},
-				};
+      setList((prevList) => {
+        if (!prevList) return null
+        const newList = {
+          ...prevList,
+          categories: {
+            ...prevList.categories,
+            [categoryId]: {
+              ...prevList.categories[categoryId],
+              subcategories: {
+                ...prevList.categories[categoryId].subcategories,
+                [subcategoryId]: {
+                  ...prevList.categories[categoryId].subcategories[subcategoryId],
+                  elements: {
+                    ...prevList.categories[categoryId].subcategories[subcategoryId].elements,
+                    [elementId]: {
+                      ...prevList.categories[categoryId].subcategories[subcategoryId].elements[elementId],
+                      value: value,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }
 
-				updateLocalStorage(newList);
-				return newList;
-			});
+        updateLocalStorage(newList)
+        return newList
+      })
 
-			return newFormData;
-		});
-	};
+      return newFormData
+    })
+  }
 
-	useEffect(() => {
-		fetchData();
-	}, []);
+  useEffect(() => {
+    fetchData()
+  }, [])
 
-	const toggleCategory = (categoryId: string) => {
-		setOpenCategories((prevState) => ({
-			...prevState,
-			[categoryId]: !prevState[categoryId],
-		}));
-	};
+  const toggleCategory = (categoryId: string) => {
+    setOpenCategories((prevState) => ({
+      ...prevState,
+      [categoryId]: !prevState[categoryId],
+    }))
+  }
 
-	// rendera vse elemente v podkategoriji
-	const renderElement = (
-		categoryId: string,
-		subcategoryId: string,
-		elementId: string,
-		element: Element
-	) => {
-		switch (element.type) {
-			case "str":
-				if (element.options && element.option_type === "one") {
-					return (
-						<SingleSelectInput
-							predefinedOptions={element.options}
-							value={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] ??
-								element.value ??
-								""
-							}
-							onChange={(value) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									value
-								)
-							}
-						/>
-					);
-				} else if (
-					element.options &&
-					element.option_type === "multiple"
-				) {
-					return (
-						<MultiSelectInput
-							predefinedOptions={element.options}
-							value={
-								Array.isArray(element.value)
-									? element.value
-									: []
-							}
-							onChange={(value) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									value
-								)
-							}
-						/>
-					);
-				} else {
-					return (
-						<div className="w-full max-w-md mx-auto pt-4 pb-4">
-							<div className="border rounded-md p-2 w-full">
-								<Input
-									type="text"
-									className="placeholder_fix"
-									style={{ border: 0, boxShadow: "none" }}
-									value={
-										formData[categoryId]?.[subcategoryId]?.[
-											elementId
-										] ??
-										element.value ??
-										""
-									}
-									onChange={(e) =>
-										handleInputChange(
-											categoryId,
-											subcategoryId,
-											elementId,
-											e.target.value
-										)
-									}
-									placeholder={
-										element.value ? "" : element.hint || ""
-									}
-								/>
-							</div>
-						</div>
-					);
-				}
-			case "bool":
-				return (
-					<div className="py-4 flex items-center space-x-2">
-						<Checkbox
-							className="w-6 h-6 shadow-4"
-							checked={
-								formData[categoryId]?.[subcategoryId]?.[
-									elementId
-								] ??
-								element.value ??
-								false
-							}
-							onCheckedChange={(checked) =>
-								handleInputChange(
-									categoryId,
-									subcategoryId,
-									elementId,
-									checked
-								)
-							}
-						/>
-					</div>
-				);
-			default:
-				return null;
-		}
-	};
+  const renderElement = (categoryId: string, subcategoryId: string, elementId: string, element: Element) => {
+    const commonValue = formData[categoryId]?.[subcategoryId]?.[elementId] ?? element.value
 
-	if (!list) {
-		return <div className="loading">Loading...</div>;
-	}
+    switch (element.type) {
+      case "str":
+        if (element.options && element.option_type === "one") {
+          return (
+            <SingleSelectInput
+              predefinedOptions={element.options}
+              value={commonValue ?? ""}
+              onChange={(value) => handleInputChange(categoryId, subcategoryId, elementId, value)}
+            />
+          )
+        } else if (element.options && element.option_type === "multiple") {
+          return (
+            <MultiSelectInput
+              predefinedOptions={element.options}
+              value={Array.isArray(element.value) ? element.value : []}
+              onChange={(value) => handleInputChange(categoryId, subcategoryId, elementId, value)}
+            />
+          )
+        } else {
+          return (
+            <div className="space-y-2">
+              <Input
+                type="text"
+                value={commonValue ?? ""}
+                onChange={(e) => handleInputChange(categoryId, subcategoryId, elementId, e.target.value)}
+                placeholder={element.hint || "Enter value..."}
+                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+          )
+        }
+      case "bool":
+        return (
+          <div className="flex items-center space-x-3 py-2">
+            <Checkbox
+              checked={commonValue ?? false}
+              onCheckedChange={(checked) => handleInputChange(categoryId, subcategoryId, elementId, checked)}
+              className="h-5 w-5 transition-all duration-200"
+            />
+            <span className="text-sm text-muted-foreground">{commonValue ? "Da" : "Ne"}</span>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
 
-	const success = document.querySelector(".success");
+  const exportPdf = async () => {
+    setIsExporting(true)
+    setIsExportOpen(false)
 
-	const openSuccess = () => {
-		if (success) {
-			success.classList.add("show");
-			const urlSegment = window.location.pathname.split("/checklist/")[1];
-			localStorage.removeItem(urlSegment);
-			setTimeout(() => {
-				closeSuccess();
-			}, 3000);
-		}
-	};
+    try {
+      const pdfBlob = await generatePdfFromJson(list as JsonData, userInfo)
+      const link = document.createElement("a")
+      link.href = URL.createObjectURL(pdfBlob)
+      link.download = `${list?.title || "checklist"}_${userInfo.ime}_${userInfo.priimek}.pdf`
+      link.click()
 
-	const closeSuccess = () => {
-		if (success) {
-			success.classList.remove("show");
-		}
-	};
+      setShowSuccess(true)
+      const urlSegment = window.location.pathname.split("/checklist/")[1]
+      localStorage.removeItem(urlSegment)
 
-	const exportPdf = async () => {
-		setIsOpen(false);
+      setTimeout(() => setShowSuccess(false), 4000)
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
-		try {
-			const pdfBlob = await generatePdfFromJson(list as JsonData);
-			const link = document.createElement("a");
-			link.href = URL.createObjectURL(pdfBlob);
-			link.download = "example.pdf";
-			link.click();
+  const getCompletionStats = () => {
+    if (!list) return { completed: 0, total: 0, percentage: 0 }
 
-			openSuccess();
-		} catch (error) {
-			console.error("Error generating PDF:", error);
-		}
-	};
+    let completed = 0
+    let total = 0
 
-	const exportExcel = () => {
-		setIsOpen(false);
-		openSuccess();
-	};
+    Object.values(list.categories).forEach((category) => {
+      Object.values(category.subcategories).forEach((subcategory) => {
+        Object.values(subcategory.elements).forEach((element) => {
+          total++
+          if (element.value !== null && element.value !== "" && element.value !== false) {
+            completed++
+          }
+        })
+      })
+    })
 
-	const categoryVariants = {
-		hidden: { opacity: 0, height: 0 },
-		visible: { opacity: 1, height: "auto" },
-	};
+    return { completed, total, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 }
+  }
 
-	return (
-		<div className="checklist-page">
-			<Drawer open={isOpen} onOpenChange={setIsOpen}>
-				<nav className="navbar">
-					<NavLink to="/" end>
-						<ArrowLeft />
-					</NavLink>
-					<div className="title">
-						<h1 title={list.title}>
-							{list.title.length > 12
-								? `${list.title.substring(0, 12)}...`
-								: list.title}
-						</h1>
-					</div>
-					<DrawerTrigger asChild onClick={() => closeSuccess()}>
-						<img src={ExportSVG} alt="export" className="h-6" />
-					</DrawerTrigger>
-				</nav>
-				<div className="content">
-					{Object.entries(list.categories).map(
-						([categoryId, category]) => (
-							<Card className="p-4 mb-4 shadow-md card-bg">
-								<CardHeader
-									className="flex items-left justify-between cursor-pointer"
-									onClick={() => toggleCategory(categoryId)}>
-									<CardTitle className="flex items-center text-lg font-semibold">
-										<motion.div
-											className="icon-container"
-											animate={{
-												rotate: openCategories[
-													categoryId
-												]
-													? 90
-													: 0,
-											}}
-											transition={{ duration: 0.3 }}>
-											<ChevronRight size={24} />
-										</motion.div>
-										<span className="title-text">
-											{category.title}
-										</span>
-									</CardTitle>
-								</CardHeader>
-								<AnimatePresence>
-									{openCategories[categoryId] && (
-										<motion.div
-											variants={categoryVariants}
-											initial="hidden"
-											animate="visible"
-											exit="hidden"
-											transition={{ duration: 0.3 }}>
-											<CardContent className="category-content">
-												<p className="opacity-50 mb-4">
-													{category.description}
-												</p>
-												{Object.entries(
-													category.subcategories
-												).map(
-													([
-														subcategoryId,
-														subcategory,
-													]) => (
-														<motion.div
-															key={subcategoryId}
-															className="subcategory mb-4"
-															initial={{
-																opacity: 0,
-															}}
-															animate={{
-																opacity: 1,
-															}}
-															transition={{
-																duration: 0.3,
-																delay: 0.1,
-															}}>
-															<h3 className="font-semibold">
-																{
-																	subcategory.title
-																}
-															</h3>
-															{subcategory.description && (
-																<p className="text-sm opacity-75 mb-2">
-																	{
-																		subcategory.description
-																	}
-																</p>
-															)}
-															{Object.entries(
-																subcategory.elements
-															).map(
-																([
-																	elementId,
-																	element,
-																]) => (
-																	<motion.div
-																		key={
-																			elementId
-																		}
-																		className="element mb-4">
-																		<Label
-																			htmlFor={
-																				elementId
-																			}>
-																			{
-																				element.title
-																			}
-																		</Label>
-																		<div className="input-wrapper flex items-center space-x-2">
-																			{renderElement(
-																				categoryId,
-																				subcategoryId,
-																				elementId,
-																				element
-																			)}
-																			{element.unit && (
-																				<span className="unit text-gray-500">
-																					{
-																						element.unit
-																					}
-																				</span>
-																			)}
-																		</div>
-																	</motion.div>
-																)
-															)}
-														</motion.div>
-													)
-												)}
-											</CardContent>
-										</motion.div>
-									)}
-								</AnimatePresence>
-							</Card>
-						)
-					)}
-				</div>
-				<DrawerContent>
-					<DrawerHeader>
-						<DrawerTitle>Možnosti izvoza</DrawerTitle>
-					</DrawerHeader>
-					<div className="p-4">
-						<DrawerDescription>
-							Izberi format izvoza tvojega seznama opravil.
-						</DrawerDescription>
-						<div className="export-buttons mt-4">
-							<button
-								className="export-button"
-								onClick={exportPdf}>
-								Izvozi kot PDF{" "}
-								<img
-									src={Pdf}
-									alt="pdf"
-									className="inline ml-2"
-								/>
-							</button>
-							<button
-								className="export-button"
-								onClick={exportExcel}>
-								Izvozi kot Excel{" "}
-								<img
-									src={Excel}
-									alt="excel"
-									className="inline ml-2"
-								/>
-							</button>
-						</div>
-					</div>
-				</DrawerContent>
-				<div className="success">
-					<p>Seznam je bil uspešno izvožen.</p>
-					<img src={Logo} alt="logo" />
-				</div>
-			</Drawer>
-		</div>
-	);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-violet-600" />
+          <p className="text-slate-600 font-medium">Loading checklist...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!list) {
+	window.location.href = "/"
+}
+
+  const stats = getCompletionStats()
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-100">
+      {/* Fixed Header */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-violet-200 shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
+          <NavLink
+            to="/"
+            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors duration-200"
+          >
+            <ArrowLeft className="h-5 w-5 text-slate-600" />
+          </NavLink>
+
+          <div className="flex-1 text-center px-4">
+            <h1 className="text-lg font-semibold text-slate-900 truncate" title={list.title}>
+              {list.title}
+            </h1>
+            <div className="flex items-center justify-center gap-2 mt-1">
+      
+              <div className="w-16 h-1.5 bg-violet-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 to-violet-600 transition-all duration-500"
+                  style={{ width: `${stats.percentage}%` }}
+                />
+              </div>
+              <span className="text-xs text-slate-500 font-medium">{stats.percentage}%</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+
+            <Drawer open={isExportOpen} onOpenChange={setIsExportOpen}>
+              <DrawerTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent"
+                  disabled={isExporting}
+                >
+                  {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                </Button>
+              </DrawerTrigger>
+
+              <DrawerContent className="max-w-md mx-auto">
+                <DrawerHeader className="text-center">
+                  <DrawerTitle className="flex items-center justify-center gap-2">
+                    <Download className="h-5 w-5" />
+                    Export Options
+                  </DrawerTitle>
+                  <DrawerDescription>Export your completed checklist as PDF</DrawerDescription>
+                </DrawerHeader>
+
+                <div className="p-6">
+                  <Button
+                    onClick={exportPdf}
+                    className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700"
+                    disabled={isExporting}
+                  >
+                    <FileText className="h-5 w-5" />
+                    Izvozi kot PDF
+                  </Button>
+                </div>
+              </DrawerContent>
+            </Drawer>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 mb-8">
+        {/* Description */}
+        {list.description && (
+          <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm border border-violet-100">
+            <CardContent className="p-6">
+              <p className="text-slate-600 leading-relaxed">{list.description}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Categories */}
+        <div className="space-y-4">
+          {Object.entries(list.categories).map(([categoryId, category]) => (
+            <Card
+              key={categoryId}
+              className="border-0 shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-blue-100"
+            >
+              <CardHeader
+                className="cursor-pointer select-none hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-violet-50/50 transition-colors duration-200 rounded-t-lg"
+                onClick={() => toggleCategory(categoryId)}
+              >
+                <CardTitle className="flex items-center gap-3 text-slate-900">
+                  <motion.div
+                    animate={{ rotate: openCategories[categoryId] ? 90 : 0 }}
+                    transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="flex-shrink-0"
+                  >
+                    <ChevronRight className="h-5 w-5 text-slate-500" />
+                  </motion.div>
+                  <span className="font-semibold">{category.title}</span>
+                </CardTitle>
+                {category.description && <p className="text-sm text-slate-500 ml-8 mt-1">{category.description}</p>}
+              </CardHeader>
+
+              <AnimatePresence>
+                {openCategories[categoryId] && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <CardContent className="pt-0 pb-6 space-y-6">
+                      {Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
+                        <motion.div
+                          key={subcategoryId}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.1 }}
+                          className="bg-gradient-to-r from-blue-50/30 to-violet-50/30 rounded-lg p-5 space-y-4 border border-blue-100/50"
+                        >
+                          <div>
+                            <h3 className="font-semibold text-slate-900 mb-1">{subcategory.title}</h3>
+                            {subcategory.description && (
+                              <p className="text-sm text-slate-600">{subcategory.description}</p>
+                            )}
+                          </div>
+
+                          <div className="space-y-4">
+                        {Object.entries(subcategory.elements).map(([elementId, element], index) => {
+  const allElements = Object.values(list.categories)
+    .flatMap((cat) => Object.values(cat.subcategories))
+    .flatMap((sub) => Object.entries(sub.elements))
+
+  const lastMultipleChoiceKey = allElements
+    .reverse()
+    .find(([, el]) => el.option_type === "multiple")?.[0]
+
+  const isLastMultipleChoice = element.option_type === "multiple" && elementId === lastMultipleChoiceKey
+
+  return (
+    <div
+      key={elementId}
+      className={`space-y-2 ${isLastMultipleChoice ? "mb-[150px]" : ""}`}
+    >
+      <Label
+        htmlFor={elementId}
+        className="text-sm font-medium text-slate-700 flex items-center gap-2"
+      >
+        {element.title}
+        {element.unit && (
+          <Badge variant="outline" className="text-xs">
+            {element.unit}
+          </Badge>
+        )}
+      </Label>
+      {renderElement(categoryId, subcategoryId, elementId, element)}
+    </div>
+  )
+})}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </CardContent>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Card>
+          ))}
+        </div>
+      </main>
+
+      {/* Success Notification */}
+      <AnimatePresence>
+        {showSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            className="fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto"
+          >
+            <Alert className="bg-gradient-to-r from-blue-50 to-violet-50 border-violet-200 shadow-lg">
+              <CheckCircle2 className="h-4 w-4 text-violet-600" />
+              <AlertDescription className="text-violet-800 font-medium">
+                Poročilo je bilo uspešno izvoženo!
+              </AlertDescription>
+            </Alert>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
 }

@@ -1,123 +1,133 @@
-import React, {
-	useState,
-	useRef,
-	useEffect,
-	KeyboardEvent,
-	FocusEvent,
-	MouseEvent,
-} from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+"use client"
+
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { ChevronDown, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface SingleSelectInputProps {
-	predefinedOptions: string[];
-	value: string | null; // Initial selected value
-	onChange: (value: string | null) => void;
+  predefinedOptions: string[]
+  value: string | null
+  onChange: (value: string | null) => void
 }
 
-function SingleSelectInput({
-	predefinedOptions,
-	value,
-	onChange,
-}: SingleSelectInputProps) {
-	const [, setSelectedOption] = useState<string | null>(value);
-	const [inputValue, setInputValue] = useState(value || "");
-	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const inputRef = useRef<HTMLInputElement>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const dropdownRef = useRef<HTMLUListElement>(null);
+export default function SingleSelectInput({ predefinedOptions, value, onChange }: SingleSelectInputProps) {
+  const [inputValue, setInputValue] = useState(value || "")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-	useEffect(() => {
-		// Sync external `value` prop with internal state
-		setSelectedOption(value);
-		setInputValue(value || "");
-	}, [value]);
+  useEffect(() => {
+    setInputValue(value || "")
+  }, [value])
 
-	const handleSelect = (option: string) => {
-		setSelectedOption(option);
-		setInputValue(option);
-		onChange(option); // Notify parent
-		setIsDropdownOpen(false);
-		inputRef.current?.focus();
-	};
+  const handleSelect = (option: string) => {
+    setInputValue(option)
+    onChange(option)
+    setIsDropdownOpen(false)
+    setHighlightedIndex(-1)
+  }
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value;
-		setInputValue(newValue);
-		setSelectedOption(newValue); // Treat the typed value as the selected option
-		onChange(newValue); // Notify parent with the custom value
-		setIsDropdownOpen(false);
-	};
-	
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setInputValue(newValue)
+    onChange(newValue)
+    setIsDropdownOpen(true)
+  }
 
-	const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter" && inputValue.trim() !== "") {
-			e.preventDefault();
-			if (predefinedOptions.includes(inputValue.trim())) {
-				handleSelect(inputValue.trim());
-			}
-		}
-	};
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isDropdownOpen) return
 
-	const handleInputBlur = (_e: FocusEvent<HTMLInputElement>) => {
-		setTimeout(() => {
-			if (
-				document.activeElement !== inputRef.current &&
-				!dropdownRef.current?.contains(document.activeElement)
-			) {
-				setIsDropdownOpen(false);
-			}
-		}, 150);
-	};
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault()
+        setHighlightedIndex((prev) => (prev < predefinedOptions.length - 1 ? prev + 1 : 0))
+        break
+      case "ArrowUp":
+        e.preventDefault()
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : predefinedOptions.length - 1))
+        break
+      case "Enter":
+        e.preventDefault()
+        if (highlightedIndex >= 0) {
+          handleSelect(predefinedOptions[highlightedIndex])
+        }
+        break
+      case "Escape":
+        setIsDropdownOpen(false)
+        setHighlightedIndex(-1)
+        break
+    }
+  }
 
-	const toggleDropdown = () => {
-		setIsDropdownOpen((prev) => !prev);
-		inputRef.current?.focus();
-	};
+  const filteredOptions = predefinedOptions.filter((option) => option.toLowerCase().includes(inputValue.toLowerCase()))
 
-	return (
-		<div className="w-full max-w-md mx-auto pt-4 pb-4">
-			<div className="border rounded-md p-2 w-full" ref={containerRef}>
-				<div className="flex items-center w-full">
-					<Input
-						ref={inputRef}
-						type="text"
-						value={inputValue}
-						onChange={handleInputChange}
-						onKeyDown={handleInputKeyDown}
-						onBlur={handleInputBlur}
-						className="placeholder_fix flex-grow w-full border-none shadow-none focus-visible:ring-0"
-						placeholder="Piši ali izberi med možnostimi..."
-					/>
-					<Button
-						variant="outline"
-						onClick={toggleDropdown}
-						className="ml-2">
-						<ChevronDown className="h-4 w-4" />
-					</Button>
-				</div>
-				{isDropdownOpen && (
-					<ul
-						ref={dropdownRef}
-						className="absolute z-10 border rounded-md shadow-lg max-h-60 overflow-auto mt-1 bg-white w-full"
-						style={{
-							width: containerRef.current?.offsetWidth || "100%",
-						}}
-						onMouseDown={(e: MouseEvent) => e.preventDefault()}>
-						{predefinedOptions.map((option) => (
-							<li
-								key={option}
-								className="px-4 py-2 hover:bg-accent cursor-pointer"
-								onClick={() => handleSelect(option)}>
-								{option}
-							</li>
-						))}
-					</ul>
-				)}
-			</div>
-		</div>
-	);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+        setHighlightedIndex(-1)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  return (
+    <div className="relative mb-4" ref={dropdownRef}>
+      <div className="flex items-center space-x-2">
+        <div className="relative flex-1">
+          <Input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsDropdownOpen(true)}
+            placeholder="Vpišite ali izberite možnost..."
+            className="pr-10 transition-all duration-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 border-violet-200"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-violet-100"
+          >
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-violet-500 transition-transform duration-200",
+                isDropdownOpen && "rotate-180",
+              )}
+            />
+          </Button>
+        </div>
+      </div>
+
+      {isDropdownOpen && filteredOptions.length > 0 && (
+        <div className="absolute z-[9999] w-full mt-1 bg-white border border-violet-200 rounded-lg shadow-xl max-h-60 overflow-auto">
+          {filteredOptions.map((option, index) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => handleSelect(option)}
+              onMouseEnter={() => setHighlightedIndex(index)}
+              className={cn(
+                "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-violet-50 transition-colors duration-150 flex items-center justify-between",
+                index === highlightedIndex && "bg-gradient-to-r from-blue-50 to-violet-50",
+                option === value && "bg-gradient-to-r from-blue-100 to-violet-100 text-violet-700",
+              )}
+            >
+              <span>{option}</span>
+              {option === value && <Check className="h-4 w-4 text-violet-600" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
-
-export default SingleSelectInput;
