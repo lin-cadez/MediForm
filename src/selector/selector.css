@@ -1,57 +1,145 @@
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background: #fff;
-    height: 60px;
-
-    .logo img {
-        width: 40px;
-    }
-
-    a {
-        color: #000;
-        font-weight: 400;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .title h1 {
-        font-weight: 300;
-        font-size: 1.3rem;
-    }
+.page-container {
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #f0f9ff, #f5f3ff, #e0e7ff);
 }
 
-main {
-    padding: 1rem;
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid #c4b5fd;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
 
-    .desc p {
-        color: #fff;
-        font-weight: 200;
-        font-size: 1.2rem;
-        text-align: center;
-    }
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    max-width: 72rem;
+    margin: 0 auto;
+}
 
-    .seznami {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 2rem;
+.logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(to right, #2563eb, #8b5cf6);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .seznam {
-            h2 {
-                color: #000;
-                font-weight: 400;
-                font-size: 1.5rem;
-            }
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #2563eb, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
 
-            p {
-                color: #000;
-                font-weight: 300;
-                font-size: 1rem;
-            }
-        }
-    }
+.main {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.section-heading {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.list-spacing {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.list-card {
+    border: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.list-card:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.card-header {
+    padding-bottom: 0.75rem;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #0f172a;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.title-icon {
+    width: 2rem;
+    height: 2rem;
+    background: linear-gradient(to right, #eff6ff, #f3e8ff);
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.title-icon:hover {
+    background: linear-gradient(to right, #c7d2fe, #e9d5ff);
+}
+
+.chevron {
+    color: #94a3b8;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.chevron:hover {
+    color: #8b5cf6;
+    transform: translateX(0.25rem);
+}
+
+.card-content {
+    padding-top: 0;
+}
+
+.card-description {
+    color: #475569;
+    line-height: 1.5;
+}
+
+.empty-lists {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.empty-icon {
+    width: 4rem;
+    height: 4rem;
+    background: linear-gradient(to right, #eff6ff, #f3e8ff);
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.empty-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.empty-description {
+    color: #475569;
 }
