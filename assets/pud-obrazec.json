@@ -1,0 +1,747 @@
+{
+  "pud_obrazec": {
+    "title": "Podatki o pacientu - PUD obrazec",
+    "description": "Obrazec za dokumentiranje podatkov o pacientu pri praktičnem usposabljanju.",
+    "url": "pud_obrazec",
+    "categories": {
+      "1": {
+        "title": "Dihanje in krvni obtok",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "1.1": {
+            "title": "Pulz",
+            "description": null,
+            "elements": {
+              "1.1.1": {
+                "title": "Pulz (frekvenca)",
+                "unit": "utripov/minuto",
+                "value": null,
+                "hint": "52",
+                "type": "num"
+              }
+            }
+          },
+          "1.2": {
+            "title": "Krvni tlak",
+            "description": null,
+            "elements": {
+              "1.2.1": {
+                "title": "Krvni tlak (izmerjena vrednost)",
+                "unit": "mmHg",
+                "value": null,
+                "hint": "109/56",
+                "type": "str"
+              },
+              "1.2.2": {
+                "title": "Stanje vrednosti",
+                "unit": null,
+                "value": null,
+                "hint": "hipotenzija",
+                "type": "str",
+                "options": ["hipotenzija", "normalen krvni tlak", "hipertenzija"],
+                "option_type": "one"
+              },
+              "1.2.3": {
+                "title": "Vrsta meritve",
+                "unit": null,
+                "value": null,
+                "hint": "elektronski merilec",
+                "type": "str",
+                "options": ["elektronski merilec", "ročni merilec"],
+                "option_type": "one"
+              }
+            }
+          },
+          "1.3": {
+            "title": "SpO2",
+            "description": null,
+            "elements": {
+              "1.3.1": {
+                "title": "Izmerjena vrednost SpO2 (brez aplikacije kisika)",
+                "unit": "%",
+                "value": null,
+                "hint": "93",
+                "type": "num"
+              },
+              "1.3.2": {
+                "title": "Stanje vrednosti",
+                "unit": null,
+                "value": null,
+                "hint": "znižana vrednost",
+                "type": "str",
+                "options": ["znižana vrednost", "normalna vrednost", "povišana vrednost"],
+                "option_type": "one"
+              }
+            }
+          },
+          "1.4": {
+            "title": "Aplikacija kisika",
+            "description": null,
+            "elements": {
+              "1.4.1": {
+                "title": "Predpisana koncentracija O2",
+                "unit": "%",
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "1.4.2": {
+                "title": "Izbrani pripomoček za aplikacijo kisika",
+                "unit": null,
+                "value": null,
+                "hint": "dihalna maska",
+                "type": "str",
+                "options": ["dihalna maska", "kanila", "navaden nosnik", "brez aplikacije"],
+                "option_type": "one"
+              },
+              "1.4.3": {
+                "title": "Drugo",
+                "unit": null,
+                "value": null,
+                "hint": "nima aplikacije kisika",
+                "type": "str"
+              }
+            }
+          }
+        }
+      },
+      "2": {
+        "title": "Aktivnosti zdravstvene nege - dihanje in krvni obtok",
+        "description": "Podatki o izvedeni aktivnosti zdravstvene nege",
+        "subcategories": {
+          "2.1": {
+            "title": "Merjenje dihanja",
+            "description": null,
+            "elements": {
+              "2.1.1": {
+                "title": "Način merjenja",
+                "unit": null,
+                "value": null,
+                "hint": "inspekcija",
+                "type": "str",
+                "options": ["inspekcija", "palpacija", "auskultacija"],
+                "option_type": "multiple"
+              },
+              "2.1.2": {
+                "title": "Datum izvedbe",
+                "unit": null,
+                "value": null,
+                "hint": "31. 5. 2024",
+                "type": "str"
+              }
+            }
+          },
+          "2.2": {
+            "title": "Merjenje krvnega tlaka",
+            "description": null,
+            "elements": {
+              "2.2.1": {
+                "title": "Metoda merjenja",
+                "unit": null,
+                "value": null,
+                "hint": "elektronski merilec",
+                "type": "str",
+                "options": ["elektronski merilec", "ročni merilec"],
+                "option_type": "one"
+              },
+              "2.2.2": {
+                "title": "Datum izvedbe",
+                "unit": null,
+                "value": null,
+                "hint": "31. 5. 2024",
+                "type": "str"
+              }
+            }
+          },
+          "2.3": {
+            "title": "Merjenje pulza",
+            "description": null,
+            "elements": {
+              "2.3.1": {
+                "title": "Metoda merjenja pulza",
+                "unit": null,
+                "value": null,
+                "hint": "palpacija in pulzni oksimeter",
+                "type": "str",
+                "options": ["palpacija", "pulzni oksimeter", "auskultacija", "elektrokardiogram"],
+                "option_type": "multiple"
+              },
+              "2.3.2": {
+                "title": "Datum izvedbe",
+                "unit": null,
+                "value": null,
+                "hint": "31. 5. 2024",
+                "type": "str"
+              }
+            }
+          },
+          "2.4": {
+            "title": "Merjenje SpO2 (pulzna oksimetrija)",
+            "description": null,
+            "elements": {
+              "2.4.1": {
+                "title": "SpO2 izmerjen",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "2.4.2": {
+                "title": "Datum izvedbe",
+                "unit": null,
+                "value": null,
+                "hint": "31. 5. 2024",
+                "type": "str"
+              }
+            }
+          },
+          "2.5": {
+            "title": "Sporočanje in dokumentiranje",
+            "description": null,
+            "elements": {
+              "2.5.1": {
+                "title": "Način dokumentiranja",
+                "unit": null,
+                "value": null,
+                "hint": "temperaturni list",
+                "type": "str",
+                "options": ["temperaturni list", "zdravstvena dokumentacija", "zdravstvena kartoteka", "verbalno sporočeno medicinski sestri"],
+                "option_type": "multiple"
+              }
+            }
+          },
+          "2.6": {
+            "title": "Higiensko vzdrževanje pripomočkov",
+            "description": null,
+            "elements": {
+              "2.6.1": {
+                "title": "Oskrba pripomočkov",
+                "unit": null,
+                "value": null,
+                "hint": "čiščenje pripomočka",
+                "type": "str",
+                "options": ["čiščenje pripomočka", "dezinfekcija pripomočka", "sterilizacija pripomočka"],
+                "option_type": "multiple"
+              }
+            }
+          }
+        }
+      },
+      "3": {
+        "title": "Prehranjevanje in pitje",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "3.1": {
+            "title": "Ocena stanja pacienta pri prehranjevanju in pitju",
+            "description": null,
+            "elements": {
+              "3.1.1": {
+                "title": "Odpiranje embalaže",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["sam odpre embalažo", "potrebuje pomoč pri odpiranju embalaže", "ne more odpreti embalaže"],
+                "option_type": "one"
+              },
+              "3.1.2": {
+                "title": "Pitje",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["prime, dvigne skodelico, kozarec", "potrebuje pomoč pri pitju", "ne more piti samostojno"],
+                "option_type": "one"
+              },
+              "3.1.3": {
+                "title": "Hranjenje per os",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["prinese hrano do ust z jedilnim priborom", "hrano ustrezno prežveči", "hrano ustrezno pogoltne", "potrebuje pomoč pri hranjenju"],
+                "option_type": "multiple"
+              },
+              "3.1.4": {
+                "title": "Obrok hrane zaužije",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["v bolniški postelji", "za mizo", "v jedilnici"],
+                "option_type": "one"
+              }
+            }
+          },
+          "3.2": {
+            "title": "Predpisana prehrana",
+            "description": null,
+            "elements": {
+              "3.2.1": {
+                "title": "Dieta",
+                "unit": null,
+                "value": null,
+                "hint": "prosena",
+                "type": "str",
+                "options": ["navadna", "prosena", "diabetična", "brezgluterinska", "vegetarijanska", "veganska", "brezlaktozna"],
+                "option_type": "one"
+              },
+              "3.2.2": {
+                "title": "Način prehranjevanja in pitja",
+                "unit": null,
+                "value": null,
+                "hint": "per os",
+                "type": "str",
+                "options": ["per os", "nazogastrična sonda", "PEG", "parenteralna prehrana"],
+                "option_type": "one"
+              }
+            }
+          },
+          "3.3": {
+            "title": "Bilanca zaužite tekočine",
+            "description": null,
+            "elements": {
+              "3.3.1": {
+                "title": "Količina zaužite tekočine",
+                "unit": "ml",
+                "value": null,
+                "hint": "400",
+                "type": "num"
+              }
+            }
+          }
+        }
+      },
+      "4": {
+        "title": "Izločanje in odvajanje",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "4.1": {
+            "title": "Samostojnost pacienta",
+            "description": null,
+            "elements": {
+              "4.1.1": {
+                "title": "Stopnja samostojnosti",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["pacient je samostojen", "pacient je delno samostojen: potrebuje nadzor, usmerjanje oz. delno pomoč", "pacient je popolnoma odvisen od pomoči"],
+                "option_type": "one"
+              }
+            }
+          },
+          "4.2": {
+            "title": "Način izločanja, odvajanja",
+            "description": null,
+            "elements": {
+              "4.2.1": {
+                "title": "Pripomoček za inkontinenco",
+                "unit": null,
+                "value": null,
+                "hint": "hlačna predloga",
+                "type": "str",
+                "options": ["hlačna predloga", "anatomska predloga", "urin kondom", "stalni urinski kateter", "brez pripomočka"],
+                "option_type": "one"
+              }
+            }
+          },
+          "4.3": {
+            "title": "Izločanje urina",
+            "description": null,
+            "elements": {
+              "4.3.1": {
+                "title": "Organoleptična ocena urina (barva, videz)",
+                "unit": null,
+                "value": null,
+                "hint": "bister in rumen",
+                "type": "str"
+              },
+              "4.3.2": {
+                "title": "Izmerjena diureza",
+                "unit": "ml",
+                "value": null,
+                "hint": null,
+                "type": "num"
+              },
+              "4.3.3": {
+                "title": "Motnje pri izločanju urina",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["brez motenj", "dizurija", "poliurija", "oligurija", "anurija", "inkontinenca", "retenca"],
+                "option_type": "multiple"
+              }
+            }
+          },
+          "4.4": {
+            "title": "Odvajanje blata",
+            "description": null,
+            "elements": {
+              "4.4.1": {
+                "title": "Pogostost odvajanja blata",
+                "unit": null,
+                "value": null,
+                "hint": "vsak dan",
+                "type": "str",
+                "options": ["vsak dan", "vsak drugi dan", "redko", "obstipacija", "driska"],
+                "option_type": "one"
+              },
+              "4.4.2": {
+                "title": "Nazadnje odvajal blato dne",
+                "unit": null,
+                "value": null,
+                "hint": "30. 5. 2024",
+                "type": "str"
+              },
+              "4.4.3": {
+                "title": "Primesi v blatu",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["brez primesi", "kri", "kri pomešana z blatom", "melena", "sluz", "neprebavljeni ostanki hrane", "paraziti, gliste"],
+                "option_type": "multiple"
+              }
+            }
+          }
+        }
+      },
+      "5": {
+        "title": "Gibanje in ustrezna lega",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "5.1": {
+            "title": "Samostojnost pacienta pri gibanju",
+            "description": null,
+            "elements": {
+              "5.1.1": {
+                "title": "Stopnja samostojnosti",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["pacient je samostojen pri gibanju in vzdrževanju primerne lege", "pacient je delno samostojen: potrebuje nadzor, usmerjanje oz. delno pomoč pri gibanju in vzdrževanju primerne lege", "pacient je popolnoma odvisen od pomoči pri gibanju in vzdrževanju primerne lege"],
+                "option_type": "one"
+              }
+            }
+          }
+        }
+      },
+      "6": {
+        "title": "Osebna higiena in urejenost",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "6.1": {
+            "title": "Ocena stanja pri pacientu",
+            "description": null,
+            "elements": {
+              "6.1.1": {
+                "title": "Stopnja samostojnosti",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["pacient je samostojen pri izvajanju osebne higiene", "pacient je delno samostojen pri izvajanju osebne higiene: potrebuje nadzor, usmerjanje oz. delno pomoč", "pacient je popolnoma odvisen od pomoči pri izvajanju osebne higiene"],
+                "option_type": "one"
+              }
+            }
+          },
+          "6.2": {
+            "title": "Način in navade izvajanja osebne higiene",
+            "description": null,
+            "elements": {
+              "6.2.1": {
+                "title": "Jutranja osebna higiena pacienta",
+                "unit": null,
+                "value": null,
+                "hint": "pacienta sem stuširala, počesala, umila sem mu zobno protezo",
+                "type": "str"
+              },
+              "6.2.2": {
+                "title": "Pacient se prha",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["stoje", "sede", "kopanje v kopalni kadi", "umivanje v postelji"],
+                "option_type": "one"
+              },
+              "6.2.3": {
+                "title": "Pomoč pacientu pri izvajanju osebne higiene",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["pomoč pri vzdrževanju primerne mikroklime", "potrebna nastavitev temperature in pretoka vode", "pomoč pri umivanju las, lasišča", "pomoč pri britju", "pomoč pri umivanju posameznega dela telesa", "pomoč pri česanju"],
+                "option_type": "multiple"
+              }
+            }
+          },
+          "6.3": {
+            "title": "Aktivnosti zdravstvene nege - osebna higiena",
+            "description": null,
+            "elements": {
+              "6.3.1": {
+                "title": "Anogenitalna nega",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "6.3.2": {
+                "title": "Česanje",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "6.3.3": {
+                "title": "Prhanje sede",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "6.3.4": {
+                "title": "Umivanje zobne proteze",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "6.3.5": {
+                "title": "Datum izvedbe",
+                "unit": null,
+                "value": null,
+                "hint": "31. 5. 2024",
+                "type": "str"
+              }
+            }
+          }
+        }
+      },
+      "7": {
+        "title": "Komunikacija - izražanje potreb in čustev",
+        "description": "Ocena stopnje samooskrbe pacienta",
+        "subcategories": {
+          "7.1": {
+            "title": "Samostojnost pri komunikaciji",
+            "description": null,
+            "elements": {
+              "7.1.1": {
+                "title": "Ocena komunikacije",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["pacient ustrezno komunicira ter izraža čustva, občutke in potrebe, ima primerne odnose z ljudmi", "pacient ima težave pri komunikaciji", "pacient ne more komunicirati"],
+                "option_type": "one"
+              }
+            }
+          },
+          "7.2": {
+            "title": "Zavest",
+            "description": null,
+            "elements": {
+              "7.2.1": {
+                "title": "Ocena kvalitativne zavesti",
+                "unit": null,
+                "value": null,
+                "hint": "zmedenost",
+                "type": "str",
+                "options": ["jasna zavest", "zmedenost", "delirij", "somnolenca", "sopor", "koma"],
+                "option_type": "one"
+              },
+              "7.2.2": {
+                "title": "Ocena kvantitativne zavesti",
+                "unit": null,
+                "value": null,
+                "hint": "buden",
+                "type": "str",
+                "options": ["buden", "zaspanost", "nezavest"],
+                "option_type": "one"
+              }
+            }
+          },
+          "7.3": {
+            "title": "Bolečina",
+            "description": null,
+            "elements": {
+              "7.3.1": {
+                "title": "Lokacija bolečine",
+                "unit": null,
+                "value": null,
+                "hint": "hrbet",
+                "type": "str"
+              },
+              "7.3.2": {
+                "title": "Ocena jakosti bolečine (VAS lestvica)",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["brez bolečine (0)", "rahla bolečina (1-3)", "zmerna bolečina (4-6)", "huda bolečina (7-9)", "najhujša bolečina (10)"],
+                "option_type": "one"
+              }
+            }
+          }
+        }
+      },
+      "8": {
+        "title": "Rane",
+        "description": "Dokumentiranje ran",
+        "subcategories": {
+          "8.1": {
+            "title": "Kronična rana",
+            "description": null,
+            "elements": {
+              "8.1.1": {
+                "title": "Prisotnost kronične rane",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["ni prisotnih kroničnih ran", "prisotna kronična rana"],
+                "option_type": "one"
+              },
+              "8.1.2": {
+                "title": "Vrsta rane",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["razjeda zaradi pritiska (RZP)", "golenja razjeda", "diabetična noga", "maligna kožna rana"],
+                "option_type": "one"
+              },
+              "8.1.3": {
+                "title": "Lokalizacija rane",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "8.1.4": {
+                "title": "Bris kronične rane",
+                "unit": null,
+                "value": false,
+                "hint": null,
+                "type": "bool"
+              },
+              "8.1.5": {
+                "title": "Datum odvzema brisa",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "8.1.6": {
+                "title": "Izvidi preiskave",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              }
+            }
+          },
+          "8.2": {
+            "title": "Preveza kronične rane",
+            "description": null,
+            "elements": {
+              "8.2.1": {
+                "title": "Datum preveze",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "8.2.2": {
+                "title": "Ura preveze",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "8.2.3": {
+                "title": "Vrsta obloge za oskrbo rane",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              },
+              "8.2.4": {
+                "title": "Raztopina za čiščenje rane",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              }
+            }
+          },
+          "8.3": {
+            "title": "Aplikacija zdravil",
+            "description": null,
+            "elements": {
+              "8.3.1": {
+                "title": "Način aplikacije",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str",
+                "options": ["peroralno", "subkutano", "intramuskularno", "intravenozno", "lokalno"],
+                "option_type": "one"
+              },
+              "8.3.2": {
+                "title": "Vrsta zdravila",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              }
+            }
+          },
+          "8.4": {
+            "title": "Druga opažanja",
+            "description": null,
+            "elements": {
+              "8.4.1": {
+                "title": "Druga opažanja pri pacientu",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              }
+            }
+          }
+        }
+      },
+      "9": {
+        "title": "Zaključek",
+        "description": "Končna dokumentacija",
+        "subcategories": {
+          "9.1": {
+            "title": "Ocena",
+            "description": null,
+            "elements": {
+              "9.1.1": {
+                "title": "Število doseženih točk",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "num"
+              },
+              "9.1.2": {
+                "title": "Podpis mentorice / mentorja",
+                "unit": null,
+                "value": null,
+                "hint": null,
+                "type": "str"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

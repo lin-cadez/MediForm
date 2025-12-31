@@ -3,82 +3,76 @@
 import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-    Info,
+    User,
     Loader2,
     AlertCircle,
     FileText,
     ChevronRight,
+    Settings,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAllForms } from "@/lib/firebase";
 
 import "./selector.css";
 
-interface List {
+interface FormItem {
+    id: string;
     title: string;
     description: string | null;
     url: string;
 }
 
-const STORAGE_KEY = "fetchedData";
-
 export default function Selector() {
-    const [lists, setLists] = useState<{ [key: string]: List } | null>(null);
+    const [forms, setForms] = useState<FormItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const allLists = [
-        "https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test1.json",
-        "https://raw.githubusercontent.com/jakecernet/zd-json/refs/heads/main/test2.json",
-    ];
+    const [userName, setUserName] = useState<string>("");
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
-        const fetchLists = async () => {
+        const userInfo = localStorage.getItem("userInfo");
+        if (userInfo) {
+            const parsed = JSON.parse(userInfo);
+            setUserName(parsed.ime || "");
+        }
+        
+        // Check if user is admin
+        const adminLoggedIn = sessionStorage.getItem("adminLoggedIn");
+        setIsAdmin(adminLoggedIn === "true");
+    }, []);
+
+    useEffect(() => {
+        const fetchForms = async () => {
             try {
                 setIsLoading(true);
-                const storedData = localStorage.getItem(STORAGE_KEY);
-                let fetchedLists: { [key: string]: List } = storedData
-                    ? JSON.parse(storedData)
-                    : {};
-
-                for (const url of allLists) {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error(
-                            `Napaka pri nalaganju seznama iz ${url}`
-                        );
-                    }
-                    const fetchedData = await response.json();
-                    fetchedLists = { ...fetchedLists, ...fetchedData };
-                }
-
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(fetchedLists));
-                setLists(fetchedLists);
-
-                // Check if no lists were fetched and redirect to home
-                if (Object.keys(fetchedLists).length === 0) {
-                    return;
-                }
+                const fetchedForms = await getAllForms();
+                
+                // Map Firebase forms to our format
+                const formItems: FormItem[] = fetchedForms.map((form: any) => ({
+                    id: form.id,
+                    title: form.title || "Brez naslova",
+                    description: form.description || null,
+                    url: form.url || form.id,
+                }));
+                
+                setForms(formItems);
             } catch (err) {
+                console.error("Error fetching forms:", err);
                 setError("Napaka pri nalaganju seznamov. Poskusite znova.");
-                // Redirect to home on error
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 3000);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchLists();
+        fetchForms();
     }, []);
 
-    const openList = (url: string) => {
-        if (lists?.[url]) {
-            localStorage.setItem(url, JSON.stringify(lists[url]));
-        }
+    const openForm = (form: FormItem) => {
+        // Store the form ID for later retrieval in checklist
+        localStorage.setItem("currentFormId", form.id);
     };
 
     const retryFetch = () => {
@@ -89,10 +83,10 @@ export default function Selector() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-100">
+            <div className="min-h-screen bg-sky-50">
                 <div className="flex items-center justify-center min-h-screen">
                     <div className="text-center space-y-4">
-                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-violet-600" />
+                        <Loader2 className="h-8 w-8 animate-spin mx-auto text-ocean-teal" />
                         <p className="text-slate-600 font-medium">
                             Nalagnje seznamov...
                         </p>
@@ -104,7 +98,7 @@ export default function Selector() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-100">
+            <div className="min-h-screen bg-sky-50">
                 <div className="flex items-center justify-center min-h-screen p-4">
                     <Alert className="max-w-md">
                         <AlertCircle className="h-4 w-4" />
@@ -113,7 +107,7 @@ export default function Selector() {
                         </AlertDescription>
                         <Button
                             onClick={retryFetch}
-                            className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700"
+                            className="w-full bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
                         >
                             Poskusi znova
                         </Button>
@@ -129,24 +123,42 @@ export default function Selector() {
                 <div className="header-content">
                     <NavLink to="/" className="flex items-center space-x-3">
                         <div className="logo">
-                            <FileText className="h-6 w-6 text-white" />
+                             <img
+                                src="/logo_only.png"
+                                alt="MediForm logo"
+                                className="w-full max-h-16 object-contain block"
+                            />
                         </div>
                         <span className="font-semibold text-slate-900 hidden sm:block">
                             Kontrolni seznami
                         </span>
                     </NavLink>
-                    <NavLink to="/about">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent"
-                        >
-                            <Info className="h-4 w-4" />
-                            <span className="hidden sm:inline">
-                                O aplikaciji
-                            </span>
-                        </Button>
-                    </NavLink>
+                    <div className="flex items-center gap-2">
+                        {isAdmin && (
+                            <NavLink to="/form_builder">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent border-ocean-frost text-ocean-teal"
+                                >
+                                    <Settings className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Urejevalnik</span>
+                                </Button>
+                            </NavLink>
+                        )}
+                        <NavLink to="/profil">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent"
+                            >
+                                <User className="h-4 w-4" />
+                                <span className="user-name-responsive">
+                                    {userName || (isAdmin ? "Admin" : "")}
+                                </span>
+                            </Button>
+                        </NavLink>
+                    </div>
                 </div>
             </header>
             <main className="main">
@@ -166,10 +178,9 @@ export default function Selector() {
                 </div>
                 <div className="list-spacing">
                     <AnimatePresence>
-                        {lists &&
-                            Object.entries(lists).map(([key, list], index) => (
+                        {forms.map((form, index) => (
                                 <motion.div
-                                    key={key}
+                                    key={form.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{
@@ -178,8 +189,8 @@ export default function Selector() {
                                     }}
                                 >
                                     <NavLink
-                                        to={`/checklist/${list.url}`}
-                                        onClick={() => openList(list.url)}
+                                        to={`/checklist/${form.id}`}
+                                        onClick={() => openForm(form)}
                                         className="block group"
                                     >
                                         <Card className="list-card">
@@ -187,10 +198,10 @@ export default function Selector() {
                                                 <CardTitle className="card-title">
                                                     <div className="flex items-center gap-3">
                                                         <div className="title-icon">
-                                                            <FileText className="h-4 w-4 text-violet-600" />
+                                                            <FileText className="h-4 w-4 text-ocean-teal" />
                                                         </div>
                                                         <span className="font-semibold">
-                                                            {list.title}
+                                                            {form.title}
                                                         </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -198,10 +209,10 @@ export default function Selector() {
                                                     </div>
                                                 </CardTitle>
                                             </CardHeader>
-                                            {list.description && (
+                                            {form.description && (
                                                 <CardContent className="pt-0">
                                                     <p className="text-slate-600 leading-relaxed">
-                                                        {list.description}
+                                                        {form.description}
                                                     </p>
                                                 </CardContent>
                                             )}
@@ -211,14 +222,14 @@ export default function Selector() {
                             ))}
                     </AnimatePresence>
                 </div>
-                {lists && Object.keys(lists).length === 0 && (
+                {forms.length === 0 && !isLoading && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="text-center py-12 empty-lists"
                     >
                         <div className="empty-icon">
-                            <FileText className="h-8 w-8 text-violet-600" />
+                            <FileText className="h-8 w-8 text-ocean-teal" />
                         </div>
                         <h3 className="text-lg font-semibold text-slate-900 mb-2">
                             Ni razpoložljivih seznamov
@@ -231,4 +242,7 @@ export default function Selector() {
             </main>
         </div>
     );
+
+
+
 }

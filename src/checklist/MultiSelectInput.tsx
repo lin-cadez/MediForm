@@ -117,14 +117,14 @@ export default function MultiSelectInput({
     }, []);
 
     return (
-        <div className="relative mb-4" ref={dropdownRef}>
-            <div className="min-h-[2.5rem] p-2 border border-violet-200 rounded-lg bg-white focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:border-violet-300 transition-all duration-200">
+        <div className="relative pb-2" ref={dropdownRef}>
+            <div className="min-h-[2.5rem] p-2 border border-ocean-frost rounded-md bg-white focus-within:ring-2 focus-within:ring-ocean-surf/20 focus-within:border-ocean-surf transition-all duration-200">
                 <div className="flex flex-wrap gap-1 mb-2">
                     {selectedOptions.map((option) => (
                         <Badge
                             key={option}
                             variant="secondary"
-                            className="flex items-center gap-1 bg-gradient-to-r from-blue-100 to-violet-100 text-violet-800 hover:from-blue-200 hover:to-violet-200 transition-colors duration-150"
+                            className="flex items-center gap-1 bg-gradient-to-r from-ocean-light to-ocean-frost text-ocean-deep hover:from-ocean-frost hover:to-ocean-surf/30 transition-colors duration-150"
                         >
                             <span className="text-xs">{option}</span>
                             <Button
@@ -132,7 +132,7 @@ export default function MultiSelectInput({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleRemove(option)}
-                                className="h-4 w-4 p-0 hover:bg-violet-300 rounded-full"
+                                className="h-4 w-4 p-0 hover:bg-ocean-surf/50 rounded-full"
                             >
                                 <X className="h-3 w-3" />
                             </Button>
@@ -160,7 +160,7 @@ export default function MultiSelectInput({
                         variant="ghost"
                         size="sm"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="h-6 w-6 p-0 hover:bg-violet-100 rounded"
+                        className="h-6 w-6 p-0 hover:bg-ocean-light rounded"
                     >
                         <ChevronDown
                             className={cn(
@@ -173,7 +173,8 @@ export default function MultiSelectInput({
             </div>
 
             {isDropdownOpen && (
-                <div className="absolute z-[9999] w-full mt-1 bg-white border border-violet-200 rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-[99999] w-full mt-1 bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
+                     style={{ position: 'absolute', zIndex: 99999 }}>
                     {availableOptions.length > 0 ? (
                         availableOptions.map((option, index) => (
                             <button
@@ -182,12 +183,12 @@ export default function MultiSelectInput({
                                 onClick={() => handleSelect(option)}
                                 onMouseEnter={() => setHighlightedIndex(index)}
                                 className={cn(
-                                    "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-violet-50 transition-colors duration-150 flex items-center gap-2",
+                                    "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center gap-2",
                                     index === highlightedIndex &&
-                                        "bg-gradient-to-r from-blue-50 to-violet-50"
+                                        "bg-gradient-to-r from-ocean-light to-ocean-frost"
                                 )}
                             >
-                                <Plus className="h-4 w-4 text-violet-400" />
+                                <Plus className="h-4 w-4 text-ocean-surf" />
                                 <span>{option}</span>
                             </button>
                         ))

@@ -1,0 +1,40 @@
+.form-builder-container {
+    min-height: 100vh;
+}
+
+.form-builder-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.properties-panel {
+    width: 384px;
+    min-width: 384px;
+    max-width: 384px;
+}
+
+@media (max-width: 1024px) {
+    .properties-panel {
+        width: 320px;
+        min-width: 320px;
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .properties-panel {
+        position: fixed;
+        right: 0;
+        top: 64px;
+        height: calc(100vh - 64px);
+        width: 100%;
+        max-width: 100%;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .properties-panel.open {
+        transform: translateX(0);
+    }
+}

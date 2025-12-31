@@ -6,11 +6,22 @@ export default {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
     theme: {
         extend: {
-        
+            fontFamily: {
+                sans: ['Work Sans', 'system-ui', 'sans-serif'],
+            },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
+            },
+            colors: {
+                ocean: {
+                    deep: '#03045e',
+                    teal: '#0077b6',
+                    surf: '#00b4d8',
+                    frost: '#90e0ef',
+                    light: '#caf0f8',
+                },
             },
             colors: {
                 background: 'hsl(var(--background))',

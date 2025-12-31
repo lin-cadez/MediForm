@@ -92,7 +92,7 @@ export default function SingleSelectInput({
     }, []);
 
     return (
-        <div className="relative mb-4" ref={dropdownRef}>
+        <div className="relative pb-2" ref={dropdownRef}>
             <div className="flex items-center space-x-2">
                 <div className="relative flex-1">
                     <Input
@@ -103,18 +103,18 @@ export default function SingleSelectInput({
                         onKeyDown={handleKeyDown}
                         onFocus={() => setIsDropdownOpen(true)}
                         placeholder="Vpišite ali izberite možnost..."
-                        className="pr-10 transition-all duration-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 border-violet-200"
+                        className="pr-10 transition-all duration-200 focus:ring-2 focus:ring-ocean-surf/20 focus:border-ocean-surf border-ocean-frost"
                     />
                     <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-violet-100"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 hover:bg-ocean-light"
                     >
                         <ChevronDown
                             className={cn(
-                                "h-4 w-4 text-violet-500 transition-transform duration-200",
+                                "h-4 w-4 text-ocean-surf transition-transform duration-200",
                                 isDropdownOpen && "rotate-180"
                             )}
                         />
@@ -123,7 +123,8 @@ export default function SingleSelectInput({
             </div>
 
             {isDropdownOpen && filteredOptions.length > 0 && (
-                <div className="absolute z-[9999] w-full mt-1 bg-white border border-violet-200 rounded-lg shadow-xl max-h-60 overflow-auto">
+                <div className="absolute z-[99999] w-full mt-1 bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
+                     style={{ position: 'absolute', zIndex: 99999 }}>
                     {filteredOptions.map((option, index) => (
                         <button
                             key={option}
@@ -131,16 +132,16 @@ export default function SingleSelectInput({
                             onClick={() => handleSelect(option)}
                             onMouseEnter={() => setHighlightedIndex(index)}
                             className={cn(
-                                "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-blue-50 hover:to-violet-50 transition-colors duration-150 flex items-center justify-between",
+                                "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center justify-between",
                                 index === highlightedIndex &&
-                                    "bg-gradient-to-r from-blue-50 to-violet-50",
+                                    "bg-gradient-to-r from-ocean-light to-ocean-frost",
                                 option === value &&
-                                    "bg-gradient-to-r from-blue-100 to-violet-100 text-violet-700"
+                                    "bg-gradient-to-r from-ocean-frost to-ocean-surf/30 text-ocean-deep"
                             )}
                         >
                             <span>{option}</span>
                             {option === value && (
-                                <Check className="h-4 w-4 text-violet-600" />
+                                <Check className="h-4 w-4 text-ocean-teal" />
                             )}
                         </button>
                     ))}

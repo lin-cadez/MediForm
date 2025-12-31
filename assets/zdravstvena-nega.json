@@ -1,0 +1,2240 @@
+{
+	"zdravstvena-nega": {
+		"title": "Poročilo o zdravstveni negi pacienta",
+		"description": "Poročilo o zdravstveni negi pacienta za praktični pouk.",
+		"predmet": "Zdravstvena nega",
+		"url": "zdravstvena-nega",
+		"patient_data": {
+			"starost": "",
+			"spol": "",
+			"pogovorni_jezik": "slovenščina",
+			"razlog_obravnave": "",
+			"alergija": "",
+			"medicinsko_potrjena_alergija": "/",
+			"sum_na_alergijo": "/"
+		},
+		"categories": {
+			"1": {
+				"title": "DIHANJE IN KRVNI OBTOK - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "dihanje-krvni-obtok",
+				"color": "#FEF3C7",
+				"subcategories": {
+					"1.1": {
+						"title": "Pulz",
+						"description": null,
+						"elements": {
+							"1.1.1": {
+								"title": "Pulz (frekvenca)",
+								"unit": "utripov/min",
+								"value": null,
+								"hint": "72",
+								"type": "str"
+							},
+							"1.1.2": {
+								"title": "Ocena pulza",
+								"unit": null,
+								"value": null,
+								"hint": "normokardija",
+								"type": "str",
+								"options": ["bradikardija", "normokardija", "tahikardija"],
+								"option_type": "one"
+							},
+							"1.1.3": {
+								"title": "Ritem pulza",
+								"unit": null,
+								"value": null,
+								"hint": "enakomeren",
+								"type": "str",
+								"options": ["enakomeren", "neenakomeren (aritmija)"],
+								"option_type": "one"
+							},
+							"1.1.4": {
+								"title": "Polnjenost pulza",
+								"unit": null,
+								"value": null,
+								"hint": "dobro polnjen/dobro tipljiv",
+								"type": "str",
+								"options": ["dobro polnjen/dobro tipljiv", "slabo polnjen/slabo tipljiv", "nitast"],
+								"option_type": "one"
+							},
+							"1.1.5": {
+								"title": "Vrsta meritve pulza",
+								"unit": null,
+								"value": null,
+								"hint": "palpacija",
+								"type": "str",
+								"options": ["palpacija", "pulzni oksimeter", "auskultacija", "elektrokardiogram"],
+								"option_type": "one"
+							}
+						}
+					},
+					"1.2": {
+						"title": "Krvni tlak",
+						"description": null,
+						"elements": {
+							"1.2.1": {
+								"title": "Krvni tlak (izmerjena vrednost)",
+								"unit": "mmHg",
+								"value": null,
+								"hint": "164/67",
+								"type": "str"
+							},
+							"1.2.2": {
+								"title": "Ocena krvnega tlaka",
+								"unit": null,
+								"value": null,
+								"hint": "hipertenzija",
+								"type": "str",
+								"options": ["hipotenzija", "normalen krvni tlak", "hipertenzija"],
+								"option_type": "one"
+							},
+							"1.2.3": {
+								"title": "Vrsta meritve krvnega tlaka",
+								"unit": null,
+								"value": null,
+								"hint": "elektronski merilec",
+								"type": "str",
+								"options": ["elektronski merilec", "ročni merilec"],
+								"option_type": "one"
+							}
+						}
+					},
+					"1.3": {
+						"title": "Dihanje",
+						"description": null,
+						"elements": {
+							"1.3.1": {
+								"title": "Dihanje (frekvenca)",
+								"unit": "vdihov/min",
+								"value": null,
+								"hint": "16",
+								"type": "str"
+							},
+							"1.3.2": {
+								"title": "Ocena dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "evpneja",
+								"type": "str",
+								"options": ["bradipneja", "evpneja", "tahipneja", "dispneja", "apneja"],
+								"option_type": "one"
+							},
+							"1.3.3": {
+								"title": "Ritem dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "enakomeren",
+								"type": "str",
+								"options": ["enakomeren", "neenakomeren"],
+								"option_type": "one"
+							},
+							"1.3.4": {
+								"title": "Globina dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "primerno globoko",
+								"type": "str",
+								"options": ["primerno globoko", "plitvo", "globoko"],
+								"option_type": "one"
+							},
+							"1.3.5": {
+								"title": "Način dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "diha skozi nos",
+								"type": "str",
+								"options": ["diha skozi nos", "diha skozi usta", "diha skozi nos in usta"],
+								"option_type": "one"
+							},
+							"1.3.6": {
+								"title": "Motnje dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"1.3.7": {
+								"title": "Kašelj",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["ni kašlja", "suh kašelj", "produktiven kašelj"],
+								"option_type": "one"
+							},
+							"1.3.8": {
+								"title": "Sputum",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"1.3.9": {
+								"title": "Vrsta meritve dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "inspekcija (opazovanje)",
+								"type": "str",
+								"options": ["inspekcija (opazovanje)", "palpacija", "auskultacija"],
+								"option_type": "one"
+							}
+						}
+					},
+					"1.4": {
+						"title": "SpO2",
+						"description": null,
+						"elements": {
+							"1.4.1": {
+								"title": "Izmerjena vrednost SpO2 (brez aplikacije kisika)",
+								"unit": "%",
+								"value": null,
+								"hint": "98",
+								"type": "str"
+							},
+							"1.4.2": {
+								"title": "Ocena SpO2",
+								"unit": null,
+								"value": null,
+								"hint": "pričakovana vrednost",
+								"type": "str",
+								"options": ["znižana vrednost", "pričakovana vrednost"],
+								"option_type": "one"
+							},
+							"1.4.3": {
+								"title": "Izmerjena vrednost SpO2 (pri aplikaciji kisika)",
+								"unit": "%",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"1.5": {
+						"title": "Aplikacija kisika",
+						"description": null,
+						"elements": {
+							"1.5.1": {
+								"title": "Predpisana koncentracija O2",
+								"unit": "%",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"1.5.2": {
+								"title": "Izbrani pripomoček za aplikacijo kisika",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["nosni kateter", "obrazna maska", "maska z rezervoarjem", "venturi maska", "CPAP maska", "/"],
+								"option_type": "one"
+							}
+						}
+					},
+					"1.6": {
+						"title": "Razvade",
+						"description": null,
+						"elements": {
+							"1.6.1": {
+								"title": "Kajenje",
+								"unit": null,
+								"value": null,
+								"hint": "Nekadilec",
+								"type": "str",
+								"options": ["Nekadilec", "Kadilec", "Bivši kadilec"],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"2": {
+				"title": "Aktivnosti zdravstvene nege pri življenjski aktivnosti dihanje in krvni obtok",
+				"description": "",
+				"url": "aktivnosti-dihanje-krvni-obtok",
+				"color": "#FFEDD5",
+				"subcategories": {
+					"2.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"2.1.1": {
+								"title": "Datum izvedbe",
+								"unit": null,
+								"value": null,
+								"hint": "7.10.2025",
+								"type": "str"
+							},
+							"2.1.2": {
+								"title": "Identifikacija pacienta",
+								"unit": null,
+								"value": null,
+								"hint": "Identifikacija pravega pacienta (vprašala sem po imenu, priimku, datumu rojstva, preverila sem zapestnico in dokumentacijo).",
+								"type": "str"
+							},
+							"2.1.3": {
+								"title": "Ocena stopnje samooskrbe v zvezi z dihanjem in krvnim obtokom",
+								"unit": null,
+								"value": null,
+								"hint": "Pridobila z opazovanjem, meritvami, pogovorom s pacientko in sobno medicinsko sestro.",
+								"type": "str"
+							},
+							"2.1.4": {
+								"title": "Merjenje dihanja",
+								"unit": null,
+								"value": null,
+								"hint": "Z opazovanjem, 16 vdihov/min (evpneja-normalno).",
+								"type": "str"
+							},
+							"2.1.5": {
+								"title": "Merjenje krvnega tlaka",
+								"unit": null,
+								"value": null,
+								"hint": "Z elektronskim merilcem, 164/67 mmHg (hipertenzija-povišano).",
+								"type": "str"
+							},
+							"2.1.6": {
+								"title": "Merjenje pulza",
+								"unit": null,
+								"value": null,
+								"hint": "S palpacijo na arterijo radialis 60 sekund, 72 utripov/min (normokardija-normalno).",
+								"type": "str"
+							},
+							"2.1.7": {
+								"title": "Merjenje SpO2 (pulzna oksimetrija)",
+								"unit": null,
+								"value": null,
+								"hint": "S pulznim oksimetrom, 98% (normalna vrednost).",
+								"type": "str"
+							},
+							"2.1.8": {
+								"title": "Higiensko vzdrževanje pripomočkov v zvezi z dihanjem in krvnim obtokom",
+								"unit": null,
+								"value": null,
+								"hint": "Manšeto za RR in pulzni oksimeter sem razkužila z razkužilnimi alkoholnimi robčki pred in po uporabi.",
+								"type": "str"
+							},
+							"2.1.9": {
+								"title": "Vzdrževanje mikroklime",
+								"unit": null,
+								"value": null,
+								"hint": "Prezračenje prostora, zapiranje vrat zaradi prepiha, pokrivanje pacienta.",
+								"type": "str"
+							},
+							"2.1.10": {
+								"title": "Sporočanje in dokumentiranje aktivnosti v zvezi z dihanjem in krvnim obtokom",
+								"unit": null,
+								"value": null,
+								"hint": "Dokumentiranje v temperaturni list in v poročilo ZN.",
+								"type": "str"
+							}
+						}
+					}
+				}
+			},
+			"3": {
+				"title": "VZDRŽEVANJE NORMALNE TELESNE TEMPERATURE - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "telesna-temperatura",
+				"color": "#DCFCE7",
+				"subcategories": {
+					"3.1": {
+						"title": "Telesna temperatura",
+						"description": null,
+						"elements": {
+							"3.1.1": {
+								"title": "Izmerjena vrednost telesne temperature",
+								"unit": "°C",
+								"value": null,
+								"hint": "36,6",
+								"type": "str"
+							},
+							"3.1.2": {
+								"title": "Ocena telesne temperature",
+								"unit": null,
+								"value": null,
+								"hint": "normotermija",
+								"type": "str",
+								"options": ["hipotermija", "normotermija", "subfebrilna temperatura", "febrilna temperatura", "hiperpireksija"],
+								"option_type": "one"
+							},
+							"3.1.3": {
+								"title": "Vrsta meritve",
+								"unit": null,
+								"value": null,
+								"hint": "timpanično",
+								"type": "str",
+								"options": ["aksilarno", "timpanično", "rektalno", "oralno", "čelno"],
+								"option_type": "one"
+							}
+						}
+					},
+					"3.2": {
+						"title": "Samostojnost pacienta pri vzdrževanju normalne telesne temperature",
+						"description": null,
+						"elements": {
+							"3.2.1": {
+								"title": "Stopnja samostojnosti",
+								"unit": null,
+								"value": null,
+								"hint": "pacient samostojno vzdržuje normalno telesno temperaturo z ustreznimi oblačili in temperaturo prostora",
+								"type": "str",
+								"options": [
+									"pacient samostojno vzdržuje normalno telesno temperaturo z ustreznimi oblačili in temperaturo prostora",
+									"pacient potrebuje pomoč pri vzdrževanju normalne telesne temperature",
+									"pacient je povsem odvisen od pomoči pri vzdrževanju normalne telesne temperature"
+								],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"4": {
+				"title": "Aktivnosti zdravstvene nege pri življenjski aktivnosti vzdrževanje normalne telesne temperature",
+				"description": "",
+				"url": "aktivnosti-telesna-temperatura",
+				"color": "#D1FAE5",
+				"subcategories": {
+					"4.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"4.1.1": {
+								"title": "Datum izvedbe",
+								"unit": null,
+								"value": null,
+								"hint": "7.10.2025",
+								"type": "str"
+							},
+							"4.1.2": {
+								"title": "Identifikacija pacienta",
+								"unit": null,
+								"value": null,
+								"hint": "Identifikacija pravega pacienta (vprašala sem po imenu, priimku, datumu rojstva, preverila sem zapestnico in dokumentacijo).",
+								"type": "str"
+							},
+							"4.1.3": {
+								"title": "Ocena stopnje samooskrbe v zvezi z vzdrževanjem normalne telesne temperature",
+								"unit": null,
+								"value": null,
+								"hint": "Pridobila z opazovanjem, pogovorom s pacientko in sobno medicinsko sestro.",
+								"type": "str"
+							},
+							"4.1.4": {
+								"title": "Merjenje telesne temperature na različne načine in z različnimi termometri",
+								"unit": null,
+								"value": null,
+								"hint": "Timpanično (v uho) z elektronskim timpaničnim termometrom, vrednost 36,6 °C (normotermija-normalno).",
+								"type": "str"
+							},
+							"4.1.5": {
+								"title": "Higiensko vzdrževanje termometra",
+								"unit": null,
+								"value": null,
+								"hint": "Elektronski timpanični termometer sem razkužila z razkužilnimi alkoholnimi robčki pred in po uporabi.",
+								"type": "str"
+							},
+							"4.1.6": {
+								"title": "Sporočanje in dokumentiranje aktivnosti v zvezi s telesno temperaturo",
+								"unit": null,
+								"value": null,
+								"hint": "Dokumentiranje v temperaturni list in v poročilo ZN.",
+								"type": "str"
+							}
+						}
+					}
+				}
+			},
+			"5": {
+				"title": "PREHRANJEVANJE IN PITJE - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "prehranjevanje-pitje",
+				"color": "#FEF9C3",
+				"subcategories": {
+					"5.1": {
+						"title": "Stanje prehranjenosti pacienta",
+						"description": null,
+						"elements": {
+							"5.1.1": {
+								"title": "Telesna masa",
+								"unit": "kg",
+								"value": null,
+								"hint": "78,4",
+								"type": "str"
+							},
+							"5.1.2": {
+								"title": "Telesna višina",
+								"unit": "cm",
+								"value": null,
+								"hint": "151",
+								"type": "str"
+							},
+							"5.1.3": {
+								"title": "Indeks telesne mase (ITM)",
+								"unit": "kg/m²",
+								"value": null,
+								"hint": "34,38",
+								"type": "str"
+							},
+							"5.1.4": {
+								"title": "Ocena prehranjenosti",
+								"unit": null,
+								"value": null,
+								"hint": "debelost",
+								"type": "str",
+								"options": ["podhranjenost", "normalna telesna masa", "prekomerna telesna masa", "debelost"],
+								"option_type": "one"
+							}
+						}
+					},
+					"5.2": {
+						"title": "Samostojnost pacienta pri prehranjevanju in pitju",
+						"description": null,
+						"elements": {
+							"5.2.1": {
+								"title": "Stopnja samostojnosti",
+								"unit": null,
+								"value": null,
+								"hint": "pacient je samostojen pri prehranjevanju in pitju",
+								"type": "str",
+								"options": [
+									"pacient je samostojen pri prehranjevanju in pitju",
+									"pacient je delno samostojen: potrebuje nadzor, usmerjanje oz. delno pomoč",
+									"pacient je popolnoma odvisen od pomoči pri prehranjevanju in pitju"
+								],
+								"option_type": "one"
+							}
+						}
+					},
+					"5.3": {
+						"title": "Ocena stanja pacienta pri prehranjevanju in pitju",
+						"description": null,
+						"elements": {
+							"5.3.1": {
+								"title": "Odpiranje embalaže",
+								"unit": null,
+								"value": null,
+								"hint": "sam odpre embalažo",
+								"type": "str",
+								"options": ["sam odpre embalažo", "potrebuje pomoč pri odpiranju embalaže"],
+								"option_type": "one"
+							},
+							"5.3.2": {
+								"title": "Razrez hrane",
+								"unit": null,
+								"value": null,
+								"hint": "sam razreže hrano",
+								"type": "str",
+								"options": ["sam razreže hrano", "potrebuje pomoč pri razrezu hrane"],
+								"option_type": "one"
+							},
+							"5.3.3": {
+								"title": "Pitje",
+								"unit": null,
+								"value": null,
+								"hint": "prime, dvigne skodelico, kozarec",
+								"type": "str",
+								"options": ["prime, dvigne skodelico, kozarec", "potrebuje pomoč pri pitju", "pije s slamico"],
+								"option_type": "multiple"
+							},
+							"5.3.4": {
+								"title": "Hranjenje per os",
+								"unit": null,
+								"value": null,
+								"hint": "prinese hrano do ust z jedilnim priborom / hrano ustrezno prežveči / hrano ustrezno pogoltne",
+								"type": "str"
+							},
+							"5.3.5": {
+								"title": "Obrok hrane zaužije",
+								"unit": null,
+								"value": null,
+								"hint": "v bolniški postelji",
+								"type": "str",
+								"options": ["v jedilnici", "v bolniški postelji", "za mizo v sobi"],
+								"option_type": "one"
+							}
+						}
+					},
+					"5.4": {
+						"title": "Življenjski slog prehranjevanja",
+						"description": null,
+						"elements": {
+							"5.4.1": {
+								"title": "Življenjski slog prehranjevanja",
+								"unit": null,
+								"value": null,
+								"hint": "raznovrstna prehrana",
+								"type": "str",
+								"options": ["raznovrstna prehrana", "vegetarijanska prehrana", "veganska prehrana", "drugo"],
+								"option_type": "multiple"
+							},
+							"5.4.2": {
+								"title": "Drugo (življenjski slog)",
+								"unit": null,
+								"value": null,
+								"hint": "dosoljevanje hrane",
+								"type": "str"
+							}
+						}
+					},
+					"5.5": {
+						"title": "Predpisana prehrana, dieta",
+						"description": null,
+						"elements": {
+							"5.5.1": {
+								"title": "Vrsta diete",
+								"unit": null,
+								"value": null,
+								"hint": "varovalna prehrana / diabetična prehrana",
+								"type": "str",
+								"options": ["navadna prehrana", "varovalna prehrana", "diabetična prehrana", "ledvična dieta", "jetrna dieta", "brezglutensko", "brezlaktozno", "drugo"],
+								"option_type": "multiple"
+							},
+							"5.5.2": {
+								"title": "Drugo (dieta)",
+								"unit": null,
+								"value": null,
+								"hint": "omejitev tekočine 1 L/dan",
+								"type": "str"
+							}
+						}
+					},
+					"5.6": {
+						"title": "Način prehranjevanja in pitja",
+						"description": null,
+						"elements": {
+							"5.6.1": {
+								"title": "Način prehranjevanja",
+								"unit": null,
+								"value": null,
+								"hint": "per os",
+								"type": "str",
+								"options": ["per os", "nazogastrična sonda", "perkutana endoskopska gastrostoma (PEG)", "parenteralno"],
+								"option_type": "one"
+							}
+						}
+					},
+					"5.7": {
+						"title": "Motnje pri prehranjevanju in pitju",
+						"description": null,
+						"elements": {
+							"5.7.1": {
+								"title": "Motnje pri prehranjevanju in pitju",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["disfagija", "anoreksija", "bulimija", "slabost", "bruhanje", "/"],
+								"option_type": "multiple"
+							}
+						}
+					},
+					"5.8": {
+						"title": "Razvade",
+						"description": null,
+						"elements": {
+							"5.8.1": {
+								"title": "Razvade pri prehranjevanju",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"5.9": {
+						"title": "Subjektivna ocena pacienta po hranjenju",
+						"description": null,
+						"elements": {
+							"5.9.1": {
+								"title": "Subjektivna ocena po hranjenju",
+								"unit": null,
+								"value": null,
+								"hint": "sit",
+								"type": "str",
+								"options": ["sit", "lačen", "slabost", "napihnjenost"],
+								"option_type": "one"
+							}
+						}
+					},
+					"5.10": {
+						"title": "Zaužita hrana in tekočina",
+						"description": null,
+						"elements": {
+							"5.10.1": {
+								"title": "Obrok hrane",
+								"unit": null,
+								"value": null,
+								"hint": "zajtrk, kosilo, večerja",
+								"type": "str",
+								"options": ["zajtrk", "dopoldanska malica", "kosilo", "popoldanska malica", "večerja"],
+								"option_type": "multiple"
+							},
+							"5.10.2": {
+								"title": "Količina zaužite hrane",
+								"unit": null,
+								"value": null,
+								"hint": "¾ obroka hrane",
+								"type": "str",
+								"options": ["cel obrok", "¾ obroka hrane", "½ obroka hrane", "¼ obroka hrane", "ni jedel"],
+								"option_type": "one"
+							},
+							"5.10.3": {
+								"title": "Vrsta zaužite tekočine",
+								"unit": null,
+								"value": null,
+								"hint": "voda, kakav, čaj",
+								"type": "str"
+							},
+							"5.10.4": {
+								"title": "Količina zaužite tekočine",
+								"unit": "ml",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					}
+				}
+			},
+			"6": {
+				"title": "Aktivnosti zdravstvene nege - prehranjevanje in pitje",
+				"description": "",
+				"url": "aktivnosti-prehranjevanje",
+				"color": "#FEF9C3",
+				"subcategories": {
+					"6.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"6.1.1": {
+								"title": "Aktivnosti pri prehranjevanju in pitju",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor, pomoč, spodbujanje, hranjenje",
+								"type": "str",
+								"options": ["nadzor", "pomoč", "spodbujanje", "hranjenje", "popolna pomoč"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"7": {
+				"title": "IZLOČANJE IN ODVAJANJE - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "izlocanje-odvajanje",
+				"color": "#DBEAFE",
+				"subcategories": {
+					"7.1": {
+						"title": "Izločanje urina",
+						"description": null,
+						"elements": {
+							"7.1.1": {
+								"title": "Pogostost uriniranja",
+								"unit": null,
+								"value": null,
+								"hint": "normalno",
+								"type": "str",
+								"options": ["normalno", "pogosto (polakisurija)", "redko (oligurija)", "nič (anurija)"],
+								"option_type": "one"
+							},
+							"7.1.2": {
+								"title": "Količina izločenega urina",
+								"unit": null,
+								"value": null,
+								"hint": "normalna",
+								"type": "str",
+								"options": ["normalna", "povečana (poliurija)", "zmanjšana (oligurija)", "noben (anurija)"],
+								"option_type": "one"
+							},
+							"7.1.3": {
+								"title": "Barva urina",
+								"unit": null,
+								"value": null,
+								"hint": "slamnato rumena",
+								"type": "str",
+								"options": ["slamnato rumena", "temno rumena", "rdeča (hematurija)", "motna", "bistra"],
+								"option_type": "one"
+							},
+							"7.1.4": {
+								"title": "Vonj urina",
+								"unit": null,
+								"value": null,
+								"hint": "normalen",
+								"type": "str",
+								"options": ["normalen", "oster", "neprijeten"],
+								"option_type": "one"
+							},
+							"7.1.5": {
+								"title": "Težave pri uriniranju",
+								"unit": null,
+								"value": null,
+								"hint": "brez težav",
+								"type": "str",
+								"options": ["brez težav", "bolečina (dizurija)", "pekoč občutek", "inkontinenca", "retenca"],
+								"option_type": "many"
+							},
+							"7.1.6": {
+								"title": "Nočno uriniranje (nokturija)",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							}
+						}
+					},
+					"7.2": {
+						"title": "Odvajanje blata",
+						"description": null,
+						"elements": {
+							"7.2.1": {
+								"title": "Pogostost odvajanja blata",
+								"unit": null,
+								"value": null,
+								"hint": "normalno (1x dnevno)",
+								"type": "str",
+								"options": ["normalno (1x dnevno)", "pogosto (diareja)", "redko (obstipacija)", "ne odvaja"],
+								"option_type": "one"
+							},
+							"7.2.2": {
+								"title": "Konsistenca blata",
+								"unit": null,
+								"value": null,
+								"hint": "formirano",
+								"type": "str",
+								"options": ["formirano", "mehko", "tekoče", "trdo"],
+								"option_type": "one"
+							},
+							"7.2.3": {
+								"title": "Barva blata",
+								"unit": null,
+								"value": null,
+								"hint": "rjava",
+								"type": "str",
+								"options": ["rjava", "črna (melena)", "svetla", "zelena", "krvava (hematohezija)"],
+								"option_type": "one"
+							},
+							"7.2.4": {
+								"title": "Vonj blata",
+								"unit": null,
+								"value": null,
+								"hint": "normalen",
+								"type": "str",
+								"options": ["normalen", "smrdljiv", "kisel"],
+								"option_type": "one"
+							},
+							"7.2.5": {
+								"title": "Težave pri odvajanju",
+								"unit": null,
+								"value": null,
+								"hint": "brez težav",
+								"type": "str",
+								"options": ["brez težav", "bolečina", "napenjanje", "inkontinenca blata"],
+								"option_type": "many"
+							},
+							"7.2.6": {
+								"title": "Prisotnost stome",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"7.2.7": {
+								"title": "Vrsta stome",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["kolostoma", "ileostoma", "urostoma", "/"],
+								"option_type": "one"
+							}
+						}
+					},
+					"7.3": {
+						"title": "Pripomočki za izločanje",
+						"description": null,
+						"elements": {
+							"7.3.1": {
+								"title": "Uporaba pripomočkov",
+								"unit": null,
+								"value": null,
+								"hint": "brez pripomočkov",
+								"type": "str",
+								"options": ["brez pripomočkov", "urinski kateter", "plenice", "podloga", "nočna posoda", "urinal", "vrečka za stomo"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"8": {
+				"title": "Aktivnosti zdravstvene nege - izločanje in odvajanje",
+				"description": "",
+				"url": "aktivnosti-izlocanje",
+				"color": "#DBEAFE",
+				"subcategories": {
+					"8.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"8.1.1": {
+								"title": "Aktivnosti pri izločanju in odvajanju",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor, pomoč",
+								"type": "str",
+								"options": ["nadzor", "pomoč", "spodbujanje", "popolna pomoč", "oskrba katetra", "oskrba stome"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"9": {
+				"title": "GIBANJE IN USTREZNA LEGA - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "gibanje-lega",
+				"color": "#E0E7FF",
+				"subcategories": {
+					"9.1": {
+						"title": "Gibljivost",
+						"description": null,
+						"elements": {
+							"9.1.1": {
+								"title": "Stopnja samostojnosti gibanja",
+								"unit": null,
+								"value": null,
+								"hint": "samostojen",
+								"type": "str",
+								"options": ["popolnoma samostojen", "delno samostojen", "potrebuje pomoč", "popolnoma odvisen"],
+								"option_type": "one"
+							},
+							"9.1.2": {
+								"title": "Mobilnost",
+								"unit": null,
+								"value": null,
+								"hint": "pokreten",
+								"type": "str",
+								"options": ["pokreten", "delno pokreten", "nepokreten"],
+								"option_type": "one"
+							},
+							"9.1.3": {
+								"title": "Uporaba pripomočkov za gibanje",
+								"unit": null,
+								"value": null,
+								"hint": "brez pripomočkov",
+								"type": "str",
+								"options": ["brez pripomočkov", "palica", "bergle", "hodulja", "invalidski voziček", "opora"],
+								"option_type": "many"
+							},
+							"9.1.4": {
+								"title": "Omejitve gibanja",
+								"unit": null,
+								"value": null,
+								"hint": "brez omejitev",
+								"type": "str",
+								"options": ["brez omejitev", "bolečina pri gibanju", "otrplost", "oslabelost", "pareza", "plegija"],
+								"option_type": "many"
+							}
+						}
+					},
+					"9.2": {
+						"title": "Lega v postelji",
+						"description": null,
+						"elements": {
+							"9.2.1": {
+								"title": "Sposobnost spreminjanja lege",
+								"unit": null,
+								"value": null,
+								"hint": "samostojno",
+								"type": "str",
+								"options": ["samostojno", "z minimalno pomočjo", "z večjo pomočjo", "popolnoma odvisen"],
+								"option_type": "one"
+							},
+							"9.2.2": {
+								"title": "Ogroženost za razvoj preležanin (Nortonova/Bradenova lestvica)",
+								"unit": "točk",
+								"value": null,
+								"hint": "18",
+								"type": "str"
+							},
+							"9.2.3": {
+								"title": "Stopnja ogroženosti",
+								"unit": null,
+								"value": null,
+								"hint": "ni ogrožen",
+								"type": "str",
+								"options": ["ni ogrožen", "nizka ogroženost", "srednja ogroženost", "visoka ogroženost"],
+								"option_type": "one"
+							}
+						}
+					},
+					"9.3": {
+						"title": "Nevarnost padcev",
+						"description": null,
+						"elements": {
+							"9.3.1": {
+								"title": "Ocena nevarnosti padcev (Morse lestvica)",
+								"unit": "točk",
+								"value": null,
+								"hint": "25",
+								"type": "str"
+							},
+							"9.3.2": {
+								"title": "Stopnja nevarnosti padcev",
+								"unit": null,
+								"value": null,
+								"hint": "nizka",
+								"type": "str",
+								"options": ["brez nevarnosti", "nizka nevarnost", "srednja nevarnost", "visoka nevarnost"],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"10": {
+				"title": "Aktivnosti zdravstvene nege - gibanje in ustrezna lega",
+				"description": "",
+				"url": "aktivnosti-gibanje",
+				"color": "#E0E7FF",
+				"subcategories": {
+					"10.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"10.1.1": {
+								"title": "Aktivnosti pri gibanju",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor, spodbujanje",
+								"type": "str",
+								"options": ["nadzor", "pomoč pri vstajanju", "pomoč pri hoji", "pomoč pri posedanju", "obračanje", "namestitev v ustrezen položaj", "fizioterapija", "razgibavanje"],
+								"option_type": "many"
+							},
+							"10.1.2": {
+								"title": "Preprečevanje preležanin",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["obračanje na 2 uri", "antidekubitusna blazina", "zaščita peta", "masaža ogroženih mest", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"11": {
+				"title": "SPANJE IN POČITEK - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "spanje-pocinek",
+				"color": "#F3E8FF",
+				"subcategories": {
+					"11.1": {
+						"title": "Spanje",
+						"description": null,
+						"elements": {
+							"11.1.1": {
+								"title": "Kakovost spanja",
+								"unit": null,
+								"value": null,
+								"hint": "dobro",
+								"type": "str",
+								"options": ["dobro spi", "slabo spi", "pogosto bujenje", "nespečnost (insomija)", "pretirano spanje (hipersomnija)"],
+								"option_type": "one"
+							},
+							"11.1.2": {
+								"title": "Trajanje spanja",
+								"unit": "ur",
+								"value": null,
+								"hint": "7-8",
+								"type": "str"
+							},
+							"11.1.3": {
+								"title": "Motnje spanja",
+								"unit": null,
+								"value": null,
+								"hint": "brez motenj",
+								"type": "str",
+								"options": ["brez motenj", "težko zaspi", "pogosto bujenje", "zgodnje bujenje", "nočne more", "hrupenje (apneja)"],
+								"option_type": "many"
+							},
+							"11.1.4": {
+								"title": "Uporaba uspaval",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							}
+						}
+					},
+					"11.2": {
+						"title": "Počitek",
+						"description": null,
+						"elements": {
+							"11.2.1": {
+								"title": "Počitek čez dan",
+								"unit": null,
+								"value": null,
+								"hint": "da",
+								"type": "str",
+								"options": ["ne počiva", "počiva občasno", "počiva redno"],
+								"option_type": "one"
+							},
+							"11.2.2": {
+								"title": "Dejavniki, ki motijo počitek",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["hrup", "bolečina", "stres", "skrbi", "neudobje", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"12": {
+				"title": "Aktivnosti zdravstvene nege - spanje in počitek",
+				"description": "",
+				"url": "aktivnosti-spanje",
+				"color": "#F3E8FF",
+				"subcategories": {
+					"12.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"12.1.1": {
+								"title": "Aktivnosti za izboljšanje spanja",
+								"unit": null,
+								"value": null,
+								"hint": "zagotovitev mirnega okolja",
+								"type": "str",
+								"options": ["zagotovitev mirnega okolja", "prezračevanje sobe", "ustrezna osvetlitev", "udobna lega", "aplikacija uspaval po naročilu", "sprostitvene tehnike"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"13": {
+				"title": "OSEBNA HIGIENA IN UREJENOST - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "osebna-higiena",
+				"color": "#FCE7F3",
+				"subcategories": {
+					"13.1": {
+						"title": "Osebna higiena",
+						"description": null,
+						"elements": {
+							"13.1.1": {
+								"title": "Stopnja samostojnosti pri osebni higieni",
+								"unit": null,
+								"value": null,
+								"hint": "samostojen",
+								"type": "str",
+								"options": ["popolnoma samostojen", "potrebuje nadzor", "potrebuje delno pomoč", "potrebuje popolno pomoč"],
+								"option_type": "one"
+							},
+							"13.1.2": {
+								"title": "Pogostost kopanja/tuširanja",
+								"unit": null,
+								"value": null,
+								"hint": "dnevno",
+								"type": "str",
+								"options": ["večkrat dnevno", "dnevno", "vsak drugi dan", "2x tedensko", "1x tedensko"],
+								"option_type": "one"
+							}
+						}
+					},
+					"13.2": {
+						"title": "Stanje kože",
+						"description": null,
+						"elements": {
+							"13.2.1": {
+								"title": "Stanje kože",
+								"unit": null,
+								"value": null,
+								"hint": "normalna",
+								"type": "str",
+								"options": ["normalna", "suha", "mastna", "luščeča", "pordela", "bleda", "cianotična", "ikterična"],
+								"option_type": "many"
+							},
+							"13.2.2": {
+								"title": "Turgor kože",
+								"unit": null,
+								"value": null,
+								"hint": "normalen",
+								"type": "str",
+								"options": ["normalen", "zmanjšan (dehidracija)", "povečan (edemi)"],
+								"option_type": "one"
+							},
+							"13.2.3": {
+								"title": "Prisotnost kožnih sprememb",
+								"unit": null,
+								"value": null,
+								"hint": "brez sprememb",
+								"type": "str",
+								"options": ["brez sprememb", "rdečina", "oteklina", "izpuščaj", "rane", "odrgnine", "razjede"],
+								"option_type": "many"
+							}
+						}
+					},
+					"13.3": {
+						"title": "Ustna higiena",
+						"description": null,
+						"elements": {
+							"13.3.1": {
+								"title": "Stanje ustne votline",
+								"unit": null,
+								"value": null,
+								"hint": "normalno",
+								"type": "str",
+								"options": ["normalno", "suha usta", "razpokane ustnice", "vnetje dlesni", "afti", "obloge na jeziku"],
+								"option_type": "many"
+							},
+							"13.3.2": {
+								"title": "Zobna proteza",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA - zgoraj", "DA - spodaj", "DA - obe", "NE"],
+								"option_type": "one"
+							},
+							"13.3.3": {
+								"title": "Samostojnost pri ustni higieni",
+								"unit": null,
+								"value": null,
+								"hint": "samostojen",
+								"type": "str",
+								"options": ["popolnoma samostojen", "potrebuje pomoč", "popolnoma odvisen"],
+								"option_type": "one"
+							}
+						}
+					},
+					"13.4": {
+						"title": "Urejenost",
+						"description": null,
+						"elements": {
+							"13.4.1": {
+								"title": "Splošna urejenost",
+								"unit": null,
+								"value": null,
+								"hint": "urejen",
+								"type": "str",
+								"options": ["urejen", "delno urejen", "neurejen", "zanemarjen"],
+								"option_type": "one"
+							},
+							"13.4.2": {
+								"title": "Lasje",
+								"unit": null,
+								"value": null,
+								"hint": "urejeni, čisti",
+								"type": "str",
+								"options": ["urejeni, čisti", "mastni", "neurejeni", "uši"],
+								"option_type": "many"
+							},
+							"13.4.3": {
+								"title": "Nohti",
+								"unit": null,
+								"value": null,
+								"hint": "urejeni",
+								"type": "str",
+								"options": ["urejeni", "dolgi", "umazani", "glivična okužba"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"14": {
+				"title": "Aktivnosti zdravstvene nege - osebna higiena in urejenost",
+				"description": "",
+				"url": "aktivnosti-higiena",
+				"color": "#FCE7F3",
+				"subcategories": {
+					"14.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"14.1.1": {
+								"title": "Aktivnosti pri osebni higieni",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor, pomoč pri tuširanju",
+								"type": "str",
+								"options": ["nadzor", "pomoč pri umivanju", "pomoč pri tuširanju", "kopel v postelji", "umivanje las", "ustna nega", "nega kože", "britje", "striženje nohtov"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"15": {
+				"title": "OBLAČENJE IN SLAČENJE - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "oblacenje-slacenje",
+				"color": "#FEE2E2",
+				"subcategories": {
+					"15.1": {
+						"title": "Oblačenje in slačenje",
+						"description": null,
+						"elements": {
+							"15.1.1": {
+								"title": "Stopnja samostojnosti pri oblačenju",
+								"unit": null,
+								"value": null,
+								"hint": "samostojen",
+								"type": "str",
+								"options": ["popolnoma samostojen", "potrebuje nadzor", "potrebuje delno pomoč", "potrebuje popolno pomoč"],
+								"option_type": "one"
+							},
+							"15.1.2": {
+								"title": "Posebnosti pri oblačenju",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["brez posebnosti", "oteženo zaradi bolečine", "oteženo zaradi okorelosti", "oteženo zaradi pareze/plegije", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"16": {
+				"title": "Aktivnosti zdravstvene nege - oblačenje in slačenje",
+				"description": "",
+				"url": "aktivnosti-oblacenje",
+				"color": "#FEE2E2",
+				"subcategories": {
+					"16.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"16.1.1": {
+								"title": "Aktivnosti pri oblačenju in slačenju",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor",
+								"type": "str",
+								"options": ["nadzor", "pomoč pri oblačenju", "pomoč pri slačenju", "popolna pomoč", "izbira ustreznih oblačil"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"17": {
+				"title": "ZAGOTAVLJANJE VARNEGA OKOLJA - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "varno-okolje",
+				"color": "#FECACA",
+				"subcategories": {
+					"17.1": {
+						"title": "Varnost pacienta",
+						"description": null,
+						"elements": {
+							"17.1.1": {
+								"title": "Orientiranost",
+								"unit": null,
+								"value": null,
+								"hint": "orientiran",
+								"type": "str",
+								"options": ["popolnoma orientiran", "delno orientiran", "dezorientiran v času", "dezorientiran v prostoru", "dezorientiran v osebi"],
+								"option_type": "many"
+							},
+							"17.1.2": {
+								"title": "Stanje zavesti",
+								"unit": null,
+								"value": null,
+								"hint": "budna zavest",
+								"type": "str",
+								"options": ["budna zavest", "zaspanost (somnolenca)", "globoka zaspanost (sopor)", "nezavest (koma)"],
+								"option_type": "one"
+							},
+							"17.1.3": {
+								"title": "Nevarnost za samopoškodovanje",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"17.1.4": {
+								"title": "Nevarnost za poškodovanje drugih",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"17.1.5": {
+								"title": "Potreba po varovanju (ograjica, fiksacija)",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA - ograjica", "DA - fiksacija", "NE"],
+								"option_type": "one"
+							}
+						}
+					},
+					"17.2": {
+						"title": "Bolečina",
+						"description": null,
+						"elements": {
+							"17.2.1": {
+								"title": "Prisotnost bolečine",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"17.2.2": {
+								"title": "Lokacija bolečine",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"17.2.3": {
+								"title": "Jakost bolečine (VAS 0-10)",
+								"unit": null,
+								"value": null,
+								"hint": "0",
+								"type": "str",
+								"options": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+								"option_type": "one"
+							},
+							"17.2.4": {
+								"title": "Vrsta bolečine",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["akutna", "kronična", "stalna", "občasna", "ostra", "topa", "zbadajoča", "pekoča", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"18": {
+				"title": "Aktivnosti zdravstvene nege - zagotavljanje varnega okolja",
+				"description": "",
+				"url": "aktivnosti-varnost",
+				"color": "#FECACA",
+				"subcategories": {
+					"18.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"18.1.1": {
+								"title": "Aktivnosti za zagotavljanje varnosti",
+								"unit": null,
+								"value": null,
+								"hint": "nadzor",
+								"type": "str",
+								"options": ["nadzor", "nameščanje ograjice", "fiksacija", "odstranitev nevarnih predmetov", "zagotovitev klicne naprave", "spremstvo"],
+								"option_type": "many"
+							},
+							"18.1.2": {
+								"title": "Lajšanje bolečine",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["aplikacija analgetikov po naročilu", "namestitev v ustrezen položaj", "hlajenje", "ogrevanje", "masaža", "sprostitvene tehnike", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"19": {
+				"title": "KOMUNIKACIJA - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "komunikacija",
+				"color": "#CCFBF1",
+				"subcategories": {
+					"19.1": {
+						"title": "Komunikacija",
+						"description": null,
+						"elements": {
+							"19.1.1": {
+								"title": "Sposobnost verbalne komunikacije",
+								"unit": null,
+								"value": null,
+								"hint": "normalna",
+								"type": "str",
+								"options": ["normalna", "otežena", "nezmožna"],
+								"option_type": "one"
+							},
+							"19.1.2": {
+								"title": "Motnje govora",
+								"unit": null,
+								"value": null,
+								"hint": "brez motenj",
+								"type": "str",
+								"options": ["brez motenj", "dizartrija", "afazija", "mutizem", "jecljanje"],
+								"option_type": "many"
+							},
+							"19.1.3": {
+								"title": "Sluh",
+								"unit": null,
+								"value": null,
+								"hint": "normalen",
+								"type": "str",
+								"options": ["normalen", "naglušen", "gluh", "uporablja slušni aparat"],
+								"option_type": "many"
+							},
+							"19.1.4": {
+								"title": "Vid",
+								"unit": null,
+								"value": null,
+								"hint": "normalen",
+								"type": "str",
+								"options": ["normalen", "slabovidnost", "slepota", "uporablja očala", "uporablja leče"],
+								"option_type": "many"
+							},
+							"19.1.5": {
+								"title": "Razumevanje navodil",
+								"unit": null,
+								"value": null,
+								"hint": "dobro razume",
+								"type": "str",
+								"options": ["dobro razume", "delno razume", "ne razume", "potrebuje ponavljanje"],
+								"option_type": "one"
+							}
+						}
+					},
+					"19.2": {
+						"title": "Čustveno stanje",
+						"description": null,
+						"elements": {
+							"19.2.1": {
+								"title": "Razpoloženje",
+								"unit": null,
+								"value": null,
+								"hint": "normalno",
+								"type": "str",
+								"options": ["normalno", "evforično", "depresivno", "anksiozno", "razdražljivo", "apatično"],
+								"option_type": "many"
+							},
+							"19.2.2": {
+								"title": "Sodelovanje",
+								"unit": null,
+								"value": null,
+								"hint": "dobro sodeluje",
+								"type": "str",
+								"options": ["dobro sodeluje", "delno sodeluje", "ne sodeluje", "odklanja pomoč"],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"20": {
+				"title": "Aktivnosti zdravstvene nege - komunikacija",
+				"description": "",
+				"url": "aktivnosti-komunikacija",
+				"color": "#CCFBF1",
+				"subcategories": {
+					"20.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"20.1.1": {
+								"title": "Aktivnosti pri komunikaciji",
+								"unit": null,
+								"value": null,
+								"hint": "terapevtska komunikacija",
+								"type": "str",
+								"options": ["terapevtska komunikacija", "uporaba pisne komunikacije", "uporaba slikovnega materiala", "zagotavljanje pripomočkov (očala, slušni aparat)", "potrpežljivost", "čustvena podpora"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"21": {
+				"title": "IZRAŽANJE DUHOVNIH POTREB - ocena stopnje samooskrbe pacienta",
+				"description": "",
+				"url": "duhovne-potrebe",
+				"color": "#A7F3D0",
+				"subcategories": {
+					"21.1": {
+						"title": "Duhovne potrebe",
+						"description": null,
+						"elements": {
+							"21.1.1": {
+								"title": "Verska pripadnost",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"21.1.2": {
+								"title": "Potreba po duhovni oskrbi",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"21.1.3": {
+								"title": "Želja po obisku duhovnika",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"22": {
+				"title": "Aktivnosti zdravstvene nege - izražanje duhovnih potreb",
+				"description": "",
+				"url": "aktivnosti-duhovne",
+				"color": "#A7F3D0",
+				"subcategories": {
+					"22.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"22.1.1": {
+								"title": "Aktivnosti pri duhovnih potrebah",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["zagotovitev zasebnosti", "omogočanje obiska duhovnika", "spoštovanje verskih prepričanj", "zagotovitev verskih predmetov", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"23": {
+				"title": "DELO IN USTVARJALNA ZAPOSLITEV / RAZVEDRILO IN REKREACIJA / UČENJE",
+				"description": "",
+				"url": "delo-razvedrilo-ucenje",
+				"color": "#BAE6FD",
+				"subcategories": {
+					"23.1": {
+						"title": "Delo in ustvarjalna zaposlitev",
+						"description": null,
+						"elements": {
+							"23.1.1": {
+								"title": "Poklic/delo",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"23.1.2": {
+								"title": "Zmožnost opravljanja dela",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["zmožen", "delno zmožen", "nezmožen", "/"],
+								"option_type": "one"
+							}
+						}
+					},
+					"23.2": {
+						"title": "Razvedrilo in rekreacija",
+						"description": null,
+						"elements": {
+							"23.2.1": {
+								"title": "Hobiji/interesi",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"23.2.2": {
+								"title": "Možnost izvajanja hobijev",
+								"unit": null,
+								"value": null,
+								"hint": "DA",
+								"type": "str",
+								"options": ["DA", "delno", "NE"],
+								"option_type": "one"
+							}
+						}
+					},
+					"23.3": {
+						"title": "Učenje in skrb za lastno zdravje",
+						"description": null,
+						"elements": {
+							"23.3.1": {
+								"title": "Razumevanje bolezni/stanja",
+								"unit": null,
+								"value": null,
+								"hint": "dobro razume",
+								"type": "str",
+								"options": ["dobro razume", "delno razume", "ne razume"],
+								"option_type": "one"
+							},
+							"23.3.2": {
+								"title": "Potreba po zdravstveni vzgoji",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"23.3.3": {
+								"title": "Področje zdravstvene vzgoje",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["prehrana", "gibanje", "jemanje zdravil", "nega ran", "samokontrola", "preprečevanje zapletov", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"24": {
+				"title": "Aktivnosti zdravstvene nege - delo, razvedrilo, učenje",
+				"description": "",
+				"url": "aktivnosti-delo-razvedrilo",
+				"color": "#BAE6FD",
+				"subcategories": {
+					"24.1": {
+						"title": "Aktivnosti zdravstvene nege",
+						"description": null,
+						"elements": {
+							"24.1.1": {
+								"title": "Aktivnosti",
+								"unit": null,
+								"value": null,
+								"hint": "zdravstvena vzgoja",
+								"type": "str",
+								"options": ["zdravstvena vzgoja", "vključevanje v aktivnosti", "spodbujanje k dejavnostim", "zagotovitev materialov za ustvarjanje", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"25": {
+				"title": "APLIKACIJA ZDRAVIL",
+				"description": "Datum in ura aplikacije:",
+				"url": "aplikacija-zdravil",
+				"color": "#FED7AA",
+				"subcategories": {
+					"25.1": {
+						"title": "Seznam zdravil",
+						"description": null,
+						"elements": {
+							"25.1.1": {
+								"title": "Zdravila",
+								"type": "table",
+								"columns": [
+									{"key": "ime_zdravila", "title": "Ime zdravila", "hint": "npr. Nolpaza, Concor"},
+									{"key": "farmacevtska_oblika", "title": "Farmacevtska oblika zdravila", "hint": "npr. Tbl., Kaps., Sol."},
+									{"key": "atc_klasifikacija", "title": "ATC klasifikacija", "hint": "Mediately / Centralna baza zdravil"},
+									{"key": "odmerek_rezim", "title": "Odmerek in časovni režim", "hint": "npr. 40 mg zj., 1000 mg 2×/dan"},
+									{"key": "nacin_mesto", "title": "Način in mesto aplikacije", "hint": "npr. Per os, s.c., i.v."},
+									{"key": "posebnosti", "title": "Posebnosti pri aplikaciji", "hint": "npr. na tešče, z veliko vode"},
+									{"key": "nezeleni_ucinki", "title": "Neželeni učinki zdravila", "hint": "Navedite možne neželene učinke"}
+								],
+								"rows": []
+							}
+						}
+					},
+					"25.2": {
+						"title": "Parenteralna aplikacija",
+						"description": null,
+						"elements": {
+							"25.2.1": {
+								"title": "Vrsta aplikacije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["s.c. (subkutano)", "i.m. (intramuskularno)", "i.v. (intravenozno)", "/"],
+								"option_type": "one"
+							},
+							"25.2.2": {
+								"title": "Zdravilo",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.2.3": {
+								"title": "Odmerek",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.2.4": {
+								"title": "Čas aplikacije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"25.3": {
+						"title": "Druge oblike aplikacije",
+						"description": null,
+						"elements": {
+							"25.3.1": {
+								"title": "Vrsta aplikacije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["inhalacije", "kožna aplikacija", "rektalna aplikacija", "vaginalna aplikacija", "očesne kapljice", "ušesne kapljice", "nosne kapljice", "/"],
+								"option_type": "one"
+							},
+							"25.3.2": {
+								"title": "Zdravilo",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.3.3": {
+								"title": "Posebnosti",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"25.4": {
+						"title": "Infuzijska terapija",
+						"description": null,
+						"elements": {
+							"25.4.1": {
+								"title": "Vrsta infuzije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.4.2": {
+								"title": "Volumen",
+								"unit": "ml",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.4.3": {
+								"title": "Hitrost pretoka",
+								"unit": "ml/h",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"25.4.4": {
+								"title": "Dodana zdravila",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					}
+				}
+			},
+			"26": {
+				"title": "DIAGNOSTIČNO TERAPEVTSKE PREISKAVE",
+				"description": "",
+				"url": "diagnosticne-preiskave",
+				"color": "#FDBA74",
+				"subcategories": {
+					"26.1": {
+						"title": "Laboratorijske preiskave",
+						"description": null,
+						"elements": {
+							"26.1.1": {
+								"title": "Vrsta preiskave",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["krvne preiskave", "urinske preiskave", "preiskave blata", "bris", "punkcija", "/"],
+								"option_type": "many"
+							},
+							"26.1.2": {
+								"title": "Priprava pacienta",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"26.1.3": {
+								"title": "Izvedba",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"26.2": {
+						"title": "Slikovne preiskave",
+						"description": null,
+						"elements": {
+							"26.2.1": {
+								"title": "Vrsta preiskave",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["RTG", "UZ", "CT", "MR", "scintigrafija", "/"],
+								"option_type": "one"
+							},
+							"26.2.2": {
+								"title": "Priprava pacienta",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"26.3": {
+						"title": "Druge preiskave",
+						"description": null,
+						"elements": {
+							"26.3.1": {
+								"title": "Vrsta preiskave",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["EKG", "EEG", "EMG", "spirometrija", "endoskopija", "/"],
+								"option_type": "one"
+							},
+							"26.3.2": {
+								"title": "Priprava in izvedba",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					}
+				}
+			},
+			"27": {
+				"title": "TERAPEVTSKI PROGRAM",
+				"description": "",
+				"url": "terapevtski-program",
+				"color": "#FB923C",
+				"subcategories": {
+					"27.1": {
+						"title": "Fizioterapija",
+						"description": null,
+						"elements": {
+							"27.1.1": {
+								"title": "Vrsta fizioterapije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"27.1.2": {
+								"title": "Pogostost",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["1x dnevno", "2x dnevno", "3x tedensko", "po potrebi", "/"],
+								"option_type": "one"
+							}
+						}
+					},
+					"27.2": {
+						"title": "Delovna terapija",
+						"description": null,
+						"elements": {
+							"27.2.1": {
+								"title": "Vrsta delovne terapije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							}
+						}
+					},
+					"27.3": {
+						"title": "Druge terapije",
+						"description": null,
+						"elements": {
+							"27.3.1": {
+								"title": "Vrsta terapije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["logopedija", "psihologija", "socialna služba", "prehranska terapija", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			},
+			"28": {
+				"title": "RANE",
+				"description": "",
+				"url": "rane",
+				"color": "#F87171",
+				"subcategories": {
+					"28.1": {
+						"title": "Opis rane",
+						"description": null,
+						"elements": {
+							"28.1.1": {
+								"title": "Vrsta rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["kirurška rana", "travmatska rana", "razjeda", "preležanina", "opeklina", "odrgnina", "/"],
+								"option_type": "one"
+							},
+							"28.1.2": {
+								"title": "Lokacija rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"28.1.3": {
+								"title": "Velikost rane",
+								"unit": "cm",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"28.1.4": {
+								"title": "Globina rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["površinska", "delno globoka", "globoka", "/"],
+								"option_type": "one"
+							},
+							"28.1.5": {
+								"title": "Dno rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["granulacijsko tkivo", "fibrin", "nekroza", "mešano", "/"],
+								"option_type": "one"
+							},
+							"28.1.6": {
+								"title": "Izloček iz rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["brez izločka", "serozen", "serohemoragičen", "gnojen", "krvav", "/"],
+								"option_type": "one"
+							},
+							"28.1.7": {
+								"title": "Okolica rane",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["normalna", "pordela", "otečena", "macerirana", "/"],
+								"option_type": "many"
+							},
+							"28.1.8": {
+								"title": "Znaki okužbe",
+								"unit": null,
+								"value": null,
+								"hint": "brez znakov",
+								"type": "str",
+								"options": ["brez znakov", "rdečina", "oteklina", "toplota", "bolečina", "gnojen izcedek", "neprijeten vonj"],
+								"option_type": "many"
+							}
+						}
+					},
+					"28.2": {
+						"title": "Oskrba rane",
+						"description": null,
+						"elements": {
+							"28.2.1": {
+								"title": "Razkuževanje",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["fiziološka raztopina", "Octenisept", "Betadine", "drugo", "/"],
+								"option_type": "one"
+							},
+							"28.2.2": {
+								"title": "Obloga",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["sterilna gaza", "hidrokoloidna obloga", "alginatna obloga", "penska obloga", "film", "drugo", "/"],
+								"option_type": "one"
+							},
+							"28.2.3": {
+								"title": "Pogostost preveze",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["1x dnevno", "2x dnevno", "vsak drugi dan", "po potrebi", "/"],
+								"option_type": "one"
+							}
+						}
+					},
+					"28.3": {
+						"title": "Dreni in drenaže",
+						"description": null,
+						"elements": {
+							"28.3.1": {
+								"title": "Prisotnost drena",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"28.3.2": {
+								"title": "Vrsta drena",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["Redonov dren", "Penrose dren", "torakalni dren", "/"],
+								"option_type": "one"
+							},
+							"28.3.3": {
+								"title": "Količina izločka",
+								"unit": "ml",
+								"value": null,
+								"hint": "/",
+								"type": "str"
+							},
+							"28.3.4": {
+								"title": "Videz izločka",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["serozen", "serohemoragičen", "hemoragičen", "gnojen", "/"],
+								"option_type": "one"
+							}
+						}
+					}
+				}
+			},
+			"29": {
+				"title": "PREPREČEVANJE IN OBVLADOVANJE OKUŽB",
+				"description": "",
+				"url": "preprecevanje-okuzb",
+				"color": "#EF4444",
+				"subcategories": {
+					"29.1": {
+						"title": "Higiena rok",
+						"description": null,
+						"elements": {
+							"29.1.1": {
+								"title": "Izvajanje higiene rok",
+								"unit": null,
+								"value": null,
+								"hint": "pred in po vsakem stiku",
+								"type": "str",
+								"options": ["pred stikom s pacientom", "pred aseptičnim postopkom", "po izpostavitvi telesnim tekočinam", "po stiku s pacientom", "po stiku s pacientovo okolico"],
+								"option_type": "many"
+							}
+						}
+					},
+					"29.2": {
+						"title": "Izolacija",
+						"description": null,
+						"elements": {
+							"29.2.1": {
+								"title": "Potreba po izolaciji",
+								"unit": null,
+								"value": null,
+								"hint": "NE",
+								"type": "str",
+								"options": ["DA", "NE"],
+								"option_type": "one"
+							},
+							"29.2.2": {
+								"title": "Vrsta izolacije",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["kontaktna", "kapljična", "aerogena", "zaščitna (reverzna)", "/"],
+								"option_type": "one"
+							},
+							"29.2.3": {
+								"title": "Uporaba osebne varovalne opreme",
+								"unit": null,
+								"value": null,
+								"hint": "rokavice",
+								"type": "str",
+								"options": ["rokavice", "predpasnik/halja", "maska", "zaščitna očala", "pokrivalo za lase"],
+								"option_type": "many"
+							}
+						}
+					},
+					"29.3": {
+						"title": "Aseptični postopki",
+						"description": null,
+						"elements": {
+							"29.3.1": {
+								"title": "Izvedeni aseptični postopki",
+								"unit": null,
+								"value": null,
+								"hint": "/",
+								"type": "str",
+								"options": ["preveza rane", "kateterizacija", "aspiracija", "venepunkcija", "nameščanje i.v. kanile", "/"],
+								"option_type": "many"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

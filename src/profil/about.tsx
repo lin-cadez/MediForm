@@ -41,7 +41,7 @@ export default function About() {
                     transition={{ duration: 0.5 }}
                     className="intro-section"
                 >
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-r from-ocean-deep to-ocean-teal rounded-lg flex items-center justify-center mx-auto mb-6">
                         <FileText className="h-10 w-10 text-white" />
                     </div>
                     <h1 className="title">O aplikaciji</h1>
@@ -85,10 +85,10 @@ export default function About() {
                                             target="_blank"
                                             className="link"
                                         >
-                                            <span className="font-medium text-slate-900 group-hover:text-violet-700 transition-colors">
+                                            <span className="font-medium text-slate-900 group-hover:text-ocean-teal transition-colors">
                                                 {author.name}
                                             </span>
-                                            <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-violet-600 transition-colors" />
+                                            <ExternalLink className="h-4 w-4 text-slate-500 group-hover:text-ocean-teal transition-colors" />
                                         </a>
                                     </motion.div>
                                 ))}
