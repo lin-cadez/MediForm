@@ -116,9 +116,9 @@ export default function FinishSignIn() {
                 // Clean up the sign-in process flag
                 sessionStorage.removeItem('signInProcessed');
                 
-                // Force immediate redirect using navigate instead of window.location
+                // Force full page reload to ensure session is properly loaded
                 setTimeout(() => {
-                    navigate(targetUrl, { replace: true });
+                    window.location.href = targetUrl;
                 }, 1000);
             } else {
                 setStatus("error");

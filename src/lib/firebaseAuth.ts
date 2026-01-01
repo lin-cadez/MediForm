@@ -79,6 +79,10 @@ export const completeEmailSignIn = async (providedEmail?: string): Promise<{ suc
       break;
     }
 
+    if (!response) {
+      return { success: false, error: "Napaka pri povezavi s strežnikom" };
+    }
+
     const data = await response.json();
 
     if (data.success) {
@@ -117,7 +121,7 @@ export const completeEmailSignIn = async (providedEmail?: string): Promise<{ suc
 // Check if user is signed in
 export const checkSession = async (): Promise<{ success: boolean; user?: any }> => {
   try {
-    // Add retry logic for rate limiting
+    // Add retry logic for rate limiting and 401 errors
     let attempts = 0;
     const maxAttempts = 3;
     let response;
@@ -128,13 +132,17 @@ export const checkSession = async (): Promise<{ success: boolean; user?: any }> 
         credentials: 'include'
       });
       
-      if (response.status === 429 && attempts < maxAttempts - 1) {
-        // Rate limited, wait and retry
+      // Retry on rate limiting or unauthorized (session might be establishing)
+      if ((response.status === 429 || response.status === 401) && attempts < maxAttempts - 1) {
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1)));
         attempts++;
         continue;
       }
       break;
+    }
+
+    if (!response) {
+      return { success: false };
     }
 
     const data = await response.json();
@@ -196,4 +204,40 @@ export const logout = async (): Promise<{ success: boolean }> => {
 // Check if current URL is a sign-in link
 export const isEmailSignInLink = (): boolean => {
   return isSignInWithEmailLink(auth, window.location.href);
+};
+// Update user profile
+export interface ProfileUpdateData {
+  ime?: string;
+  priimek?: string;
+  razred?: string;
+  sola?: string;
+  podrocje?: string;
+}
+
+export const updateUserProfile = async (data: ProfileUpdateData): Promise<{ success: boolean; user?: any; error?: string }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      // Update localStorage with new data
+      const storedUserInfo = localStorage.getItem('userInfo');
+      if (storedUserInfo) {
+        const userInfo = JSON.parse(storedUserInfo);
+        localStorage.setItem('userInfo', JSON.stringify({ ...userInfo, ...data }));
+      }
+      return { success: true, user: result.user };
+    } else {
+      return { success: false, error: result.error || 'Napaka pri posodabljanju profila' };
+    }
+  } catch (error: any) {
+    console.error('Error updating profile:', error);
+    return { success: false, error: error.message || 'Napaka pri posodabljanju profila' };
+  }
 };

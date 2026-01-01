@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { User, GraduationCap, School, Shield, Mail, Loader2, CheckCircle2, Building2, ArrowLeft } from "lucide-react"
+import { User, GraduationCap, School, Mail, Loader2, CheckCircle2, Building2, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
 import { sendLoginEmail } from "@/lib/firebaseAuth"
 
@@ -21,20 +21,27 @@ interface UserInfo {
   email: string
 }
 
+interface UserInfoErrors {
+  ime?: string
+  priimek?: string
+  razred?: string
+  sola?: string
+  podrocje?: string
+  email?: string
+}
+
 interface UserInfoFormProps {
   onSubmit: (userInfo: UserInfo) => void
 }
 
-// Check if user exists by email
+// Check if user exists by email (public endpoint - no auth required)
 const checkUserExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/exists?email=${encodeURIComponent(email)}`, {
-      method: 'GET',
-      credentials: 'include',
-    });
+    const response = await fetch(`${API_BASE_URL}/auth/exists?email=${encodeURIComponent(email)}`);
     const data = await response.json();
-    if (data.success) {
-      return { exists: data.exists };
+    
+    if (response.ok) {
+      return { exists: data.exists || false };
     }
     return { exists: false, error: data.error || "Napaka pri preverjanju" };
   } catch (error) {
@@ -43,7 +50,7 @@ const checkUserExists = async (email: string): Promise<{ exists: boolean; error?
   }
 };
 
-type Step = 'email' | 'register' | 'email-sent' | 'admin-login' | 'admin-email-sent';
+type Step = 'email' | 'register' | 'email-sent';
 
 export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps) {
   const [step, setStep] = useState<Step>('email')
@@ -60,10 +67,10 @@ export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps)
     email: "",
   })
 
-  const [errors, setErrors] = useState<Partial<UserInfo>>({})
+  const [errors, setErrors] = useState<UserInfoErrors>({})
   const [isLoading, setIsLoading] = useState(false)
 
-  // Step 1: Check email
+  // Step 1: Check email and send login link
   const handleEmailCheck = async (e: React.FormEvent) => {
     e.preventDefault()
     setEmailError(null)
@@ -108,7 +115,7 @@ export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps)
     e.preventDefault()
 
     // Validate form
-    const newErrors: Partial<UserInfo> = {}
+    const newErrors: UserInfoErrors = {}
     if (!userInfo.ime.trim()) newErrors.ime = "Ime je obvezno"
     if (!userInfo.priimek.trim()) newErrors.priimek = "Priimek je obvezen"
     if (!userInfo.razred.trim()) newErrors.razred = "Razred je obvezen"
@@ -140,30 +147,6 @@ export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps)
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
-  }
-
-  // Admin login handler
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setEmailError(null)
-
-    if (!email.trim()) {
-      setEmailError("Email je obvezen")
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const result = await sendLoginEmail(email)
-      if (result.success) {
-        setStep('admin-email-sent')
-      } else {
-        setEmailError(result.error || "Napaka pri pošiljanju emaila")
-      }
-    } catch (err) {
-      setEmailError("Napaka pri povezavi s strežnikom")
-    }
-    setIsLoading(false)
   }
 
   // Reset to start
@@ -238,141 +221,6 @@ export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps)
               >
                 Nazaj na začetek
               </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // Admin email sent confirmation
-  if (step === 'admin-email-sent') {
-    return (
-      <div className="min-h-screen bg-sky-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm border border-ocean-frost">
-            <CardHeader className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-ocean-deep to-ocean-teal rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="h-8 w-8 text-white" />
-              </div>
-              <CardTitle className="text-2xl font-bold text-slate-900">
-                Email poslan!
-              </CardTitle>
-              <p className="text-slate-600 mt-2">
-                Prijavna povezava je bila poslana na:
-              </p>
-              <p className="text-ocean-teal font-semibold mt-1">
-                {email}
-              </p>
-            </CardHeader>
-
-            <CardContent className="text-center space-y-4">
-              <p className="text-slate-600 text-sm">
-                Preveri svoj email (tudi spam mapo) in klikni na povezavo za prijavo.
-              </p>
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  setIsLoading(true)
-                  await sendLoginEmail(email)
-                  setIsLoading(false)
-                }}
-                disabled={isLoading}
-                className="border-ocean-frost text-ocean-teal hover:bg-ocean-light"
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Pošlji znova
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={resetToStart}
-                className="text-slate-500"
-              >
-                Nazaj
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // Admin login screen
-  if (step === 'admin-login') {
-    return (
-      <div className="min-h-screen bg-sky-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <Card className="border-0 shadow-xl bg-white/90 backdrop-blur-sm border border-ocean-frost">
-            <CardHeader className="text-center mt-4">
-              <CardTitle className="text-2xl font-bold text-slate-900">
-                Prijava administratorja
-              </CardTitle>
-              <p className="text-slate-600 mt-2">Vnesite svoj email za prijavo brez gesla.</p>
-            </CardHeader>
-
-            <CardContent>
-              <form onSubmit={handleAdminLogin} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="admin-email" className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-ocean-teal" />
-                    Email naslov
-                  </Label>
-                  <Input
-                    id="admin-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@email.com"
-                    className="transition-all duration-200 focus:ring-2 focus:ring-ocean-surf/20 focus:border-ocean-surf border-ocean-frost"
-                  />
-                </div>
-
-                {emailError && (
-                  <p className="text-sm text-red-600 text-center">{emailError}</p>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white py-3 text-lg font-medium"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Pošiljanje...
-                    </>
-                  ) : (
-                    "Pošlji prijavni link"
-                  )}
-                </Button>
-
-                <p className="text-xs text-slate-500 text-center">
-                  Na vaš email bo poslana povezava za prijavo. Geslo ni potrebno.
-                </p>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setStep('email')
-                    setEmailError(null)
-                  }}
-                  className="w-full text-slate-500"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Nazaj
-                </Button>
-              </form>
             </CardContent>
           </Card>
         </motion.div>
@@ -589,17 +437,6 @@ export default function UserInfoForm({ onSubmit: _onSubmit }: UserInfoFormProps)
                 ) : (
                   "Nadaljuj"
                 )}
-              </Button>
-
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep('admin-login')}
-                className="w-full flex items-center justify-center gap-2 border-ocean-frost text-ocean-teal hover:bg-ocean-light"
-              >
-                <Shield className="h-4 w-4" />
-                Nadaljuj kot administrator
               </Button>
             </form>
           </CardContent>

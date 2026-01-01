@@ -27,24 +27,23 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function uploadForm() {
-    const inputPath = path.join(__dirname, '..', 'assets', 'zdravstvena-nega.json');
+    // Use the updated file from scripts folder
+    const inputPath = path.join(__dirname, 'zdravstvena-nega-for-upload.json');
 
     try {
         // Check if the file exists
         if (!fs.existsSync(inputPath)) {
-            console.error('❌ zdravstvena-nega.json not found!');
+            console.error('❌ zdravstvena-nega-for-upload.json not found!');
             process.exit(1);
         }
 
         const rawData = fs.readFileSync(inputPath, 'utf8');
-        const jsonData = JSON.parse(rawData);
+        const formData = JSON.parse(rawData);
 
-        // Extract the form data (it's nested under "zdravstvena-nega" key)
-        const formKey = Object.keys(jsonData)[0];
-        const formData = jsonData[formKey];
+        // Document ID
+        const docId = formData.url || formData.id || 'zdravstvena-nega';
 
         // Create the document structure
-        const docId = formData.url || formKey;
         const document = {
             id: docId,
             title: formData.title,

@@ -39,9 +39,28 @@ export default function Selector() {
             setUserName(parsed.ime || "");
         }
         
-        // Check if user is admin
-        const adminLoggedIn = sessionStorage.getItem("adminLoggedIn");
-        setIsAdmin(adminLoggedIn === "true");
+        // Check if user is admin from session
+        const checkAdminStatus = async () => {
+            try {
+                const response = await fetch('https://medi-form-backend.vercel.app/api/auth/session', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success && data.user?.role === 'admin') {
+                    setIsAdmin(true);
+                    sessionStorage.setItem("adminLoggedIn", "true");
+                } else {
+                    setIsAdmin(false);
+                    sessionStorage.removeItem("adminLoggedIn");
+                }
+            } catch (error) {
+                setIsAdmin(false);
+                sessionStorage.removeItem("adminLoggedIn");
+            }
+        };
+        
+        checkAdminStatus();
     }, []);
 
     useEffect(() => {

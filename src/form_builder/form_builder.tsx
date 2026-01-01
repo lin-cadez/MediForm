@@ -15,7 +15,6 @@ import {
     X,
     GripVertical,
     Settings,
-    Palette,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,7 +68,6 @@ interface FormData {
     title: string;
     description: string;
     url: string;
-    headerColor?: string;
     categories: Record<string, Category>;
     createdAt?: number;
     updatedAt?: number;
@@ -80,7 +78,6 @@ const createEmptyForm = (): FormData => ({
     title: "Nov obrazec",
     description: "",
     url: "",
-    headerColor: "#0891b2", // Default ocean-teal
     categories: {},
 });
 
@@ -107,6 +104,20 @@ const createEmptyElement = (): Element => ({
     defaultValue: null,
 });
 
+// Helper function to sort object entries by numeric key (e.g., "1.2" before "2.1", "10" after "9")
+const sortEntries = <T,>(entries: [string, T][]): [string, T][] => {
+    return entries.sort(([a], [b]) => {
+        const partsA = a.split('.').map(Number);
+        const partsB = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+            const numA = partsA[i] ?? 0;
+            const numB = partsB[i] ?? 0;
+            if (numA !== numB) return numA - numB;
+        }
+        return 0;
+    });
+};
+
 export default function FormBuilder() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -128,9 +139,37 @@ export default function FormBuilder() {
     useEffect(() => {
         const checkAuthStatus = async () => {
             try {
-                const session = await checkSession();
-                if (session.success) {
-                    setIsAuthenticated(true);
+                // Add retry logic for initial session check after redirect
+                let attempts = 0;
+                const maxAttempts = 3;
+                let session;
+                
+                while (attempts < maxAttempts) {
+                    session = await checkSession();
+                    
+                    if (session.success) {
+                        // Check if user has admin role
+                        if (session.user?.role === 'admin') {
+                            setIsAuthenticated(true);
+                        } else {
+                            // Not admin - redirect to home
+                            console.log("User is not admin, redirecting...");
+                            window.location.href = "/";
+                            return;
+                        }
+                        break;
+                    }
+                    
+                    // If failed and not last attempt, wait and retry
+                    if (attempts < maxAttempts - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * (attempts + 1)));
+                    }
+                    
+                    attempts++;
+                }
+                
+                if (!session?.success) {
+                    setIsAuthenticated(false);
                 }
             } catch (error) {
                 console.error("Auth check failed:", error);
@@ -585,7 +624,7 @@ export default function FormBuilder() {
                                         existingForms.map((form) => (
                                             <div
                                                 key={form.id}
-                                                className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-50 cursor-pointer transition-colors"
+                                                className="flex items-center justify-between p-3 border rounded-lg hover:bg-slate-10 cursor-pointer transition-colors"
                                                 onClick={() => handleOpenForm(form)}
                                             >
                                                 <div className="flex items-center gap-3">
@@ -704,58 +743,23 @@ export default function FormBuilder() {
                                             className="border-ocean-frost"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label className="flex items-center gap-2">
-                                            <Palette className="h-4 w-4" />
-                                            Barva glave
-                                        </Label>
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="color"
-                                                value={currentForm.headerColor || "#0891b2"}
-                                                onChange={(e) =>
-                                                    setCurrentForm({
-                                                        ...currentForm,
-                                                        headerColor: e.target.value,
-                                                    })
-                                                }
-                                                className="w-12 h-10 rounded cursor-pointer border border-ocean-frost"
-                                            />
-                                            <Input
-                                                value={currentForm.headerColor || "#0891b2"}
-                                                onChange={(e) =>
-                                                    setCurrentForm({
-                                                        ...currentForm,
-                                                        headerColor: e.target.value,
-                                                    })
-                                                }
-                                                placeholder="#0891b2"
-                                                className="border-ocean-frost w-32"
-                                            />
-                                            <div 
-                                                className="flex-1 h-10 rounded-md"
-                                                style={{ backgroundColor: currentForm.headerColor || "#0891b2" }}
-                                            />
-                                        </div>
-                                    </div>
                                 </CardContent>
                             </Card>
 
                             {/* Categories */}
                             <div className="space-y-4">
-                                {Object.entries(currentForm.categories).map(
+                                {sortEntries(Object.entries(currentForm.categories)).map(
                                     ([categoryId, category]) => (
                                         <Card
                                             key={categoryId}
                                             className="border-0 shadow-sm bg-white/80 overflow-hidden"
                                         >
                                             <CardHeader
-                                                className="cursor-pointer select-none hover:opacity-90 transition-opacity"
-                                                style={{ backgroundColor: currentForm.headerColor || "#0891b2" }}
+                                                className="cursor-pointer select-none hover:bg-slate-100 transition-colors"
                                                 onClick={() => toggleCategory(categoryId)}
                                             >
                                                 <div className="flex items-center justify-between">
-                                                    <CardTitle className="flex items-center gap-2 text-lg text-white">
+                                                    <CardTitle className="flex items-center gap-2 text-lg text-slate-900">
                                                         {expandedCategories[categoryId] ? (
                                                             <ChevronDown className="h-5 w-5" />
                                                         ) : (
@@ -769,7 +773,7 @@ export default function FormBuilder() {
                                                                     title: e.target.value,
                                                                 })
                                                             }
-                                                            className="border-0 bg-transparent font-semibold text-white placeholder:text-white/70 focus:bg-white/20 focus:border-white/30"
+                                                            className="border-0 bg-transparent font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-slate-300"
                                                         />
                                                     </CardTitle>
                                                     <Button
@@ -779,7 +783,7 @@ export default function FormBuilder() {
                                                             e.stopPropagation();
                                                             deleteCategory(categoryId);
                                                         }}
-                                                        className="text-white/80 hover:text-white hover:bg-white/20"
+                                                        className="text-slate-500 hover:text-red-500 hover:bg-red-50"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -793,7 +797,7 @@ export default function FormBuilder() {
                                                         })
                                                     }
                                                     placeholder="Opis kategorije"
-                                                    className="border-0 bg-transparent text-sm text-white/80 placeholder:text-white/50 focus:bg-white/20 focus:border-white/30 ml-7"
+                                                    className="border-0 bg-transparent text-sm text-slate-600 placeholder:text-slate-400 focus:bg-white focus:border-slate-300 ml-7"
                                                 />
                                             </CardHeader>
 
@@ -807,9 +811,9 @@ export default function FormBuilder() {
                                                     >
                                                         <CardContent className="pt-0 pb-4 space-y-4">
                                                             {/* Subcategories */}
-                                                            {Object.entries(
+                                                            {sortEntries(Object.entries(
                                                                 category.subcategories
-                                                            ).map(
+                                                            )).map(
                                                                 ([
                                                                     subcategoryId,
                                                                     subcategory,
@@ -893,9 +897,9 @@ export default function FormBuilder() {
                                                                                 >
                                                                                     <div className="space-y-3 py-2">
                                                                                         {/* Elements */}
-                                                                                        {Object.entries(
+                                                                                        {sortEntries(Object.entries(
                                                                                             subcategory.elements
-                                                                                        ).map(
+                                                                                        )).map(
                                                                                             ([
                                                                                                 elementId,
                                                                                                 element,

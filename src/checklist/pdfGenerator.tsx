@@ -100,6 +100,20 @@ const formatDate = (date: Date): string => {
     });
 };
 
+// Helper function to sort keys numerically (e.g., "1.2" before "2.1", "10" after "9")
+const sortKeys = (keys: string[]): string[] => {
+    return keys.sort((a, b) => {
+        const partsA = a.split('.').map(Number);
+        const partsB = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+            const numA = partsA[i] ?? 0;
+            const numB = partsB[i] ?? 0;
+            if (numA !== numB) return numA - numB;
+        }
+        return 0;
+    });
+};
+
 // Parse hex color to RGB
 const hexToRgb = (hex: string): [number, number, number] => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -603,7 +617,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     };
 
     // Process categories
-    const categories = Object.keys(data.categories);
+    const categories = sortKeys(Object.keys(data.categories));
     for (const categoryKey of categories) {
         const category = data.categories[categoryKey];
         const categoryColor = category.color ? hexToRgb(category.color) : undefined;
@@ -654,7 +668,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         }
 
         // Process subcategories
-        const subcategories = Object.keys(category.subcategories);
+        const subcategories = sortKeys(Object.keys(category.subcategories));
         for (const subcategoryKey of subcategories) {
             const subcategory = category.subcategories[subcategoryKey];
 
@@ -665,7 +679,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
             if (hasTableElement) {
                 // Handle table type elements
-                for (const elementKey in subcategory.elements) {
+                for (const elementKey of sortKeys(Object.keys(subcategory.elements))) {
                     const element = subcategory.elements[elementKey] as TableElement;
                     if (element.type === "table") {
                         // Check space for table header
@@ -792,7 +806,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             } else {
                 // Regular elements handling
                 const tableData: string[][] = [];
-                for (const elementKey in subcategory.elements) {
+                for (const elementKey of sortKeys(Object.keys(subcategory.elements))) {
                     const element = subcategory.elements[elementKey] as Element;
                     let valueWithUnit = "";
 

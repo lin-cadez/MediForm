@@ -146,6 +146,20 @@ interface ChecklistProps {
     userInfo: UserInfo;
 }
 
+// Helper function to sort object entries by numeric key (e.g., "1.2" before "2.1", "10" after "9")
+const sortEntries = <T,>(entries: [string, T][]): [string, T][] => {
+    return entries.sort(([a], [b]) => {
+        const partsA = a.split('.').map(Number);
+        const partsB = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+            const numA = partsA[i] ?? 0;
+            const numB = partsB[i] ?? 0;
+            if (numA !== numB) return numA - numB;
+        }
+        return 0;
+    });
+};
+
 export default function Checklist({ userInfo }: ChecklistProps) {
     const [list, setList] = useState<List | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -427,15 +441,15 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         scheduleAutoSave(
             formId,
             formData,
-            3000, // 3 second debounce
+            1000, // 3 second debounce
             () => setAutoSaveStatus('saving'),
             (success) => {
                 setAutoSaveStatus(success ? 'saved' : 'error');
                 if (success) {
                     setLastSaved(new Date());
                 }
-                // Reset status after 3 seconds
-                setTimeout(() => setAutoSaveStatus('idle'), 3000);
+                // Reset status after 1 seconds
+                setTimeout(() => setAutoSaveStatus('idle'), 1000);
             }
         );
 
@@ -852,7 +866,8 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         }
     };
 
-    const getCompletionStats = () => {
+    // Helper function to calculate completion stats (unused but kept for future use)
+    const _getCompletionStats = () => {
         if (!list) return { completed: 0, total: 0, percentage: 0 };
 
         let completed = 0;
@@ -895,6 +910,26 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
         };
     };
+    void _getCompletionStats; // Prevent unused warning
+
+    // Check if a table has been modified from its default state
+    const isTableModified = (tableElement: TableElement): boolean => {
+        const rows = tableElement.rows || [];
+        
+        // No rows means empty/not modified
+        if (rows.length === 0) return false;
+        
+        // More than one row means user added data
+        if (rows.length > 1) return true;
+        
+        // Check if the single row has any real data (not just "/" or null/empty)
+        const firstRow = rows[0];
+        return Object.values(firstRow).some(value => {
+            if (value === null || value === undefined || value === "") return false;
+            if (value === "/") return false;
+            return true;
+        });
+    };
 
     // Check if a subcategory is fully completed (all questions answered)
     const isSubcategoryComplete = (categoryId: string, subcategoryId: string): boolean => {
@@ -907,8 +942,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         if (elements.length === 0) return false;
 
         return elements.every((element) => {
-            // Skip table elements
-            if ((element as TableElement).type === "table") return true;
+            // For table elements, check if modified from default
+            if ((element as TableElement).type === "table") {
+                return isTableModified(element as TableElement);
+            }
             
             const el = element as Element;
             
@@ -927,17 +964,17 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         });
     };
 
-    // Check if all subcategories in a category are complete
+    // Check if entire category is fully completed (all subcategories complete)
     const isCategoryComplete = (categoryId: string): boolean => {
         if (!list) return false;
         
         const category = list.categories[categoryId];
         if (!category) return false;
 
-        const subcategoryIds = Object.keys(category.subcategories);
-        if (subcategoryIds.length === 0) return false;
+        const subcategories = Object.keys(category.subcategories);
+        if (subcategories.length === 0) return false;
 
-        return subcategoryIds.every(subcategoryId => 
+        return subcategories.every(subcategoryId => 
             isSubcategoryComplete(categoryId, subcategoryId)
         );
     };
@@ -997,8 +1034,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             </div>
         );
     }
-
-    const stats = getCompletionStats();
 
     return (
         <div className="min-h-screen bg-sky-50">
@@ -1102,6 +1137,22 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Mobile Download Button */}
+                <div className="md:hidden">
+                    <Button
+                        onClick={exportPdf}
+                        className="w-full h-12 bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf shadow-md"
+                        disabled={isExporting}
+                    >
+                        {isExporting ? (
+                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                        ) : (
+                            <Download className="h-5 w-5 mr-2" />
+                        )}
+                        Izvozi kot PDF
+                    </Button>
+                </div>
 
                 {/* Patient Data Section */}
                 {list!.patient_data && (
@@ -1238,7 +1289,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
                 {/* Categories */}
                 <div className="space-y-4">
-                    {Object.entries(list!.categories).map(
+                    {sortEntries(Object.entries(list!.categories)).map(
                         ([categoryId, category]) => (
                             <Card
                                 key={categoryId}
@@ -1265,12 +1316,12 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         >
                                             <ChevronRight className="h-5 w-5 text-slate-500" />
                                         </motion.div>
-                                        <span className="font-semibold flex items-center gap-2">
+                                        <span className="font-semibold flex-1">
                                             {category.title}
-                                            {isCategoryComplete(categoryId) && (
-                                                <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                                            )}
                                         </span>
+                                        {isCategoryComplete(categoryId) && (
+                                            <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+                                        )}
                                     </CardTitle>
                                     {category.description && (
                                         <p className="text-sm text-slate-500 ml-8 mt-1">
@@ -1294,10 +1345,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                             }}
                                             style={{ overflow: "visible" }}
                                         >
-                                            <CardContent className="pt-0 pb-6 space-y-6">
-                                                {Object.entries(
+                                            <CardContent className="pt-0 space-y-6 pb-6">
+                                                {sortEntries(Object.entries(
                                                     category.subcategories
-                                                ).map(
+                                                )).map(
                                                     ([
                                                         subcategoryId,
                                                         subcategory,
@@ -1335,9 +1386,9 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                                             </div>
 
                                                             <div className="space-y-4">
-                                                                {Object.entries(
+                                                                {sortEntries(Object.entries(
                                                                     subcategory.elements
-                                                                ).map(
+                                                                )).map(
                                                                     ([
                                                                         elementId,
                                                                         element,
@@ -1357,56 +1408,13 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                                                         }
 
                                                                         const regularElement = element as Element;
-                                                                        const allElements =
-                                                                            Object.values(
-                                                                                list!
-                                                                                    .categories
-                                                                            )
-                                                                                .flatMap(
-                                                                                    (
-                                                                                        cat
-                                                                                    ) =>
-                                                                                        Object.values(
-                                                                                            cat.subcategories
-                                                                                        )
-                                                                                )
-                                                                                .flatMap(
-                                                                                    (
-                                                                                        sub
-                                                                                    ) =>
-                                                                                        Object.entries(
-                                                                                            sub.elements
-                                                                                        )
-                                                                                );
-
-                                                                        const lastMultipleChoiceKey =
-                                                                            allElements
-                                                                                .reverse()
-                                                                                .find(
-                                                                                    ([
-                                                                                        ,
-                                                                                        el,
-                                                                                    ]) =>
-                                                                                        (el as Element).option_type ===
-                                                                                        "multiple"
-                                                                                )?.[0];
-
-                                                                        const isLastMultipleChoice =
-                                                                            regularElement.option_type ===
-                                                                                "multiple" &&
-                                                                            elementId ===
-                                                                                lastMultipleChoiceKey;
 
                                                                         return (
                                                                             <div
                                                                                 key={
                                                                                     elementId
                                                                                 }
-                                                                                className={`space-y-2 ${
-                                                                                    isLastMultipleChoice
-                                                                                        ? "mb-[150px]"
-                                                                                        : ""
-                                                                                }`}
+                                                                                className="space-y-2"
                                                                             >
                                                                                 <Label
                                                                                     htmlFor={
@@ -1508,6 +1516,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </div>
     );
 }
