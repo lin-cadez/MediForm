@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { sendLoginEmail } from "@/lib/firebaseAuth";
 
 interface UserLoginProps {
-  formId: string;
+  formId?: string;
 }
 
 export default function UserLogin({ formId }: UserLoginProps) {
@@ -25,8 +25,10 @@ export default function UserLogin({ formId }: UserLoginProps) {
     setIsLoading(true);
 
     try {
-      // Store the formId for redirect after login
-      localStorage.setItem('pendingFormId', formId);
+      // Store the formId for redirect after login (if provided)
+      if (formId) {
+        localStorage.setItem('pendingFormId', formId);
+      }
       
       const result = await sendLoginEmail(email);
       
@@ -146,6 +148,19 @@ export default function UserLogin({ formId }: UserLoginProps) {
           </p>
         </CardContent>
       </Card>
+      
+      {/* Footer */}
+      <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
+        <p>
+          MediForm © {new Date().getFullYear()} | Pomoč:{" "}
+          <a 
+            href="mailto:podpora@mediform.cadez.eu" 
+            className="text-ocean-teal hover:text-ocean-deep transition-colors"
+          >
+            podpora@mediform.cadez.eu
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

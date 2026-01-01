@@ -23,3 +23,19 @@ build
 *.njsproj
 *.sln
 *.sw?
+.vercel
+.env*.local
+
+# Environment files
+.env
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Script output files
+scripts/firebase-output.json
+scripts/zdravstvena-nega-for-upload.json
+
+# Documents (not needed for deployment)
+*.docx
+*.pdf

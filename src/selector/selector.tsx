@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAllForms } from "@/lib/firebase";
+import UserLogin from "@/components/UserLogin";
+import { checkUserSession } from "@/lib/userAuth";
 
 import "./selector.css";
 
@@ -31,6 +33,34 @@ export default function Selector() {
     const [error, setError] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [hasUserSession, setHasUserSession] = useState(false);
+    const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+    // Check user session on mount
+    useEffect(() => {
+        const checkSession = async () => {
+            setIsCheckingSession(true);
+            try {
+                const result = await checkUserSession();
+                if (result.success && result.email) {
+                    setHasUserSession(true);
+                    if (result.role === 'admin') {
+                        setIsAdmin(true);
+                        sessionStorage.setItem("adminLoggedIn", "true");
+                    }
+                } else {
+                    setHasUserSession(false);
+                }
+            } catch (error) {
+                console.error("Error checking user session:", error);
+                setHasUserSession(false);
+            } finally {
+                setIsCheckingSession(false);
+            }
+        };
+
+        checkSession();
+    }, []);
 
     useEffect(() => {
         const userInfo = localStorage.getItem("userInfo");
@@ -38,32 +68,12 @@ export default function Selector() {
             const parsed = JSON.parse(userInfo);
             setUserName(parsed.ime || "");
         }
-        
-        // Check if user is admin from session
-        const checkAdminStatus = async () => {
-            try {
-                const response = await fetch('https://medi-form-backend.vercel.app/api/auth/session', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                if (data.success && data.user?.role === 'admin') {
-                    setIsAdmin(true);
-                    sessionStorage.setItem("adminLoggedIn", "true");
-                } else {
-                    setIsAdmin(false);
-                    sessionStorage.removeItem("adminLoggedIn");
-                }
-            } catch (error) {
-                setIsAdmin(false);
-                sessionStorage.removeItem("adminLoggedIn");
-            }
-        };
-        
-        checkAdminStatus();
     }, []);
 
     useEffect(() => {
+        // Only fetch forms if user is logged in
+        if (!hasUserSession || isCheckingSession) return;
+        
         const fetchForms = async () => {
             try {
                 setIsLoading(true);
@@ -87,7 +97,7 @@ export default function Selector() {
         };
 
         fetchForms();
-    }, []);
+    }, [hasUserSession, isCheckingSession]);
 
     const openForm = (form: FormItem) => {
         // Store the form ID for later retrieval in checklist
@@ -99,6 +109,25 @@ export default function Selector() {
         setIsLoading(true);
         window.location.reload();
     };
+
+    // Show loading while checking session
+    if (isCheckingSession) {
+        return (
+            <div className="min-h-screen bg-sky-50 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-ocean-teal" />
+                    <p className="text-slate-600 font-medium">
+                        Preverjanje dostopa...
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show login form if no user session
+    if (!hasUserSession) {
+        return <UserLogin />;
+    }
 
     if (isLoading) {
         return (
@@ -149,7 +178,7 @@ export default function Selector() {
                             />
                         </div>
                         <span className="font-semibold text-slate-900 hidden sm:block">
-                            Kontrolni seznami
+                            MediForm
                         </span>
                     </NavLink>
                     <div className="flex items-center gap-2">
@@ -259,6 +288,19 @@ export default function Selector() {
                     </motion.div>
                 )}
             </main>
+            
+            {/* Footer */}
+            <footer className="py-6 px-4 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50">
+                <p>
+                    MediForm © {new Date().getFullYear()} | Pomoč:{" "}
+                    <a 
+                        href="mailto:podpora@mediform.cadez.eu" 
+                        className="text-ocean-teal hover:text-ocean-deep transition-colors"
+                    >
+                        podpora@mediform.cadez.eu
+                    </a>
+                </p>
+            </footer>
         </div>
     );
 
