@@ -1,6 +1,8 @@
 .page-container {
     min-height: 100vh;
     background-color: #f0f9ff;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
@@ -49,9 +51,11 @@
     }
 }
 .main {
+    flex: 1;
     max-width: 48rem;
     margin: 0 auto;
     padding: 2rem 1rem;
+    width: 100%;
 }
 
 .section-heading {
