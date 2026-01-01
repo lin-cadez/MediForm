@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,12 +24,26 @@ export default function MultiSelectInput({
     const [inputValue, setInputValue] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setSelectedOptions(value);
     }, [value]);
+
+    // Update dropdown position when opening
+    useEffect(() => {
+        if (isDropdownOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.bottom + window.scrollY + 4,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+            });
+        }
+    }, [isDropdownOpen]);
 
     const handleSelect = (option: string) => {
         if (!selectedOptions.includes(option)) {
@@ -104,7 +119,9 @@ export default function MultiSelectInput({
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 dropdownRef.current &&
-                !dropdownRef.current.contains(event.target as Node)
+                !dropdownRef.current.contains(event.target as Node) &&
+                containerRef.current &&
+                !containerRef.current.contains(event.target as Node)
             ) {
                 setIsDropdownOpen(false);
                 setHighlightedIndex(-1);
@@ -116,8 +133,54 @@ export default function MultiSelectInput({
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const dropdownContent = isDropdownOpen && (
+        <div 
+            ref={dropdownRef}
+            className="fixed bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
+            style={{ 
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+                zIndex: 99999,
+            }}
+        >
+            {availableOptions.length > 0 ? (
+                availableOptions.map((option, index) => (
+                    <button
+                        key={option}
+                        type="button"
+                        onClick={() => handleSelect(option)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        className={cn(
+                            "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center gap-2",
+                            index === highlightedIndex &&
+                                "bg-gradient-to-r from-ocean-light to-ocean-frost"
+                        )}
+                    >
+                        <Plus className="h-4 w-4 text-ocean-surf" />
+                        <span>{option}</span>
+                    </button>
+                ))
+            ) : inputValue.trim() &&
+              !selectedOptions.includes(inputValue.trim()) ? (
+                <button
+                    type="button"
+                    onClick={() => handleSelect(inputValue.trim())}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 transition-colors duration-150 flex items-center gap-2"
+                >
+                    <Plus className="h-4 w-4 text-slate-400" />
+                    <span>Dodaj "{inputValue.trim()}"</span>
+                </button>
+            ) : (
+                <div className="px-3 py-2 text-sm text-slate-500">
+                    Ni razpoložljivih možnosti
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <div className="relative pb-2" ref={dropdownRef}>
+        <div className="relative pb-2" ref={containerRef}>
             <div className="min-h-[2.5rem] p-2 border border-ocean-frost rounded-md bg-white focus-within:ring-2 focus-within:ring-ocean-surf/20 focus-within:border-ocean-surf transition-all duration-200">
                 <div className="flex flex-wrap gap-1 mb-2">
                     {selectedOptions.map((option) => (
@@ -172,43 +235,7 @@ export default function MultiSelectInput({
                 </div>
             </div>
 
-            {isDropdownOpen && (
-                <div className="absolute z-[99999] w-full mt-1 bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
-                     style={{ position: 'absolute', zIndex: 99999 }}>
-                    {availableOptions.length > 0 ? (
-                        availableOptions.map((option, index) => (
-                            <button
-                                key={option}
-                                type="button"
-                                onClick={() => handleSelect(option)}
-                                onMouseEnter={() => setHighlightedIndex(index)}
-                                className={cn(
-                                    "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center gap-2",
-                                    index === highlightedIndex &&
-                                        "bg-gradient-to-r from-ocean-light to-ocean-frost"
-                                )}
-                            >
-                                <Plus className="h-4 w-4 text-ocean-surf" />
-                                <span>{option}</span>
-                            </button>
-                        ))
-                    ) : inputValue.trim() &&
-                      !selectedOptions.includes(inputValue.trim()) ? (
-                        <button
-                            type="button"
-                            onClick={() => handleSelect(inputValue.trim())}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 transition-colors duration-150 flex items-center gap-2"
-                        >
-                            <Plus className="h-4 w-4 text-slate-400" />
-                            <span>Dodaj "{inputValue.trim()}"</span>
-                        </button>
-                    ) : (
-                        <div className="px-3 py-2 text-sm text-slate-500">
-                            Ni razpoložljivih možnosti
-                        </div>
-                    )}
-                </div>
-            )}
+            {typeof document !== 'undefined' && createPortal(dropdownContent, document.body)}
         </div>
     );
 }

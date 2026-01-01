@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Check } from "lucide-react";
@@ -21,12 +22,26 @@ export default function SingleSelectInput({
     const [inputValue, setInputValue] = useState(value || "");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setInputValue(value || "");
     }, [value]);
+
+    // Update dropdown position when opening
+    useEffect(() => {
+        if (isDropdownOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.bottom + window.scrollY + 4,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+            });
+        }
+    }, [isDropdownOpen]);
 
     const handleSelect = (option: string) => {
         setInputValue(option);
@@ -79,7 +94,9 @@ export default function SingleSelectInput({
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 dropdownRef.current &&
-                !dropdownRef.current.contains(event.target as Node)
+                !dropdownRef.current.contains(event.target as Node) &&
+                containerRef.current &&
+                !containerRef.current.contains(event.target as Node)
             ) {
                 setIsDropdownOpen(false);
                 setHighlightedIndex(-1);
@@ -91,8 +108,42 @@ export default function SingleSelectInput({
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    const dropdownContent = isDropdownOpen && filteredOptions.length > 0 && (
+        <div 
+            ref={dropdownRef}
+            className="fixed bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
+            style={{ 
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+                zIndex: 99999,
+            }}
+        >
+            {filteredOptions.map((option, index) => (
+                <button
+                    key={option}
+                    type="button"
+                    onClick={() => handleSelect(option)}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                    className={cn(
+                        "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center justify-between",
+                        index === highlightedIndex &&
+                            "bg-gradient-to-r from-ocean-light to-ocean-frost",
+                        option === value &&
+                            "bg-gradient-to-r from-ocean-frost to-ocean-surf/30 text-ocean-deep"
+                    )}
+                >
+                    <span>{option}</span>
+                    {option === value && (
+                        <Check className="h-4 w-4 text-ocean-teal" />
+                    )}
+                </button>
+            ))}
+        </div>
+    );
+
     return (
-        <div className="relative pb-2" ref={dropdownRef}>
+        <div className="relative pb-2" ref={containerRef}>
             <div className="flex items-center space-x-2">
                 <div className="relative flex-1">
                     <Input
@@ -122,31 +173,7 @@ export default function SingleSelectInput({
                 </div>
             </div>
 
-            {isDropdownOpen && filteredOptions.length > 0 && (
-                <div className="absolute z-[99999] w-full mt-1 bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
-                     style={{ position: 'absolute', zIndex: 99999 }}>
-                    {filteredOptions.map((option, index) => (
-                        <button
-                            key={option}
-                            type="button"
-                            onClick={() => handleSelect(option)}
-                            onMouseEnter={() => setHighlightedIndex(index)}
-                            className={cn(
-                                "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center justify-between",
-                                index === highlightedIndex &&
-                                    "bg-gradient-to-r from-ocean-light to-ocean-frost",
-                                option === value &&
-                                    "bg-gradient-to-r from-ocean-frost to-ocean-surf/30 text-ocean-deep"
-                            )}
-                        >
-                            <span>{option}</span>
-                            {option === value && (
-                                <Check className="h-4 w-4 text-ocean-teal" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            )}
+            {typeof document !== 'undefined' && createPortal(dropdownContent, document.body)}
         </div>
     );
 }
