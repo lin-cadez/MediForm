@@ -177,7 +177,6 @@ function App() {
                         <Route path="*" element={<Selector />} />
                     </Routes>
                 </div>
-                <Footer />
             </Router>
         </div>
     );
