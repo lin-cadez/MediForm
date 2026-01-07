@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAllForms } from "@/lib/firebase";
 import UserLogin from "@/components/UserLogin";
+import Footer from "@/components/Footer";
 import { checkUserSession } from "@/lib/userAuth";
 
 import "./selector.css";
@@ -291,15 +292,7 @@ export default function Selector() {
             
             {/* Footer */}
             <footer className="py-6 px-4 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50">
-                <p>
-                    MediForm © {new Date().getFullYear()} | Pomoč:{" "}
-                    <a 
-                        href="mailto:podpora@mediform.cadez.eu" 
-                        className="text-ocean-teal hover:text-ocean-deep transition-colors"
-                    >
-                        podpora@mediform.cadez.eu
-                    </a>
-                </p>
+               <Footer />
             </footer>
         </div>
     );

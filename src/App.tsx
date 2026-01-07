@@ -138,7 +138,7 @@ function App() {
                             <Route path="*" element={<UserInfoForm onSubmit={handleUserInfoSubmit} />} />
                         </Routes>
                     </div>
-                    <Footer />
+                  
                 </Router>
             </div>
         );

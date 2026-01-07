@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { sendLoginEmail } from "@/lib/firebaseAuth";
+import Footer from "@/components/Footer";
 
 interface UserLoginProps {
   formId?: string;
@@ -152,19 +153,7 @@ export default function UserLogin({ formId }: UserLoginProps) {
             
             {/* Footer */}
           <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
-          <p>
-            MediForm © {new Date().getFullYear()} | Pomoč:{" "}
-            <a 
-            href="mailto:podpora@mediform.cadez.eu" 
-            className="text-ocean-teal hover:text-ocean-deep transition-colors"
-            >
-            podpora@mediform.cadez.eu
-            </a>
-          </p>
-          <p className="mt-1">
-            Izdelava: Lin Čadež, Vegova Ljubljana
-          <a href="https://cadez.eu/" target="_blank" rel="noopener noreferrer" className="text-ocean-teal hover:text-ocean-deep transition-colors">Lin Čadež</a>
-          </p>
+            <Footer />
           </div>
     </div>
   );
