@@ -14,6 +14,11 @@ import {
     X,
     Plus,
     Trash2,
+    Cloud,
+    CloudOff,
+    RefreshCw,
+    Upload,
+    FileJson
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,8 +47,8 @@ import {
     scheduleAutoSave, 
     cancelAutoSave 
 } from "@/lib/userAuth";
+import React from "react";
 import UserLogin from "@/components/UserLogin";
-import { Cloud, CloudOff, RefreshCw } from "lucide-react";
 
 interface UserInfo {
     ime: string;
@@ -124,6 +129,7 @@ interface Category {
 }
 
 interface PatientData {
+    datum_obravnave: string;
     starost: string;
     spol: string;
     pogovorni_jezik: string;
@@ -175,11 +181,15 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     const [isPatientSectionOpen, setIsPatientSectionOpen] = useState(true);
     
     // User session and auto-save state
+    const [authStatus, setAuthStatus] = useState<'guest' | 'email' | 'loading'>('loading');
     const [hasUserSession, setHasUserSession] = useState(false);
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [isCheckingSession, setIsCheckingSession] = useState(true);
     const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
+    const [importError, setImportError] = useState<string | null>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
 
     // Handle patient data changes
     const handlePatientDataChange = (field: keyof PatientData, value: string) => {
@@ -198,9 +208,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     };
 
     const updateLocalStorage = (newList: List) => {
-        const path = window.location.pathname;
-        const urlSegment = path.split("/checklist/")[1];
-        localStorage.setItem(`checklist_${urlSegment}`, JSON.stringify(newList));
+        const formId = getFormId();
+        if (formId) {
+            localStorage.setItem(`checklist_${formId}`, JSON.stringify(newList));
+        }
     };
 
     const castToArray = (value: any): string[] => {
@@ -209,7 +220,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     const fetchData = async () => {
         setIsLoading(true);
-        const urlSegment = window.location.pathname.split("/checklist/")[1];
+        const urlSegment = window.location.pathname.split("/form/")[1];
         
         // Decode URL segment in case it's encoded
         const decodedUrlSegment = decodeURIComponent(urlSegment);
@@ -334,7 +345,9 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     },
                 };
 
-                updateLocalStorage(newList);
+                if (authStatus === 'guest') {
+                    updateLocalStorage(newList);
+                }
                 return newList;
             });
 
@@ -344,35 +357,40 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     // Get form ID from URL
     const getFormId = () => {
-        const urlSegment = window.location.pathname.split("/checklist/")[1];
-        return decodeURIComponent(urlSegment || "");
+        const path = window.location.pathname;
+        const match = path.match(/form\/(.+)/);
+        return match ? decodeURIComponent(match[1]) : "";
     };
 
     // Check user session on mount
     useEffect(() => {
-        const checkSession = async () => {
-            setIsCheckingSession(true);
-            try {
-                const result = await checkUserSession();
-                if (result.success && result.email) {
-                    setHasUserSession(true);
-                    setUserEmail(result.email);
-                } else {
-                    // No valid session - clear any stale local data
+        const status = localStorage.getItem("authStatus");
+        if (status === 'guest') {
+            setAuthStatus('guest');
+            setIsCheckingSession(false);
+        } else {
+            setAuthStatus('email');
+            const checkSession = async () => {
+                setIsCheckingSession(true);
+                try {
+                    const result = await checkUserSession();
+                    if (result.success && result.email) {
+                        setHasUserSession(true);
+                        setUserEmail(result.email);
+                    } else {
+                        setHasUserSession(false);
+                        setUserEmail('');
+                    }
+                } catch (error) {
+                    console.error("Error checking user session:", error);
                     setHasUserSession(false);
                     setUserEmail('');
+                } finally {
+                    setIsCheckingSession(false);
                 }
-            } catch (error) {
-                console.error("Error checking user session:", error);
-                // On error, assume no session
-                setHasUserSession(false);
-                setUserEmail('');
-            } finally {
-                setIsCheckingSession(false);
-            }
-        };
-
-        checkSession();
+            };
+            checkSession();
+        }
     }, []);
 
     // Load saved submission when session is verified
@@ -414,6 +432,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                 }
                             });
                             
+
                             return newList;
                         });
                         setFormData(savedFormData);
@@ -430,9 +449,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         }
     }, [hasUserSession, list?.url]);
 
-    // Auto-save when formData changes (with 1 second debounce)
+    // Auto-save when formData changes (with debounce)
     useEffect(() => {
-        if (!hasUserSession || Object.keys(formData).length === 0) return;
+        // Guest users are saved to localStorage on every change via `updateLocalStorage`
+        if (authStatus !== 'email' || !hasUserSession || Object.keys(formData).length === 0) return;
         
         const formId = getFormId();
         if (!formId) return;
@@ -455,7 +475,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
         // Cleanup - cancel pending auto-save on unmount
         return () => cancelAutoSave();
-    }, [formData, hasUserSession]);
+    }, [formData, hasUserSession, authStatus]);
 
     useEffect(() => {
         fetchData();
@@ -467,6 +487,101 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             [categoryId]: !prevState[categoryId],
         }));
     };
+
+    const handleExportJson = () => {
+        if (!list) return;
+        const jsonString = JSON.stringify(list, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${list.title.replace(/\s/g, '_')}_export.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const validateImportedData = (importedData: any, originalForm: List): boolean => {
+        if (!importedData || typeof importedData !== 'object') return false;
+        if (importedData.url !== originalForm.url) return false;
+
+        for (const catId in originalForm.categories) {
+            if (!importedData.categories?.[catId]) return false;
+            for (const subId in originalForm.categories[catId].subcategories) {
+                if (!importedData.categories[catId].subcategories?.[subId]) return false;
+                for (const elemId in originalForm.categories[catId].subcategories[subId].elements) {
+                    if (!importedData.categories[catId].subcategories[subId].elements?.[elemId]) return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    const handleImportJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setImportError(null);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const text = e.target?.result;
+                if (typeof text !== 'string') {
+                    throw new Error("Failed to read file.");
+                }
+                const importedData = JSON.parse(text);
+
+                // Fetch original form for validation
+                const formId = getFormId();
+                const originalForm = await getFormById(formId) as List | null;
+
+                if (!originalForm) {
+                    throw new Error("Could not load original form to validate against.");
+                }
+
+                // Validate
+                if (!validateImportedData(importedData, originalForm)) {
+                    throw new Error("JSON file does not match the structure of this form.");
+                }
+
+                // If valid, update the state
+                setList(importedData);
+                updateLocalStorage(importedData); // Save to local storage immediately
+                
+                // Also re-create the formData object for auto-saving if online
+                const newFormData: Record<string, any> = {};
+                Object.entries(importedData.categories).forEach(([catId, category]: [string, any]) => {
+                    Object.entries(category.subcategories).forEach(([subId, subcategory]: [string, any]) => {
+                        Object.entries(subcategory.elements).forEach(([elemId, element]: [string, any]) => {
+                            if (element.value !== null && element.value !== undefined) {
+                                if (!newFormData[catId]) newFormData[catId] = {};
+                                if (!newFormData[catId][subId]) newFormData[catId][subId] = {};
+                                newFormData[catId][subId][elemId] = element.value;
+                            }
+                        });
+                    });
+                });
+                setFormData(newFormData);
+
+
+            } catch (error: any) {
+                setImportError(error.message || "Invalid JSON file.");
+                console.error("Import error:", error);
+            } finally {
+                // Reset file input
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
+            }
+        };
+        reader.readAsText(file);
+    };
+
 
     // Table row management functions
     const addTableRow = (categoryId: string, subcategoryId: string, elementId: string, columns: TableColumn[]) => {
@@ -500,8 +615,8 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                 }
             };
         });
-    };
-
+    }
+    
     const removeTableRow = (categoryId: string, subcategoryId: string, elementId: string, rowIndex: number) => {
         setList((prevList) => {
             if (!prevList) return prevList;
@@ -1036,49 +1151,49 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     }
 
     return (
-        <div className="min-h-screen bg-sky-50">
+        <div className="min-h-screen bg-sky-50 overflow-x-hidden">
             {/* Fixed Header */}
             <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-ocean-frost shadow-sm">
-                <div className="flex items-center justify-between px-4 py-3 max-w-4xl mx-auto">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 max-w-4xl mx-auto">
                     <NavLink
                         to="/"
-                        className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors duration-200"
+                        className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-slate-100 transition-colors duration-200 flex-shrink-0"
                     >
                         <ArrowLeft className="h-5 w-5 text-slate-600" />
                     </NavLink>
 
-                    <div className="flex-1 text-center px-4">
+                    <div className="flex-1 text-center px-2 sm:px-4 min-w-0">
                         <h1
-                            className="text-lg font-semibold text-slate-900 truncate"
+                            className="text-sm sm:text-lg font-semibold text-slate-900 truncate"
                             title={list!.title}
                         >
                             {list!.title}
                         </h1>
                         {userEmail && (
-                            <p className="text-xs text-slate-500 truncate">{userEmail}</p>
+                            <div className="flex items-center justify-center gap-1.5">
+                                <p className="text-[10px] sm:text-xs text-slate-500 truncate">{userEmail}</p>
+                                {/* Auto-save status indicator */}
+                                {hasUserSession && (
+                                    <>
+                                        {autoSaveStatus === 'saving' && (
+                                            <RefreshCw className="h-3 w-3 text-ocean-teal animate-spin flex-shrink-0" />
+                                        )}
+                                        {autoSaveStatus === 'saved' && (
+                                            <Cloud className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                        )}
+                                        {autoSaveStatus === 'error' && (
+                                            <CloudOff className="h-3 w-3 text-red-500 flex-shrink-0" />
+                                        )}
+                                        {autoSaveStatus === 'idle' && lastSaved && (
+                                            <Cloud className="h-3 w-3 text-slate-400 flex-shrink-0" />
+                                        )}
+                                    </>
+                                )}
+                            </div>
                         )}
-                        <div className="flex items-center justify-center gap-2 mt-1">
-                            {/* Auto-save status indicator */}
-                            {hasUserSession && (
-                                <div className="flex items-center gap-1">
-                                    {autoSaveStatus === 'saving' && (
-                                        <RefreshCw className="h-3 w-3 text-ocean-teal animate-spin" />
-                                    )}
-                                    {autoSaveStatus === 'saved' && (
-                                        <Cloud className="h-3 w-3 text-green-500" />
-                                    )}
-                                    {autoSaveStatus === 'error' && (
-                                        <CloudOff className="h-3 w-3 text-red-500" />
-                                    )}
-                                    {autoSaveStatus === 'idle' && lastSaved && (
-                                        <Cloud className="h-3 w-3 text-slate-400" />
-                                    )}
-                                </div>
-                            )}
-                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2">
                         <Drawer
                             open={isExportOpen}
                             onOpenChange={setIsExportOpen}
@@ -1102,10 +1217,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                 <DrawerHeader className="text-center">
                                     <DrawerTitle className="flex items-center justify-center gap-2">
                                         <Download className="h-5 w-5" />
-                                        Export Options
+                                        Možnosti izvoza
                                     </DrawerTitle>
                                     <DrawerDescription>
-                                        Export your completed checklist as PDF
+                                        Izvozi svoje poročilo kot PDF
                                     </DrawerDescription>
                                 </DrawerHeader>
 
@@ -1119,6 +1234,47 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         Izvozi kot PDF
                                     </Button>
                                 </div>
+
+                                <div className="mt-4 border-t pt-4">
+                                    <h3 className="text-center text-sm font-medium text-slate-700 mb-2">
+                                        Ali pa
+                                    </h3>
+                                    <Button
+                                        onClick={handleExportJson}
+                                        variant="outline"
+                                        className="w-full justify-start gap-3 h-12"
+                                    >
+                                        <FileJson className="h-5 w-5" />
+                                        Izvozi kot JSON
+                                    </Button>
+                                </div>
+
+                                <div className="mt-4 border-t pt-4">
+                                    <h3 className="text-center text-sm font-medium text-slate-700 mb-2">
+                                        Uvozi
+                                    </h3>
+                                    <Button
+                                        onClick={handleImportClick}
+                                        variant="outline"
+                                        className="w-full justify-start gap-3 h-12"
+                                    >
+                                        <Upload className="h-5 w-5" />
+                                        Uvozi iz JSON
+                                    </Button>
+                                    <input 
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleImportJson}
+                                        className="hidden"
+                                        accept="application/json"
+                                    />
+                                    {importError && (
+                                        <Alert variant="destructive">
+                                            <AlertCircle className="h-4 w-4" />
+                                            <AlertDescription>{importError}</AlertDescription>
+                                        </Alert>
+                                    )}
+                                </div>
                             </DrawerContent>
                         </Drawer>
                     </div>
@@ -1126,12 +1282,12 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-4xl mx-auto px-4 py-6 space-y-6 mb-8">
+            <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 mb-8">
                 {/* Description */}
                 {list!.description && (
                     <Card className="border-0 shadow-sm bg-white/70 backdrop-blur-sm border border-ocean-light">
-                        <CardContent className="p-6">
-                            <p className="text-slate-600 leading-relaxed">
+                        <CardContent className="p-4 sm:p-6">
+                            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                                 {list!.description}
                             </p>
                         </CardContent>
@@ -1182,9 +1338,22 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                     transition={{ duration: 0.3, ease: "easeInOut" }}
                                     style={{ overflow: "visible" }}
                                 >
-                                    <CardContent className="pt-0 pb-6">
-                                        <div className="bg-white/70 rounded-lg p-5 space-y-4 border border-blue-100">
+                                    <CardContent className="pt-0 pb-4 sm:pb-6">
+                                        <div className="bg-white/70 rounded-lg p-3 sm:p-5 space-y-4 border border-blue-100">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* Datum obravnave */}
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium text-slate-700">
+                                                        Datum obravnave
+                                                    </Label>
+                                                    <Input
+                                                        type="date"
+                                                        value={list!.patient_data?.datum_obravnave || ""}
+                                                        onChange={(e) => handlePatientDataChange("datum_obravnave", e.target.value)}
+                                                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                    />
+                                                </div>
+
                                                 {/* Starost */}
                                                 <div className="space-y-2">
                                                     <Label className="text-sm font-medium text-slate-700">
@@ -1288,18 +1457,18 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                 )}
 
                 {/* Categories */}
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-hidden">
                     {sortEntries(Object.entries(list!.categories)).map(
                         ([categoryId, category]) => (
                             <Card
                                 key={categoryId}
-                                className="border-0 shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-ocean-frost"
+                                className="border-0 shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-ocean-frost overflow-hidden"
                             >
                                 <CardHeader
-                                    className="cursor-pointer select-none hover:bg-gradient-to-r hover:from-ocean-light/50 hover:to-ocean-frost/50 transition-colors duration-200 rounded-t-lg"
+                                    className="cursor-pointer select-none hover:bg-gradient-to-r hover:from-ocean-light/50 hover:to-ocean-frost/50 transition-colors duration-200 rounded-t-lg p-3 sm:p-6"
                                     onClick={() => toggleCategory(categoryId)}
                                 >
-                                    <CardTitle className="flex items-center gap-3 text-slate-900">
+                                    <CardTitle className="flex items-center gap-2 sm:gap-3 text-slate-900">
                                         <motion.div
                                             animate={{
                                                 rotate: openCategories[
@@ -1316,7 +1485,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         >
                                             <ChevronRight className="h-5 w-5 text-slate-500" />
                                         </motion.div>
-                                        <span className="font-semibold flex-1">
+                                        <span className="font-semibold flex-1 text-sm sm:text-base">
                                             {category.title}
                                         </span>
                                         {isCategoryComplete(categoryId) && (
@@ -1324,7 +1493,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         )}
                                     </CardTitle>
                                     {category.description && (
-                                        <p className="text-sm text-slate-500 ml-8 mt-1">
+                                        <p className="text-xs sm:text-sm text-slate-500 ml-7 sm:ml-8 mt-1">
                                             {category.description}
                                         </p>
                                     )}
@@ -1345,7 +1514,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                             }}
                                             style={{ overflow: "visible" }}
                                         >
-                                            <CardContent className="pt-0 space-y-6 pb-6">
+                                            <CardContent className="pt-0 space-y-4 sm:space-y-6 pb-4 sm:pb-6 px-3 sm:px-6">
                                                 {sortEntries(Object.entries(
                                                     category.subcategories
                                                 )).map(
@@ -1367,12 +1536,12 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                                                 duration: 0.3,
                                                                 delay: 0.1,
                                                             }}
-                                                            className="bg-gradient-to-r from-ocean-light/30 to-ocean-frost/30 rounded-lg p-5 space-y-4 border border-ocean-frost/50"
+                                                            className="bg-gradient-to-r from-ocean-light/30 to-ocean-frost/30 rounded-lg p-3 sm:p-5 space-y-3 sm:space-y-4 border border-ocean-frost/50"
                                                         >
                                                             <div className="flex items-start justify-between gap-2">
-                                                                <div className="flex-1">
-                                                                    <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
-                                                                        {subcategory.title}
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                                                                        <span className="truncate">{subcategory.title}</span>
                                                                         {isSubcategoryComplete(categoryId, subcategoryId) && (
                                                                             <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
                                                                         )}

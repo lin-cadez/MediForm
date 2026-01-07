@@ -40,6 +40,15 @@ export default function Selector() {
     useEffect(() => {
         const checkSession = async () => {
             setIsCheckingSession(true);
+            
+            // Check if user is a guest first
+            const authStatus = localStorage.getItem("authStatus");
+            if (authStatus === "guest") {
+                setHasUserSession(true); // Treat guest as having a session
+                setIsCheckingSession(false);
+                return;
+            }
+            
             try {
                 const result = await checkUserSession();
                 if (result.success && result.email) {
@@ -71,8 +80,8 @@ export default function Selector() {
     }, []);
 
     useEffect(() => {
-        // Only fetch forms if user is logged in
-        if (!hasUserSession || isCheckingSession) return;
+        // Fetch forms when session check is complete and user has access
+        if (isCheckingSession || !hasUserSession) return;
         
         const fetchForms = async () => {
             try {

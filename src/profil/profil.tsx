@@ -3,12 +3,11 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { ArrowLeft, User, GraduationCap, Save, Check, School, LogOut, Building2 } from "lucide-react";
+import { ArrowLeft, User, LogOut, GraduationCap, School, Building2, Check, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-// Select component imports removed - not currently used
 import { motion } from "framer-motion";
 import "./about.css";
 
@@ -17,11 +16,16 @@ interface UserInfo {
     priimek: string;
     razred: string;
     sola: string;
-    podrocje: string;
+    podrocje?: string;
 }
 
-export default function Profil() {
-    const [userInfo, setUserInfo] = useState<UserInfo>({
+interface ProfilProps {
+    userInfo: UserInfo;
+    onLogout: () => void;
+}
+
+export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilProps) {
+    const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo || {
         ime: "",
         priimek: "",
         razred: "",
@@ -74,7 +78,7 @@ export default function Profil() {
             return;
         }
 
-        // Data is already saved, just show feedback
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
         setSaved(true);
 
         setTimeout(() => {
@@ -82,66 +86,51 @@ export default function Profil() {
         }, 2000);
     };
 
-    const handleLogout = async () => {
-        if (confirm("Ali ste prepričani, da se želite odjaviti? Vaši podatki bodo izbrisani.")) {
-            try {
-                // Call backend to clear session cookie
-                await fetch('https://medi-form-backend.vercel.app/api/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-            } catch (error) {
-                console.error('Error during logout:', error);
-            }
-            
-            // Clear all local data
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            // Redirect to home
-            window.location.href = "/";
+    const handleLogoutClick = async () => {
+        if (confirm("Ali ste prepričani, da se želite odjaviti?")) {
+            await onLogout();
+            // Redirect to login page after logout
+            window.location.href = '/login';
         }
     };
 
-
     return (
-        <div className="page-container">
-            <header className="header">
-                <div className="header-content">
-                    <NavLink to="/">
-                        <ArrowLeft className="h-5 w-5 text-slate-600" />
+        <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
+            <Card className="w-full max-w-lg shadow-lg">
+                <div className="w-full flex justify-between items-center p-4 border-b">
+                    <NavLink
+                        to="/"
+                        className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Nazaj na izbiro
                     </NavLink>
-                    <div className="flex-1 text-center px-4">
-                        <h1 className="text-lg font-semibold text-slate-900">
-                            Moj profil
-                        </h1>
-                    </div>
+                    <Button variant="ghost" size="sm" onClick={handleLogoutClick}>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Odjava
+                    </Button>
                 </div>
-            </header>
-            <main className="main-content">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="intro-section"
-                >
-                   
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                    <Card className="authors-card border-0 shadow-xl bg-white/90 backdrop-blur-sm border border-ocean-frost">
-                        <CardHeader>
-                            <CardTitle className="text-center text-slate-900 text-xl">
-                                Uredi profil
-                                
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                <CardHeader className="text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <CardTitle className="text-2xl font-bold text-slate-900">
+                            Moj profil
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground mt-2">
+                            Tukaj lahko uredite svoje podatke.
+                        </p>
+                         {/* {authStatus === 'guest' && (
+                            <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm">
+                                Prijavljeni ste kot gost. Vsi podatki so shranjeni samo v vašem brskalniku.
+                            </p>
+                        )} */}
+                    </motion.div>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
                                     <Label
                                         htmlFor="ime"
@@ -316,23 +305,9 @@ export default function Profil() {
                                         </span>
                                     )}
                                 </Button>
-
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleLogout}
-                                    className="w-full py-3 text-lg font-medium border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                                >
-                                    <span className="flex items-center justify-center gap-2">
-                                        <LogOut className="h-5 w-5" />
-                                        Odjava
-                                    </span>
-                                </Button>
                             </form>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </main>
+                </CardContent>
+            </Card>
         </div>
     );
 }
