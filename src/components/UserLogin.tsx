@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { sendLoginEmail } from "@/lib/firebaseAuth";
-import Footer from "@/components/Footer";
+import Footer from "./Footer";
 
 interface UserLoginProps {
   formId?: string;
@@ -151,7 +151,9 @@ export default function UserLogin({ formId }: UserLoginProps) {
         </Card>
   
             
-          
+            <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
+                <Footer />
+            </div>
     </div>
   );
 }
