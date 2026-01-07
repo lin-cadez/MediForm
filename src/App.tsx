@@ -9,6 +9,9 @@ import FormBuilder from "./form_builder/form_builder";
 import UserInfoForm from "./components/UserInfoForm";
 import FinishSignIn from "./form_builder/FinishSignIn";
 import VerifyUserSession from "./components/VerifyUserSession";
+import CookieConsent from "./components/CookieConsent";
+import TermsOfUse from "./profil/Terms";
+import PrivacyPolicy from "./profil/Privacy";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { checkUserSession } from "./lib/userAuth";
 
@@ -25,6 +28,9 @@ function App() {
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [, setHasConsent] = useState(() => {
+        return localStorage.getItem("cookieConsent") === "accepted";
+    });
 
     useEffect(() => {
         const initializeAuth = async () => {
@@ -114,7 +120,11 @@ function App() {
     if (!userInfo && !isAdmin) {
         return (
             <Router>
+                <CookieConsent onAccept={() => setHasConsent(true)} />
                 <Routes>
+                    {/* Legal pages - always accessible */}
+                    <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
+                    <Route path="/zasebnost" element={<PrivacyPolicy />} />
                     {/* Finish Sign In route - must be accessible without login */}
                     <Route path="/finish-signin" element={<FinishSignIn />} />
                     {/* User session verification route */}
@@ -131,7 +141,11 @@ function App() {
     return (
         <div className="min-h-screen bg-sky-50">
             <Router>
+                <CookieConsent onAccept={() => setHasConsent(true)} />
                 <Routes>
+                    {/* Legal pages - always accessible */}
+                    <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
+                    <Route path="/zasebnost" element={<PrivacyPolicy />} />
                     {/* Finish Sign In route */}
                     <Route path="/finish-signin" element={<FinishSignIn />} />
                     {/* User session verification route */}

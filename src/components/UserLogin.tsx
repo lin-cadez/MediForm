@@ -143,24 +143,29 @@ export default function UserLogin({ formId }: UserLoginProps) {
             </Button>
           </form>
 
-          <p className="text-xs text-center text-slate-500 mt-4">
-            Na vaš email bomo poslali povezavo za dostop. Vaši podatki se bodo avtomatsko shranjevali.
-          </p>
-        </CardContent>
-      </Card>
-      
-      {/* Footer */}
-      <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
-        <p>
-          MediForm © {new Date().getFullYear()} | Pomoč:{" "}
-          <a 
+            <p className="text-xs text-center text-slate-500 mt-4">
+              Na vaš email bomo poslali povezavo za dostop. Vaši podatki se bodo avtomatsko shranjevali.
+            </p>
+          </CardContent>
+        </Card>
+  
+            
+            {/* Footer */}
+          <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
+          <p>
+            MediForm © {new Date().getFullYear()} | Pomoč:{" "}
+            <a 
             href="mailto:podpora@mediform.cadez.eu" 
             className="text-ocean-teal hover:text-ocean-deep transition-colors"
-          >
+            >
             podpora@mediform.cadez.eu
-          </a>
-        </p>
-      </div>
+            </a>
+          </p>
+          <p className="mt-1">
+            Izdelava: Lin Čadež, Vegova Ljubljana
+          <a href="https://cadez.eu/" target="_blank" rel="noopener noreferrer" className="text-ocean-teal hover:text-ocean-deep transition-colors">Lin Čadež</a>
+          </p>
+          </div>
     </div>
   );
 }
