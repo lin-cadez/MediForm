@@ -10,7 +10,7 @@ import UserInfoForm from "./components/UserInfoForm";
 import FinishSignIn from "./form_builder/FinishSignIn";
 import VerifyUserSession from "./components/VerifyUserSession";
 import CookieConsent from "./components/CookieConsent";
-import Footer from "./components/Footer";
+
 import TermsOfUse from "./profil/Terms";
 import PrivacyPolicy from "./profil/Privacy";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
@@ -25,7 +25,7 @@ interface UserInfo {
     email?: string;
 }
 
-function App() {
+function AppContent() {
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -121,67 +121,67 @@ function App() {
     if (!userInfo && !isAdmin) {
         return (
             <div className="min-h-screen bg-sky-50 flex flex-col">
-                <Router>
-                    <CookieConsent onAccept={() => setHasConsent(true)} />
-                    <div className="flex-1">
-                        <Routes>
-                            {/* Legal pages - always accessible */}
-                            <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
-                            <Route path="/zasebnost" element={<PrivacyPolicy />} />
-                            {/* Finish Sign In route - must be accessible without login */}
-                            <Route path="/finish-signin" element={<FinishSignIn />} />
-                            {/* User session verification route */}
-                            <Route path="/verify-session" element={<VerifyUserSession />} />
-                            {/* Checklist routes - handle user auth internally */}
-                            <Route path="/checklist/*" element={<Checklist userInfo={{ ime: '', priimek: '', razred: '', sola: '' }} />} />
-                            {/* All other routes require user info */}
-                            <Route path="*" element={<UserInfoForm onSubmit={handleUserInfoSubmit} />} />
-                        </Routes>
-                    </div>
-                  
-                </Router>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-sky-50 flex flex-col">
-            <Router>
                 <CookieConsent onAccept={() => setHasConsent(true)} />
                 <div className="flex-1">
                     <Routes>
                         {/* Legal pages - always accessible */}
                         <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
                         <Route path="/zasebnost" element={<PrivacyPolicy />} />
-                        {/* Finish Sign In route */}
+                        {/* Finish Sign In route - must be accessible without login */}
                         <Route path="/finish-signin" element={<FinishSignIn />} />
                         {/* User session verification route */}
                         <Route path="/verify-session" element={<VerifyUserSession />} />
-                        {/* Checklist - accessible by both admin and regular users */}
-                        <Route
-                            path="/checklist/*"
-                            element={
-                                <Checklist userInfo={userInfo || { ime: '', priimek: '', razred: '', sola: '' }} />
-                            }
-                        />
-                        <Route
-                            path="/profil"
-                            element={
-                                userInfo ? <Profil /> : <Navigate to="/" replace />
-                            }
-                        />
-                        {/* Form builder - only for admins */}
-                        <Route path="/form_builder" element={<FormBuilder />} />
-                        {/* Selector - accessible by all logged in users */}
-                        <Route path="/" element={<Selector />} />
-                        <Route path="*" element={<Selector />} />
+                        {/* Checklist routes - handle user auth internally */}
+                        <Route path="/checklist/*" element={<Checklist userInfo={{ ime: '', priimek: '', razred: '', sola: '' }} />} />
+                        {/* All other routes require user info */}
+                        <Route path="*" element={<UserInfoForm onSubmit={handleUserInfoSubmit} />} />
                     </Routes>
                 </div>
-            </Router>
-        <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
-            <Footer />
-          </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-sky-50 flex flex-col">
+            <CookieConsent onAccept={() => setHasConsent(true)} />
+            <div className="flex-1">
+                <Routes>
+                    {/* Legal pages - always accessible */}
+                    <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
+                    <Route path="/zasebnost" element={<PrivacyPolicy />} />
+                    {/* Finish Sign In route */}
+                    <Route path="/finish-signin" element={<FinishSignIn />} />
+                    {/* User session verification route */}
+                    <Route path="/verify-session" element={<VerifyUserSession />} />
+                    {/* Checklist - accessible by both admin and regular users */}
+                    <Route
+                        path="/checklist/*"
+                        element={
+                            <Checklist userInfo={userInfo || { ime: '', priimek: '', razred: '', sola: '' }} />
+                        }
+                    />
+                    <Route
+                        path="/profil"
+                        element={
+                            userInfo ? <Profil /> : <Navigate to="/" replace />
+                        }
+                    />
+                    {/* Form builder - only for admins */}
+                    <Route path="/form_builder" element={<FormBuilder />} />
+                    {/* Selector - accessible by all logged in users */}
+                    <Route path="/" element={<Selector />} />
+                    <Route path="*" element={<Selector />} />
+                </Routes>
+            </div>
         </div>
+    );
+}
+
+function App() {
+    return (
+        <Router>
+            <AppContent />
+        </Router>
     );
 }
 

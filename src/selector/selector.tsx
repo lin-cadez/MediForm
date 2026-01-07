@@ -17,7 +17,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getAllForms } from "@/lib/firebase";
 import UserLogin from "@/components/UserLogin";
 import { checkUserSession } from "@/lib/userAuth";
-import Footer from "@/components/Footer";
 
 import "./selector.css";
 
@@ -290,9 +289,6 @@ export default function Selector() {
                 )}
             </main>
             
-            <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
-                <Footer />
-            </div>
         
         </div>
     );
