@@ -290,10 +290,7 @@ export default function Selector() {
                 )}
             </main>
             
-            {/* Footer */}
-            <footer className="py-6 px-4 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50">
-               <Footer />
-            </footer>
+        
         </div>
     );
 

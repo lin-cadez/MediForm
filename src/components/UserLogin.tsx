@@ -151,10 +151,7 @@ export default function UserLogin({ formId }: UserLoginProps) {
         </Card>
   
             
-            {/* Footer */}
-          <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-slate-500">
-            <Footer />
-          </div>
+          
     </div>
   );
 }
