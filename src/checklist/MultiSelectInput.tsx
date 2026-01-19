@@ -24,7 +24,7 @@ export default function MultiSelectInput({
     const [inputValue, setInputValue] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+    const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -33,17 +33,23 @@ export default function MultiSelectInput({
         setSelectedOptions(value);
     }, [value]);
 
-    // Update dropdown position when opening
-    useEffect(() => {
-        if (isDropdownOpen && containerRef.current) {
+    const updateDropdownPosition = () => {
+        if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
-            setDropdownPosition({
-                top: rect.bottom + window.scrollY + 4,
-                left: rect.left + window.scrollX,
+            setDropdownStyle({
+                position: 'fixed',
+                top: rect.bottom + 4,
+                left: rect.left,
                 width: rect.width,
+                zIndex: 99999,
             });
         }
-    }, [isDropdownOpen]);
+    };
+
+    const openDropdown = () => {
+        updateDropdownPosition();
+        setIsDropdownOpen(true);
+    };
 
     const handleSelect = (option: string) => {
         if (!selectedOptions.includes(option)) {
@@ -66,8 +72,16 @@ export default function MultiSelectInput({
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
-        setIsDropdownOpen(true);
+        if (!isDropdownOpen) {
+            openDropdown();
+        }
     };
+
+    const availableOptions = predefinedOptions.filter(
+        (option) =>
+            !selectedOptions.includes(option) &&
+            option.toLowerCase().includes(inputValue.toLowerCase())
+    );
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
@@ -109,12 +123,6 @@ export default function MultiSelectInput({
         }
     };
 
-    const availableOptions = predefinedOptions.filter(
-        (option) =>
-            !selectedOptions.includes(option) &&
-            option.toLowerCase().includes(inputValue.toLowerCase())
-    );
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
@@ -128,59 +136,23 @@ export default function MultiSelectInput({
             }
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+        const handleScroll = () => {
+            if (isDropdownOpen && containerRef.current) {
+                updateDropdownPosition();
+            }
+        };
 
-    const dropdownContent = isDropdownOpen && (
-        <div 
-            ref={dropdownRef}
-            className="fixed bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
-            style={{ 
-                top: dropdownPosition.top,
-                left: dropdownPosition.left,
-                width: dropdownPosition.width,
-                zIndex: 99999,
-            }}
-        >
-            {availableOptions.length > 0 ? (
-                availableOptions.map((option, index) => (
-                    <button
-                        key={option}
-                        type="button"
-                        onClick={() => handleSelect(option)}
-                        onMouseEnter={() => setHighlightedIndex(index)}
-                        className={cn(
-                            "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center gap-2",
-                            index === highlightedIndex &&
-                                "bg-gradient-to-r from-ocean-light to-ocean-frost"
-                        )}
-                    >
-                        <Plus className="h-4 w-4 text-ocean-surf" />
-                        <span>{option}</span>
-                    </button>
-                ))
-            ) : inputValue.trim() &&
-              !selectedOptions.includes(inputValue.trim()) ? (
-                <button
-                    type="button"
-                    onClick={() => handleSelect(inputValue.trim())}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 transition-colors duration-150 flex items-center gap-2"
-                >
-                    <Plus className="h-4 w-4 text-slate-400" />
-                    <span>Dodaj "{inputValue.trim()}"</span>
-                </button>
-            ) : (
-                <div className="px-3 py-2 text-sm text-slate-500">
-                    Ni razpoložljivih možnosti
-                </div>
-            )}
-        </div>
-    );
+        document.addEventListener("mousedown", handleClickOutside);
+        window.addEventListener("scroll", handleScroll, true);
+        
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            window.removeEventListener("scroll", handleScroll, true);
+        };
+    }, [isDropdownOpen]);
 
     return (
-        <div className="relative pb-2" ref={containerRef}>
+        <div className="relative" ref={containerRef}>
             <div className="min-h-[2.5rem] p-2 border border-ocean-frost rounded-md bg-white focus-within:ring-2 focus-within:ring-ocean-surf/20 focus-within:border-ocean-surf transition-all duration-200">
                 <div className="flex flex-wrap gap-1 mb-2">
                     {selectedOptions.map((option) => (
@@ -210,7 +182,7 @@ export default function MultiSelectInput({
                         value={inputValue}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
-                        onFocus={() => setIsDropdownOpen(true)}
+                        onFocus={openDropdown}
                         placeholder={
                             selectedOptions.length === 0
                                 ? "Vpišite ali izberite možnosti..."
@@ -222,7 +194,13 @@ export default function MultiSelectInput({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        onClick={() => {
+                            if (isDropdownOpen) {
+                                setIsDropdownOpen(false);
+                            } else {
+                                openDropdown();
+                            }
+                        }}
                         className="h-6 w-6 p-0 hover:bg-ocean-light rounded"
                     >
                         <ChevronDown
@@ -235,7 +213,47 @@ export default function MultiSelectInput({
                 </div>
             </div>
 
-            {typeof document !== 'undefined' && createPortal(dropdownContent, document.body)}
+            {isDropdownOpen && createPortal(
+                <div 
+                    ref={dropdownRef}
+                    className="bg-white border border-ocean-frost rounded-md shadow-lg max-h-60 overflow-auto"
+                    style={dropdownStyle}
+                >
+                    {availableOptions.length > 0 ? (
+                        availableOptions.map((option, index) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => handleSelect(option)}
+                                onMouseEnter={() => setHighlightedIndex(index)}
+                                className={cn(
+                                    "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center gap-2",
+                                    index === highlightedIndex &&
+                                        "bg-gradient-to-r from-ocean-light to-ocean-frost"
+                                )}
+                            >
+                                <Plus className="h-4 w-4 text-ocean-surf" />
+                                <span>{option}</span>
+                            </button>
+                        ))
+                    ) : inputValue.trim() &&
+                      !selectedOptions.includes(inputValue.trim()) ? (
+                        <button
+                            type="button"
+                            onClick={() => handleSelect(inputValue.trim())}
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 transition-colors duration-150 flex items-center gap-2"
+                        >
+                            <Plus className="h-4 w-4 text-slate-400" />
+                            <span>Dodaj "{inputValue.trim()}"</span>
+                        </button>
+                    ) : (
+                        <div className="px-3 py-2 text-sm text-slate-500">
+                            Ni razpoložljivih možnosti
+                        </div>
+                    )}
+                </div>,
+                document.body
+            )}
         </div>
     );
 }

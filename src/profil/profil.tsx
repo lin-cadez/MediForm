@@ -160,6 +160,7 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-6">
                                 <div className="space-y-2">
                                     <Label
                                         htmlFor="ime"
@@ -336,7 +337,8 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                                         </span>
                                     )}
                                 </Button>
-                            </form>
+                        </div>
+                    </form>
                 </CardContent>
             </Card>
             
