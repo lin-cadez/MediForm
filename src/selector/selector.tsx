@@ -298,18 +298,7 @@ export default function Selector() {
                 )}
             </main>
             
-            {/* Footer */}
-            <footer className="py-6 px-4 text-center text-sm text-slate-500 border-t border-slate-200 bg-white/50">
-                <p>
-                    MediForm © {new Date().getFullYear()} | Pomoč:{" "}
-                    <a 
-                        href="mailto:podpora@mediform.cadez.eu" 
-                        className="text-ocean-teal hover:text-ocean-deep transition-colors"
-                    >
-                        podpora@mediform.cadez.eu
-                    </a>
-                </p>
-            </footer>
+        
         </div>
     );
 
