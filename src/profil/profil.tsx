@@ -8,6 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { 
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import "./about.css";
 
@@ -21,10 +29,10 @@ interface UserInfo {
 
 interface ProfilProps {
     userInfo: UserInfo;
-    onLogout: () => void;
+    onLogout?: () => void | Promise<void>;
 }
 
-export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilProps) {
+export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
     const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo || {
         ime: "",
         priimek: "",
@@ -35,11 +43,21 @@ export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilPr
     const [errors, setErrors] = useState<Partial<UserInfo>>({});
     const [saved, setSaved] = useState(false);
     const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [authStatus, setAuthStatus] = useState<'anonymous' | 'email' | null>(null);
+    const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     useEffect(() => {
         const savedUserInfo = localStorage.getItem("userInfo");
         if (savedUserInfo) {
             setUserInfo(JSON.parse(savedUserInfo));
+        }
+        
+        // Check auth status
+        const status = localStorage.getItem("authStatus");
+        if (status === 'anonymous') {
+            setAuthStatus('anonymous');
+        } else {
+            setAuthStatus('email');
         }
     }, []);
 
@@ -86,12 +104,23 @@ export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilPr
         }, 2000);
     };
 
-    const handleLogoutClick = async () => {
-        if (confirm("Ali ste prepričani, da se želite odjaviti?")) {
-            await onLogout();
-            // Redirect to login page after logout
-            window.location.href = '/login';
-        }
+    const handleLogoutClick = () => {
+        setShowLogoutDialog(true);
+    };
+    
+    const confirmLogout = () => {
+        // Clear all localStorage
+        localStorage.clear();
+        
+        // Clear all cookies
+        document.cookie.split(";").forEach((c) => {
+            document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        // Force redirect to login page
+        window.location.replace('/');
     };
 
     return (
@@ -122,11 +151,11 @@ export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilPr
                         <p className="text-sm text-muted-foreground mt-2">
                             Tukaj lahko uredite svoje podatke.
                         </p>
-                         {/* {authStatus === 'guest' && (
-                            <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm">
-                                Prijavljeni ste kot gost. Vsi podatki so shranjeni samo v vašem brskalniku.
+                        {authStatus === 'anonymous' && (
+                            <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm text-left">
+                                <strong>Anonimni način:</strong> Vsi podatki so shranjeni samo v vašem brskalniku. Nobeni podatki niso poslani na strežnik.
                             </p>
-                        )} */}
+                        )}
                     </motion.div>
                 </CardHeader>
                 <CardContent>
@@ -245,15 +274,17 @@ export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilPr
                                                 : "border-ocean-frost"
                                         }`}
                                     >
-                                        <option value="" disabled>Izberite šolo</option>
-                                        <option value="Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana">Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana</option>
-                                        <option value="Šolski center Nova Gorica, Gimnazija in zdravstvena šola">Šolski center Nova Gorica, Gimnazija in zdravstvena šola</option>
-                                        <option value="Šolski center Novo mesto, Srednja zdravstvena in kemijska šola">Šolski center Novo mesto, Srednja zdravstvena in kemijska šola</option>
-                                        <option value="Šolski center Slovenj Gradec, Srednja zdravstvena šola">Šolski center Slovenj Gradec, Srednja zdravstvena šola</option>
-                                        <option value="Srednja šola za farmacijo, kozmetiko in zdravstvo">Srednja šola za farmacijo, kozmetiko in zdravstvo</option>
-                                        <option value="Srednja zdravstvena in kozmetična šola Maribor">Srednja zdravstvena in kozmetična šola Maribor</option>
-                                        <option value="Srednja zdravstvena šola Murska Sobota">Srednja zdravstvena šola Murska Sobota</option>
-                                        <option value="Srednja zdravstvena in kozmetična šola Celje">Srednja zdravstvena in kozmetična šola Celje</option>
+                             <option value="" disabled>Izberite šolo</option>
+                                <option value="Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana">Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana</option>
+                                <option value="Srednja zdravstvena šola Jesenice, Ulica bratov Rupar 2, 4270 Jesenice">Srednja zdravstvena šola Jesenice, Ulica bratov Rupar 2, 4270 Jesenice</option>
+                                <option value="Šolski center Nova Gorica – Gimnazija in zdravstvena šola, Cankarjeva ulica 10, 5000 Nova Gorica">Šolski center Nova Gorica – Gimnazija in zdravstvena šola, Cankarjeva ulica 10, 5000 Nova Gorica</option>
+                                <option value="Šolski center Novo mesto – Srednja zdravstvena in kemijska šola, Šegova ulica 112, 8000 Novo mesto">Šolski center Novo mesto – Srednja zdravstvena in kemijska šola, Šegova ulica 112, 8000 Novo mesto</option>
+                                <option value="Srednja zdravstvena in kozmetična šola Celje, Ipavčeva ulica 10, 3000 Celje">Srednja zdravstvena in kozmetična šola Celje, Ipavčeva ulica 10, 3000 Celje</option>
+                                <option value="Srednja zdravstvena in kozmetična šola Maribor, Miloša Zidanška 3, 2000 Maribor">Srednja zdravstvena in kozmetična šola Maribor, Miloša Zidanška 3, 2000 Maribor</option>
+                                <option value="Srednja zdravstvena šola Murska Sobota, Ulica dr. Vrbnjaka 2, 9000 Murska Sobota">Srednja zdravstvena šola Murska Sobota, Ulica dr. Vrbnjaka 2, 9000 Murska Sobota</option>
+                                <option value="Srednja zdravstvena šola Slovenj Gradec, Gosposvetska cesta 2, 2380 Slovenj Gradec">Srednja zdravstvena šola Slovenj Gradec, Gosposvetska cesta 2, 2380 Slovenj Gradec</option>
+                                <option value="Srednja šola Izola, Ulica Prekomorskih brigad 7, 6310 Izola">Srednja šola Izola, Ulica Prekomorskih brigad 7, 6310 Izola</option>
+
                                     </select>
                                     {errors.sola && (
                                         <p className="text-sm text-red-600">
@@ -308,6 +339,29 @@ export default function Profil({ userInfo: initialUserInfo, onLogout }: ProfilPr
                             </form>
                 </CardContent>
             </Card>
+            
+            {/* Logout Confirmation Dialog */}
+            <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Odjava</DialogTitle>
+                        <DialogDescription>
+                            Ali ste prepričani, da se želite odjaviti?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+                            Prekliči
+                        </Button>
+                        <Button 
+                            onClick={confirmLogout}
+                            variant="destructive"
+                        >
+                            Odjava
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

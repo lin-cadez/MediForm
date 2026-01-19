@@ -3,6 +3,9 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://medi-form-backend.vercel.app/api';
 
+// Track backend availability
+let isBackendAvailable = true;
+
 // Helper for making authenticated requests with session cookies
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
     const headers: HeadersInit = {
@@ -17,6 +20,69 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
     });
 
     return response;
+};
+
+// ==================== BACKEND HEALTH CHECK ====================
+
+// Ping the backend to check if it's available
+export const pingBackend = async (): Promise<boolean> => {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await fetch(`${API_BASE_URL}/forms`, {
+            method: 'GET',
+            signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        isBackendAvailable = response.ok;
+        
+        if (!isBackendAvailable) {
+            console.warn('⚠️ Backend returned non-OK status, using cached forms');
+        }
+        
+        return isBackendAvailable;
+    } catch (error) {
+        console.warn('⚠️ Backend is unavailable, switching to offline mode:', error);
+        isBackendAvailable = false;
+        return false;
+    }
+};
+
+// Get backend availability status
+export const getBackendStatus = (): boolean => isBackendAvailable;
+
+// ==================== CACHED FORMS LOADING ====================
+
+// Load cached forms index
+const loadCachedFormsIndex = async (): Promise<any[]> => {
+    try {
+        const response = await fetch('/cached-forms/index.json');
+        if (response.ok) {
+            console.warn('⚠️ Loading forms from local cache (offline mode)');
+            return await response.json();
+        }
+        return [];
+    } catch (error) {
+        console.error('Failed to load cached forms index:', error);
+        return [];
+    }
+};
+
+// Load a specific cached form by ID
+const loadCachedFormById = async (formId: string): Promise<any | null> => {
+    try {
+        const response = await fetch(`/cached-forms/${formId}.json`);
+        if (response.ok) {
+            console.warn(`⚠️ Loading form "${formId}" from local cache (offline mode)`);
+            return await response.json();
+        }
+        return null;
+    } catch (error) {
+        console.error(`Failed to load cached form ${formId}:`, error);
+        return null;
+    }
 };
 
 // ==================== AUTH ENDPOINTS ====================
@@ -124,35 +190,57 @@ export interface FormResponse {
     message?: string;
 }
 
-// Get all forms (public)
+// Get all forms (public) - with fallback to cached forms
 export const getAllForms = async (): Promise<FormData[]> => {
+    // If we know backend is unavailable, go straight to cache
+    if (!isBackendAvailable) {
+        return await loadCachedFormsIndex();
+    }
+    
     try {
         const response = await fetch(`${API_BASE_URL}/forms`);
         const data: FormsResponse = await response.json();
 
         if (data.success && data.data) {
+            isBackendAvailable = true;
             return data.data;
         }
-        return [];
+        
+        // Fallback to cached forms
+        console.warn('⚠️ Backend returned empty response, falling back to cached forms');
+        return await loadCachedFormsIndex();
     } catch (error) {
-        console.error('Error getting forms:', error);
-        return [];
+        console.error('Error getting forms from backend:', error);
+        isBackendAvailable = false;
+        // Fallback to cached forms
+        return await loadCachedFormsIndex();
     }
 };
 
-// Get form by ID (public)
+// Get form by ID (public) - with fallback to cached forms
 export const getFormById = async (formId: string): Promise<FormData | null> => {
+    // If we know backend is unavailable, go straight to cache
+    if (!isBackendAvailable) {
+        return await loadCachedFormById(formId);
+    }
+    
     try {
         const response = await fetch(`${API_BASE_URL}/forms/${encodeURIComponent(formId)}`);
         const data: FormResponse = await response.json();
 
         if (data.success && data.data) {
+            isBackendAvailable = true;
             return data.data;
         }
-        return null;
+        
+        // Fallback to cached form
+        console.warn(`⚠️ Backend returned empty response for form "${formId}", falling back to cache`);
+        return await loadCachedFormById(formId);
     } catch (error) {
-        console.error('Error getting form:', error);
-        return null;
+        console.error('Error getting form from backend:', error);
+        isBackendAvailable = false;
+        // Fallback to cached form
+        return await loadCachedFormById(formId);
     }
 };
 

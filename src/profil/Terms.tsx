@@ -37,7 +37,28 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">2. Namen aplikacije</h2>
+                            <h2 className="text-lg font-semibold mt-4">2. Načini uporabe</h2>
+                            <p className="text-slate-600">
+                                Aplikacijo je mogoče uporabljati na dva načina:
+                            </p>
+                            <ul className="list-disc pl-6 text-slate-600 mt-2">
+                                <li><strong>Prijava z emailom:</strong> Vaši podatki se shranjujejo na strežniku 
+                                    in so dostopni z različnih naprav. Pri tem načinu veljajo vsi pogoji glede 
+                                    obdelave osebnih podatkov.</li>
+                                <li><strong>Anonimni način:</strong> Vsi podatki se hranijo izključno lokalno 
+                                    v vašem brskalniku. Pri tem načinu ni nobene komunikacije s strežnikom 
+                                    razen nalaganja obrazcev. <strong>Nobeni osebni podatki niso zbrani ali poslani.</strong></li>
+                            </ul>
+                            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <p className="text-green-700 text-sm">
+                                    <strong>Pri anonimnem načinu:</strong> Vsi vaši podatki ostanejo na vaši napravi. 
+                                    Če izbrišete podatke brskalnika ali zamenjate napravo, boste izgubili vse shranjene podatke.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h2 className="text-lg font-semibold mt-4">3. Namen aplikacije</h2>
                             <p className="text-slate-600">
                                 MediForm je izobraževalno orodje, namenjeno izključno za uporabo pri praktičnem 
                                 usposabljanju dijakov in študentov zdravstvenih šol. Aplikacija omogoča izpolnjevanje 
@@ -54,7 +75,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">3. Omejitev odgovornosti</h2>
+                            <h2 className="text-lg font-semibold mt-4">4. Omejitev odgovornosti</h2>
                             <p className="text-slate-600">
                                 <strong>POMEMBNO:</strong> Upravljavec aplikacije ne prevzema nobene odgovornosti za:
                             </p>
@@ -73,7 +94,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">4. Uporabnikove obveznosti</h2>
+                            <h2 className="text-lg font-semibold mt-4">5. Uporabnikove obveznosti</h2>
                             <p className="text-slate-600">
                                 Z uporabo aplikacije se zavezujete, da:
                             </p>
@@ -87,7 +108,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">5. Intelektualna lastnina</h2>
+                            <h2 className="text-lg font-semibold mt-4">6. Intelektualna lastnina</h2>
                             <p className="text-slate-600">
                                 Vsa vsebina aplikacije, vključno z dizajnom, logotipi, besedili in programsko kodo, 
                                 je last upravljavca ali njegovih licencodajalcev in je zaščitena z avtorskimi pravicami.
@@ -95,7 +116,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">6. Prenehanje uporabe</h2>
+                            <h2 className="text-lg font-semibold mt-4">7. Prenehanje uporabe</h2>
                             <p className="text-slate-600">
                                 Pridržujemo si pravico, da kadarkoli in brez predhodnega obvestila:
                             </p>
@@ -107,7 +128,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">7. Spremembe pogojev</h2>
+                            <h2 className="text-lg font-semibold mt-4">8. Spremembe pogojev</h2>
                             <p className="text-slate-600">
                                 Pridržujemo si pravico do spremembe teh pogojev uporabe kadarkoli. Spremembe 
                                 začnejo veljati takoj po objavi. Nadaljnja uporaba aplikacije po objavi sprememb 
@@ -116,7 +137,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">8. Veljavno pravo</h2>
+                            <h2 className="text-lg font-semibold mt-4">9. Veljavno pravo</h2>
                             <p className="text-slate-600">
                                 Za te pogoje uporabe velja pravo Republike Slovenije. Za reševanje morebitnih 
                                 sporov je pristojno sodišče v Ljubljani.
@@ -124,7 +145,7 @@ export default function TermsOfUse() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">9. Kontakt</h2>
+                            <h2 className="text-lg font-semibold mt-4">10. Kontakt</h2>
                             <p className="text-slate-600">
                                 Za vprašanja glede pogojev uporabe nas kontaktirajte na:{" "}
                                 <a href="mailto:podpora@mediform.cadez.eu" className="text-ocean-teal hover:underline">

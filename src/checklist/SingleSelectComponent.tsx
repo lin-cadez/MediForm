@@ -108,7 +108,7 @@ export default function SingleSelectInput({
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const dropdownContent = isDropdownOpen && filteredOptions.length > 0 && (
+    const dropdownContent = isDropdownOpen && (
         <div 
             ref={dropdownRef}
             className="fixed bg-white border border-ocean-frost rounded-md shadow-2xl max-h-60 overflow-auto"
@@ -119,26 +119,32 @@ export default function SingleSelectInput({
                 zIndex: 99999,
             }}
         >
-            {filteredOptions.map((option, index) => (
-                <button
-                    key={option}
-                    type="button"
-                    onClick={() => handleSelect(option)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    className={cn(
-                        "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center justify-between",
-                        index === highlightedIndex &&
-                            "bg-gradient-to-r from-ocean-light to-ocean-frost",
-                        option === value &&
-                            "bg-gradient-to-r from-ocean-frost to-ocean-surf/30 text-ocean-deep"
-                    )}
-                >
-                    <span>{option}</span>
-                    {option === value && (
-                        <Check className="h-4 w-4 text-ocean-teal" />
-                    )}
-                </button>
-            ))}
+            {filteredOptions.length > 0 ? (
+                filteredOptions.map((option, index) => (
+                    <button
+                        key={option}
+                        type="button"
+                        onClick={() => handleSelect(option)}
+                        onMouseEnter={() => setHighlightedIndex(index)}
+                        className={cn(
+                            "w-full px-3 py-2 text-left text-sm hover:bg-gradient-to-r hover:from-ocean-light hover:to-ocean-frost transition-colors duration-150 flex items-center justify-between",
+                            index === highlightedIndex &&
+                                "bg-gradient-to-r from-ocean-light to-ocean-frost",
+                            option === value &&
+                                "bg-gradient-to-r from-ocean-frost to-ocean-surf/30 text-ocean-deep"
+                        )}
+                    >
+                        <span>{option}</span>
+                        {option === value && (
+                            <Check className="h-4 w-4 text-ocean-teal" />
+                        )}
+                    </button>
+                ))
+            ) : (
+                <div className="px-3 py-2 text-sm text-slate-500">
+                    Ni razpoložljivih možnosti
+                </div>
+            )}
         </div>
     );
 

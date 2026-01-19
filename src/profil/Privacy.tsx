@@ -55,6 +55,22 @@ export default function PrivacyPolicy() {
                                 <li><strong>Uporabniški podatki:</strong> Izpolnjeni obrazci in njihova vsebina</li>
                                 <li><strong>Tehnični podatki:</strong> Podatki o seji, piškotki za delovanje aplikacije</li>
                             </ul>
+                            
+                            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <h3 className="text-md font-semibold text-green-800 mb-2">🔒 Anonimni način uporabe</h3>
+                                <p className="text-green-700 text-sm">
+                                    Če uporabljate aplikacijo v <strong>anonimnem načinu</strong>, se vaši podatki 
+                                    <strong> NE pošiljajo na naše strežnike</strong>. Vsi podatki (ime, priimek, 
+                                    razred, šola, izpolnjeni obrazci) se hranijo <strong>izključno lokalno</strong> v 
+                                    vašem brskalniku (localStorage). Pri anonimnem načinu:
+                                </p>
+                                <ul className="list-disc pl-6 text-green-700 text-sm mt-2">
+                                    <li>Ne zbiramo nobenih osebnih podatkov</li>
+                                    <li>Ne uporabljamo piškotkov za sledenje</li>
+                                    <li>Edina komunikacija s strežnikom je nalaganje obrazcev (statična vsebina)</li>
+                                    <li>Ob brisanju podatkov brskalnika se vsi vaši podatki trajno izbrišejo</li>
+                                </ul>
+                            </div>
                         </section>
 
                         <section>

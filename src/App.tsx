@@ -5,16 +5,15 @@ import { useState, useEffect } from "react";
 import Checklist from "./checklist/checklist";
 import Selector from "./selector/selector";
 import Profil from "./profil/profil";
-import FormBuilder from "./form_builder/form_builder";
 import UserInfoForm from "./components/UserInfoForm";
-import FinishSignIn from "./form_builder/FinishSignIn";
 import VerifyUserSession from "./components/VerifyUserSession";
+import FinishSignIn from "./components/FinishSignIn";
 import CookieConsent from "./components/CookieConsent";
 
 import TermsOfUse from "./profil/Terms";
 import PrivacyPolicy from "./profil/Privacy";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import { checkUserSession } from "./lib/userAuth";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { checkUserSession, logoutUser } from "./lib/userAuth";
 
 interface UserInfo {
     ime: string;
@@ -28,35 +27,63 @@ interface UserInfo {
 function AppContent() {
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [authStatus, setAuthStatus] = useState<'anonymous' | 'email' | null>(null);
     const [, setHasConsent] = useState(() => {
         return localStorage.getItem("cookieConsent") === "accepted";
     });
 
     useEffect(() => {
         const initializeAuth = async () => {
-            // First check localStorage for saved user info
+            // First check localStorage for auth status
+            const storedAuthStatus = localStorage.getItem("authStatus");
+            if (storedAuthStatus === 'anonymous') {
+                setAuthStatus('anonymous');
+            } else if (storedAuthStatus === 'email' || storedAuthStatus === 'guest') {
+                // 'guest' is legacy, treat as 'email' for backward compatibility
+                setAuthStatus('email');
+            }
+
+            // Check localStorage for saved user info
             const savedUserInfo = localStorage.getItem("userInfo");
             if (savedUserInfo) {
-                setUserInfo(JSON.parse(savedUserInfo));
+                try {
+                    const parsed = JSON.parse(savedUserInfo);
+                    // Validate that userInfo has actual data (not just empty strings)
+                    if (parsed && (parsed.ime || parsed.priimek || parsed.email)) {
+                        // Only set userInfo if we have a valid authStatus
+                        // Otherwise the user needs to re-authenticate
+                        if (storedAuthStatus) {
+                            setUserInfo(parsed);
+                        }
+                    } else {
+                        // Invalid userInfo, clear it
+                        localStorage.removeItem("userInfo");
+                    }
+                } catch (e) {
+                    console.error("Error parsing userInfo:", e);
+                    localStorage.removeItem("userInfo");
+                }
             }
             
-            // Check if admin is logged in from sessionStorage
-            const adminLoggedIn = sessionStorage.getItem("adminLoggedIn");
-            if (adminLoggedIn === "true") {
-                setIsAdmin(true);
+            // For anonymous mode, skip server session check
+            if (storedAuthStatus === 'anonymous') {
+                setIsLoading(false);
+                return;
             }
             
-            // Also check server session - user might be logged in on server but not have localStorage
+            // If no authStatus is set, clear session and force re-login
+            if (!storedAuthStatus) {
+                // Clear potentially invalid session data
+                localStorage.removeItem("mediform_session_token");
+                localStorage.removeItem("emailForSignIn");
+                setIsLoading(false);
+                return;
+            }
+            
+            // Check server session for email-based auth
             try {
                 const session = await checkUserSession();
                 if (session.success && session.user) {
-                    // User has server session
-                    if (session.user.role === 'admin') {
-                        setIsAdmin(true);
-                        sessionStorage.setItem("adminLoggedIn", "true");
-                    }
-                    
                     // If we don't have local userInfo but server has user data, populate it
                     if (!savedUserInfo && session.user.email) {
                         const serverUserInfo: UserInfo = {
@@ -73,9 +100,16 @@ function AppContent() {
                             localStorage.setItem("userInfo", JSON.stringify(serverUserInfo));
                         }
                     }
+                } else {
+                    // Session check failed, clear session data
+                    localStorage.removeItem("authStatus");
+                    localStorage.removeItem("mediform_session_token");
                 }
             } catch (error) {
                 console.error("Error checking server session:", error);
+                // On error, clear session data to prevent loops
+                localStorage.removeItem("authStatus");
+                localStorage.removeItem("mediform_session_token");
             }
             
             setIsLoading(false);
@@ -84,27 +118,36 @@ function AppContent() {
         initializeAuth();
     }, []);
 
-    // Monitor sessionStorage changes for admin login
-    useEffect(() => {
-        const checkAdminStatus = () => {
-            const adminLoggedIn = sessionStorage.getItem("adminLoggedIn");
-            setIsAdmin(adminLoggedIn === "true");
-        };
-
-        // Check every 500ms for sessionStorage changes
-        const interval = setInterval(checkAdminStatus, 500);
-        
-        // Also check on window focus
-        window.addEventListener('focus', checkAdminStatus);
-        
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('focus', checkAdminStatus);
-        };
-    }, []);
-
     const handleUserInfoSubmit = (info: UserInfo) => {
         setUserInfo(info);
+    };
+
+    const handleLogout = async () => {
+        // Clear all localStorage data
+        localStorage.clear();
+        
+        // Clear all cookies
+        document.cookie.split(";").forEach((c) => {
+            document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        
+        // Try server logout if email mode
+        if (authStatus === 'email') {
+            try {
+                await logoutUser();
+            } catch (error) {
+                console.error("Server logout error:", error);
+            }
+        }
+        
+        // Clear all state
+        setUserInfo(null);
+        setAuthStatus(null);
+        
+        // Force redirect to login (use replace to prevent back button)
+        window.location.replace('/');
     };
 
     if (isLoading) {
@@ -117,8 +160,8 @@ function AppContent() {
         );
     }
 
-    // Allow access if user is logged in OR if admin is logged in
-    if (!userInfo && !isAdmin) {
+    // Check if user is logged in
+    if (!userInfo) {
         return (
             <div className="min-h-screen bg-sky-50 flex flex-col">
                 <CookieConsent onAccept={() => setHasConsent(true)} />
@@ -127,12 +170,14 @@ function AppContent() {
                         {/* Legal pages - always accessible */}
                         <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
                         <Route path="/zasebnost" element={<PrivacyPolicy />} />
-                        {/* Finish Sign In route - must be accessible without login */}
-                        <Route path="/finish-signin" element={<FinishSignIn />} />
                         {/* User session verification route */}
                         <Route path="/verify-session" element={<VerifyUserSession />} />
+                        {/* Email sign-in completion route - must be accessible without auth */}
+                        <Route path="/finish-signin" element={<FinishSignIn />} />
                         {/* Checklist routes - handle user auth internally */}
                         <Route path="/checklist/*" element={<Checklist userInfo={{ ime: '', priimek: '', razred: '', sola: '' }} />} />
+                        {/* Form routes with template ID */}
+                        <Route path="/obrazec/:formId" element={<Checklist userInfo={{ ime: '', priimek: '', razred: '', sola: '' }} />} />
                         {/* All other routes require user info */}
                         <Route path="*" element={<UserInfoForm onSubmit={handleUserInfoSubmit} />} />
                     </Routes>
@@ -149,26 +194,32 @@ function AppContent() {
                     {/* Legal pages - always accessible */}
                     <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
                     <Route path="/zasebnost" element={<PrivacyPolicy />} />
-                    {/* Finish Sign In route */}
-                    <Route path="/finish-signin" element={<FinishSignIn />} />
                     {/* User session verification route */}
                     <Route path="/verify-session" element={<VerifyUserSession />} />
-                    {/* Checklist - accessible by both admin and regular users */}
+                    {/* Email sign-in completion route */}
+                    <Route path="/finish-signin" element={<FinishSignIn />} />
+                    {/* Checklist - for filling out forms */}
                     <Route
                         path="/checklist/*"
                         element={
-                            <Checklist userInfo={userInfo || { ime: '', priimek: '', razred: '', sola: '' }} />
+                            <Checklist userInfo={userInfo} />
                         }
                     />
+                    {/* Form routes with template ID */}
+                    <Route
+                        path="/obrazec/:formId"
+                        element={
+                            <Checklist userInfo={userInfo} />
+                        }
+                    />
+                    {/* User profile */}
                     <Route
                         path="/profil"
                         element={
-                            userInfo ? <Profil /> : <Navigate to="/" replace />
+                            <Profil userInfo={userInfo} onLogout={handleLogout} />
                         }
                     />
-                    {/* Form builder - only for admins */}
-                    <Route path="/form_builder" element={<FormBuilder />} />
-                    {/* Selector - accessible by all logged in users */}
+                    {/* Selector - main page with templates and user documents */}
                     <Route path="/" element={<Selector />} />
                     <Route path="*" element={<Selector />} />
                 </Routes>

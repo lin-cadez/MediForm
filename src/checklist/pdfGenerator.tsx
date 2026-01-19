@@ -41,6 +41,9 @@ interface Category {
 }
 
 interface PatientData {
+    datum_obravnave?: string;
+    datum_oddaje?: string;
+    mentor?: string;
     starost?: string;
     spol?: string;
     pogovorni_jezik?: string;
@@ -388,24 +391,24 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         getSchoolYear()
     );
 
-    // Row 2: Področje, Datum obravnave
+    // Row 2: Područje, Datum obravnave
     yOffset = drawTableRow(
         coverPage,
         "Področje izvajanja zdravstvene nege:",
         userInfo?.podrocje || "",
         yOffset,
         "Datum obravnave pacienta:",
-        ""
+        data.patient_data?.datum_obravnave || ""
     );
 
     // Row 3: Mentor, Datum oddaje
     yOffset = drawTableRow(
         coverPage,
         "Mentor/ica praktičnega pouka:",
-        "",
+        data.patient_data?.mentor || "",
         yOffset,
         "Datum oddaje poročila:",
-        ""
+        data.patient_data?.datum_oddaje || ""
     );
 
     yOffset -= 30;

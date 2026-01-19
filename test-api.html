@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        button { margin: 10px 0; padding: 10px; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>MediForm API Tester</h1>
+    
+    <div>
+        <h2>1. Check Session</h2>
+        <button onclick="testSession()">Test GET /auth/session</button>
+        <pre id="session-result"></pre>
+    </div>
+
+    <div>
+        <h2>2. Save Document (Auto-save)</h2>
+        <button onclick="testSaveDocument()">Test POST /submissions/save</button>
+        <pre id="save-result"></pre>
+    </div>
+
+    <div>
+        <h2>3. Load All Documents</h2>
+        <button onclick="testLoadAll()">Test GET /submissions</button>
+        <pre id="loadall-result"></pre>
+    </div>
+
+    <div>
+        <h2>4. Load Single Document</h2>
+        <input type="text" id="docId" placeholder="Document ID" style="width: 300px;">
+        <button onclick="testLoadSingle()">Test GET /submissions/:id</button>
+        <pre id="loadsingle-result"></pre>
+    </div>
+
+    <script>
+        const API_BASE = 'https://medi-form-backend.vercel.app/api';
+
+        async function testSession() {
+            const resultEl = document.getElementById('session-result');
+            resultEl.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/session`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                resultEl.className = response.ok ? 'success' : 'error';
+                resultEl.textContent = JSON.stringify({
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, null, 2);
+            } catch (error) {
+                resultEl.className = 'error';
+                resultEl.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testSaveDocument() {
+            const resultEl = document.getElementById('save-result');
+            resultEl.textContent = 'Testing...';
+            
+            const testData = {
+                documentId: 'test_doc_' + Date.now(),
+                data: {
+                    title: 'Test Document',
+                    categories: {}
+                },
+                templateId: 'test-template',
+                templateTitle: 'Test Template',
+                name: 'Test Document Name'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/submissions/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                resultEl.className = response.ok ? 'success' : 'error';
+                resultEl.textContent = JSON.stringify({
+                    status: response.status,
+                    statusText: response.statusText,
+                    request: testData,
+                    response: data
+                }, null, 2);
+            } catch (error) {
+                resultEl.className = 'error';
+                resultEl.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testLoadAll() {
+            const resultEl = document.getElementById('loadall-result');
+            resultEl.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/submissions`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                resultEl.className = response.ok ? 'success' : 'error';
+                resultEl.textContent = JSON.stringify({
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, null, 2);
+            } catch (error) {
+                resultEl.className = 'error';
+                resultEl.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testLoadSingle() {
+            const docId = document.getElementById('docId').value;
+            const resultEl = document.getElementById('loadsingle-result');
+            
+            if (!docId) {
+                resultEl.className = 'error';
+                resultEl.textContent = 'Please enter a document ID';
+                return;
+            }
+            
+            resultEl.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/submissions/${docId}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                resultEl.className = response.ok ? 'success' : 'error';
+                resultEl.textContent = JSON.stringify({
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data
+                }, null, 2);
+            } catch (error) {
+                resultEl.className = 'error';
+                resultEl.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Auto-check session on load
+        window.onload = () => {
+            testSession();
+        };
+    </script>
+</body>
+</html>

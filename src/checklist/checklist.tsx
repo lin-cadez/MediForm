@@ -17,7 +17,6 @@ import {
     Cloud,
     CloudOff,
     RefreshCw,
-    Upload,
     FileJson
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,10 +44,8 @@ import {
     checkUserSession, 
     loadSavedSubmission, 
     scheduleAutoSave, 
-    cancelAutoSave 
+    cancelAutoSave
 } from "@/lib/userAuth";
-import React from "react";
-import UserLogin from "@/components/UserLogin";
 
 interface UserInfo {
     ime: string;
@@ -130,6 +127,8 @@ interface Category {
 
 interface PatientData {
     datum_obravnave: string;
+    datum_oddaje: string;
+    mentor: string;
     starost: string;
     spol: string;
     pogovorni_jezik: string;
@@ -187,8 +186,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     const [isCheckingSession, setIsCheckingSession] = useState(true);
     const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
-    const [importError, setImportError] = useState<string | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
 
     // Handle patient data changes
@@ -208,9 +205,64 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     };
 
     const updateLocalStorage = (newList: List) => {
-        const formId = getFormId();
-        if (formId) {
-            localStorage.setItem(`checklist_${formId}`, JSON.stringify(newList));
+        const storageKey = getStorageKey();
+        const docId = getDocId();
+        
+        console.log("📝 updateLocalStorage called - storageKey:", storageKey, "docId:", docId);
+        
+        if (storageKey) {
+            localStorage.setItem(storageKey, JSON.stringify(newList));
+            updateDocumentMetadata();
+            
+            // Auto-save to backend for email-authenticated users
+            const currentAuthStatus = localStorage.getItem("authStatus");
+            console.log("🔐 Auth status:", currentAuthStatus);
+            
+            if (currentAuthStatus === "email" && docId) {
+                // Get document metadata for backend save
+                try {
+                    const docs = localStorage.getItem("userDocuments");
+                    if (docs) {
+                        const parsed = JSON.parse(docs);
+                        const currentDoc = parsed.find((d: any) => d.id === docId);
+                        console.log("📄 Current document found:", currentDoc);
+                        
+                        if (currentDoc) {
+                            // Schedule debounced save (1 second after last change)
+                            console.log("⏰ Scheduling auto-save for document:", docId);
+                            scheduleAutoSave(
+                                docId,
+                                newList,
+                                1000,
+                                () => {
+                                    console.log("💾 Starting auto-save...");
+                                    setAutoSaveStatus('saving');
+                                },
+                                (success) => {
+                                    console.log(success ? "✅ Auto-save succeeded" : "❌ Auto-save failed");
+                                    setAutoSaveStatus(success ? 'saved' : 'error');
+                                    if (success) {
+                                        setLastSaved(new Date());
+                                    }
+                                },
+                                {
+                                    templateId: currentDoc.templateId,
+                                    templateTitle: currentDoc.templateTitle,
+                                    name: currentDoc.name
+                                }
+                            );
+                        } else {
+                            console.warn("⚠️ Document not found in userDocuments");
+                        }
+                    } else {
+                        console.warn("⚠️ No userDocuments found in localStorage");
+                    }
+                } catch (error) {
+                    console.error("❌ Error preparing backend save:", error);
+                }
+            } else {
+                console.log("ℹ️ Skipping backend save - authStatus:", currentAuthStatus, "docId:", docId);
+            }
         }
     };
 
@@ -220,50 +272,58 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     const fetchData = async () => {
         setIsLoading(true);
-        const urlSegment = window.location.pathname.split("/form/")[1];
+        const formId = getFormId();
+        const docId = getDocId();
+        const storageKey = getStorageKey();
         
-        // Decode URL segment in case it's encoded
-        const decodedUrlSegment = decodeURIComponent(urlSegment);
-        console.log("Fetching form with ID:", decodedUrlSegment);
+        console.log("Fetching form with ID:", formId, "Document ID:", docId);
         
-        // First check localStorage for any saved progress
-        const storedData = localStorage.getItem(`checklist_${decodedUrlSegment}`);
-        if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            if (parsedData) {
-                Object.values(parsedData.categories).forEach((category) => {
-                    Object.values((category as Category).subcategories).forEach(
-                        (subcategory) => {
-                            Object.entries(subcategory.elements).forEach(
-                                ([, element]) => {
-                                    // Skip table elements
-                                    if ((element as TableElement).type === "table") return;
-                                    const el = element as Element;
-                                    if (el.option_type === "multiple") {
-                                        el.value = castToArray(
-                                            el.value
-                                        );
+        // First check localStorage for document data
+        if (storageKey) {
+            const storedData = localStorage.getItem(storageKey);
+            if (storedData) {
+                const parsedData = JSON.parse(storedData);
+                if (parsedData) {
+                    Object.values(parsedData.categories).forEach((category) => {
+                        Object.values((category as Category).subcategories).forEach(
+                            (subcategory) => {
+                                Object.entries(subcategory.elements).forEach(
+                                    ([, element]) => {
+                                        // Skip table elements
+                                        if ((element as TableElement).type === "table") return;
+                                        const el = element as Element;
+                                        if (el.option_type === "multiple") {
+                                            el.value = castToArray(
+                                                el.value
+                                            );
+                                        }
                                     }
-                                }
-                            );
-                        }
-                    );
-                });
-                setList(parsedData);
-                // Expand first category by default
-                const categoryIds = Object.keys(parsedData.categories);
-                if (categoryIds.length > 0) {
-                    setOpenCategories({ [categoryIds[0]]: true });
+                                );
+                            }
+                        );
+                    });
+                    
+                    // Initialize datum_oddaje if not set
+                    if (parsedData.patient_data && !parsedData.patient_data.datum_oddaje) {
+                        parsedData.patient_data.datum_oddaje = new Date().toISOString().split('T')[0];
+                    }
+                    
+                    setList(parsedData);
+                    // Expand first category by default
+                    const categoryIds = Object.keys(parsedData.categories);
+                    if (categoryIds.length > 0) {
+                        setOpenCategories({ [categoryIds[0]]: true });
+                    }
+                    setIsLoading(false);
+                    return;
                 }
-                setIsLoading(false);
-                return;
             }
         }
 
-        // If no saved progress, fetch from Firebase
+        // If no saved document data, fetch template from Firebase
         try {
-            const formData = await getFormById(decodedUrlSegment) as List | null;
-            console.log("Firebase response:", formData);
+            const formData = await getFormById(formId) as List | null;
+            console.log("Firebase template response:", formData);
             if (formData) {
                 Object.values(formData.categories || {}).forEach((category: any) => {
                     Object.values(category.subcategories || {}).forEach(
@@ -280,14 +340,25 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         }
                     );
                 });
+                
+                // Initialize datum_oddaje if not set
+                if (formData.patient_data && !formData.patient_data.datum_oddaje) {
+                    formData.patient_data.datum_oddaje = new Date().toISOString().split('T')[0];
+                }
+                
                 setList(formData);
                 // Expand first category by default
                 const categoryIds = Object.keys(formData.categories || {});
                 if (categoryIds.length > 0) {
                     setOpenCategories({ [categoryIds[0]]: true });
                 }
+                
+                // If this is a document, save initial template as document data
+                if (docId && storageKey) {
+                    localStorage.setItem(storageKey, JSON.stringify(formData));
+                }
             } else {
-                console.error("Form not found in Firebase. Looking for ID:", decodedUrlSegment);
+                console.error("Form not found in Firebase. Looking for ID:", formId);
             }
         } catch (error) {
             console.error("Error fetching form from Firebase:", error);
@@ -345,7 +416,9 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     },
                 };
 
-                if (authStatus === 'guest') {
+                const docId = getDocId();
+                // Always save to localStorage for documents, or for guest mode
+                if (docId || authStatus === 'guest') {
                     updateLocalStorage(newList);
                 }
                 return newList;
@@ -355,17 +428,80 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         });
     };
 
-    // Get form ID from URL
+    // Get form ID and document ID from URL
     const getFormId = () => {
         const path = window.location.pathname;
-        const match = path.match(/form\/(.+)/);
-        return match ? decodeURIComponent(match[1]) : "";
+        // Support both /form/{id} and /obrazec/{id} patterns
+        const formMatch = path.match(/form\/(.+)/);
+        const obrazecMatch = path.match(/obrazec\/([^/]+)/);
+        if (formMatch) {
+            return decodeURIComponent(formMatch[1]);
+        }
+        if (obrazecMatch) {
+            return decodeURIComponent(obrazecMatch[1]);
+        }
+        return "";
+    };
+
+    // Get document ID from URL query params
+    const getDocId = () => {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('doc') || null;
+    };
+
+    // Get document name for display
+    const getDocName = () => {
+        const docId = getDocId();
+        if (!docId) return null;
+        try {
+            const docs = localStorage.getItem("userDocuments");
+            if (docs) {
+                const parsed = JSON.parse(docs);
+                const doc = parsed.find((d: any) => d.id === docId);
+                return doc?.name || null;
+            }
+        } catch {
+            return null;
+        }
+        return null;
+    };
+
+    // Update document metadata when saving
+    const updateDocumentMetadata = () => {
+        const docId = getDocId();
+        if (!docId) return;
+        
+        try {
+            const docs = localStorage.getItem("userDocuments");
+            if (docs) {
+                const parsed = JSON.parse(docs);
+                const updatedDocs = parsed.map((d: any) => {
+                    if (d.id === docId) {
+                        return { ...d, updatedAt: new Date().toISOString() };
+                    }
+                    return d;
+                });
+                localStorage.setItem("userDocuments", JSON.stringify(updatedDocs));
+            }
+        } catch (e) {
+            console.error("Error updating document metadata:", e);
+        }
+    };
+
+    // Get storage key for document data
+    const getStorageKey = () => {
+        const docId = getDocId();
+        const formId = getFormId();
+        if (docId) {
+            return `doc_${docId}`;
+        }
+        return `checklist_${formId}`;
     };
 
     // Check user session on mount
     useEffect(() => {
         const status = localStorage.getItem("authStatus");
-        if (status === 'guest') {
+        if (status === 'guest' || status === 'anonymous') {
             setAuthStatus('guest');
             setIsCheckingSession(false);
         } else {
@@ -396,7 +532,9 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     // Load saved submission when session is verified
     useEffect(() => {
         const loadSaved = async () => {
-            if (!hasUserSession) return;
+            // Skip server loading for document mode - data is loaded from localStorage in fetchData
+            const docId = getDocId();
+            if (docId || !hasUserSession) return;
             
             const formId = getFormId();
             if (!formId) return;
@@ -451,7 +589,15 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     // Auto-save when formData changes (with debounce)
     useEffect(() => {
-        // Guest users are saved to localStorage on every change via `updateLocalStorage`
+        const docId = getDocId();
+        
+        // For documents, we only save to localStorage (handled in updateLocalStorage)
+        if (docId) {
+            // Document mode - localStorage is updated automatically in handleInputChange
+            return;
+        }
+        
+        // For legacy forms without document ID, use server auto-save
         if (authStatus !== 'email' || !hasUserSession || Object.keys(formData).length === 0) return;
         
         const formId = getFormId();
@@ -461,7 +607,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         scheduleAutoSave(
             formId,
             formData,
-            1000, // 3 second debounce
+            1000, // 1 second debounce
             () => setAutoSaveStatus('saving'),
             (success) => {
                 setAutoSaveStatus(success ? 'saved' : 'error');
@@ -501,87 +647,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
-
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const validateImportedData = (importedData: any, originalForm: List): boolean => {
-        if (!importedData || typeof importedData !== 'object') return false;
-        if (importedData.url !== originalForm.url) return false;
-
-        for (const catId in originalForm.categories) {
-            if (!importedData.categories?.[catId]) return false;
-            for (const subId in originalForm.categories[catId].subcategories) {
-                if (!importedData.categories[catId].subcategories?.[subId]) return false;
-                for (const elemId in originalForm.categories[catId].subcategories[subId].elements) {
-                    if (!importedData.categories[catId].subcategories[subId].elements?.[elemId]) return false;
-                }
-            }
-        }
-        return true;
-    };
-
-    const handleImportJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        setImportError(null);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const text = e.target?.result;
-                if (typeof text !== 'string') {
-                    throw new Error("Failed to read file.");
-                }
-                const importedData = JSON.parse(text);
-
-                // Fetch original form for validation
-                const formId = getFormId();
-                const originalForm = await getFormById(formId) as List | null;
-
-                if (!originalForm) {
-                    throw new Error("Could not load original form to validate against.");
-                }
-
-                // Validate
-                if (!validateImportedData(importedData, originalForm)) {
-                    throw new Error("JSON file does not match the structure of this form.");
-                }
-
-                // If valid, update the state
-                setList(importedData);
-                updateLocalStorage(importedData); // Save to local storage immediately
-                
-                // Also re-create the formData object for auto-saving if online
-                const newFormData: Record<string, any> = {};
-                Object.entries(importedData.categories).forEach(([catId, category]: [string, any]) => {
-                    Object.entries(category.subcategories).forEach(([subId, subcategory]: [string, any]) => {
-                        Object.entries(subcategory.elements).forEach(([elemId, element]: [string, any]) => {
-                            if (element.value !== null && element.value !== undefined) {
-                                if (!newFormData[catId]) newFormData[catId] = {};
-                                if (!newFormData[catId][subId]) newFormData[catId][subId] = {};
-                                newFormData[catId][subId][elemId] = element.value;
-                            }
-                        });
-                    });
-                });
-                setFormData(newFormData);
-
-
-            } catch (error: any) {
-                setImportError(error.message || "Invalid JSON file.");
-                console.error("Import error:", error);
-            } finally {
-                // Reset file input
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = "";
-                }
-            }
-        };
-        reader.readAsText(file);
-    };
-
 
     // Table row management functions
     const addTableRow = (categoryId: string, subcategoryId: string, elementId: string, columns: TableColumn[]) => {
@@ -1108,13 +1173,22 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         );
     }
 
-    // Show login form if no user session
-    if (!hasUserSession) {
-        const formId = getFormId();
+    // Show login form if no user session AND in email mode (not anonymous/guest)
+    // Anonymous mode users can access forms without server session
+    // Only redirect to login for explicit email mode users
+    if (!hasUserSession && authStatus === 'email') {
+        // Clear stale auth data and redirect to main login page
+        localStorage.removeItem("authStatus");
+        window.location.href = "/";
         return (
-            <UserLogin 
-                formId={formId} 
-            />
+            <div className="min-h-screen bg-sky-50 flex items-center justify-center p-4">
+                <div className="text-center space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-ocean-teal" />
+                    <p className="text-slate-600 font-medium">
+                        Preusmerjanje na prijavo...
+                    </p>
+                </div>
+            </div>
         );
     }
 
@@ -1165,14 +1239,19 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     <div className="flex-1 text-center px-2 sm:px-4 min-w-0">
                         <h1
                             className="text-sm sm:text-lg font-semibold text-slate-900 truncate"
-                            title={list!.title}
+                            title={getDocName() ? `${getDocName()} - ${list!.title}` : list!.title}
                         >
-                            {list!.title}
+                            {getDocName() ? getDocName() : list!.title}
                         </h1>
-                        {userEmail && (
+                        {getDocName() && (
+                            <p className="text-[10px] sm:text-xs text-slate-500 truncate">
+                                {list!.title}
+                            </p>
+                        )}
+                        {userEmail && !getDocId() && (
                             <div className="flex items-center justify-center gap-1.5">
                                 <p className="text-[10px] sm:text-xs text-slate-500 truncate">{userEmail}</p>
-                                {/* Auto-save status indicator */}
+                                {/* Auto-save status indicator - only for legacy forms */}
                                 {hasUserSession && (
                                     <>
                                         {autoSaveStatus === 'saving' && (
@@ -1189,6 +1268,14 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         )}
                                     </>
                                 )}
+                            </div>
+                        )}
+                        {getDocId() && (
+                            <div className="flex items-center justify-center gap-1.5">
+                                {userEmail && (
+                                    <p className="text-[10px] sm:text-xs text-slate-500 truncate">{userEmail}</p>
+                                )}
+                                <p className="text-[10px] sm:text-xs text-slate-500">Lokalno shranjeno</p>
                             </div>
                         )}
                     </div>
@@ -1220,11 +1307,11 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         Možnosti izvoza
                                     </DrawerTitle>
                                     <DrawerDescription>
-                                        Izvozi svoje poročilo kot PDF
+                                        Izvozi svoje poročilo
                                     </DrawerDescription>
                                 </DrawerHeader>
 
-                                <div className="p-6">
+                                <div className="p-6 space-y-3">
                                     <Button
                                         onClick={exportPdf}
                                         className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
@@ -1233,12 +1320,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         <FileText className="h-5 w-5" />
                                         Izvozi kot PDF
                                     </Button>
-                                </div>
-
-                                <div className="mt-4 border-t pt-4">
-                                    <h3 className="text-center text-sm font-medium text-slate-700 mb-2">
-                                        Ali pa
-                                    </h3>
                                     <Button
                                         onClick={handleExportJson}
                                         variant="outline"
@@ -1247,33 +1328,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         <FileJson className="h-5 w-5" />
                                         Izvozi kot JSON
                                     </Button>
-                                </div>
-
-                                <div className="mt-4 border-t pt-4">
-                                    <h3 className="text-center text-sm font-medium text-slate-700 mb-2">
-                                        Uvozi
-                                    </h3>
-                                    <Button
-                                        onClick={handleImportClick}
-                                        variant="outline"
-                                        className="w-full justify-start gap-3 h-12"
-                                    >
-                                        <Upload className="h-5 w-5" />
-                                        Uvozi iz JSON
-                                    </Button>
-                                    <input 
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleImportJson}
-                                        className="hidden"
-                                        accept="application/json"
-                                    />
-                                    {importError && (
-                                        <Alert variant="destructive">
-                                            <AlertCircle className="h-4 w-4" />
-                                            <AlertDescription>{importError}</AlertDescription>
-                                        </Alert>
-                                    )}
                                 </div>
                             </DrawerContent>
                         </Drawer>
@@ -1344,12 +1398,39 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                                 {/* Datum obravnave */}
                                                 <div className="space-y-2">
                                                     <Label className="text-sm font-medium text-slate-700">
-                                                        Datum obravnave
+                                                        Datum obravnave pacienta
                                                     </Label>
                                                     <Input
                                                         type="date"
                                                         value={list!.patient_data?.datum_obravnave || ""}
                                                         onChange={(e) => handlePatientDataChange("datum_obravnave", e.target.value)}
+                                                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                    />
+                                                </div>
+
+                                                {/* Datum oddaje */}
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-medium text-slate-700">
+                                                        Datum oddaje poročila
+                                                    </Label>
+                                                    <Input
+                                                        type="date"
+                                                        value={list!.patient_data?.datum_oddaje || new Date().toISOString().split('T')[0]}
+                                                        onChange={(e) => handlePatientDataChange("datum_oddaje", e.target.value)}
+                                                        className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                    />
+                                                </div>
+
+                                                {/* Mentor */}
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <Label className="text-sm font-medium text-slate-700">
+                                                        Mentor/ica praktičnega pouka
+                                                    </Label>
+                                                    <Input
+                                                        type="text"
+                                                        value={list!.patient_data?.mentor || ""}
+                                                        onChange={(e) => handlePatientDataChange("mentor", e.target.value)}
+                                                        placeholder="Ime in priimek mentorja/ice"
                                                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                                                     />
                                                 </div>
