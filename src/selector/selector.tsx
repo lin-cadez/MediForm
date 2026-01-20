@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAllForms } from "@/lib/firebase";
-import { checkUserSession, loadAllUserSubmissions, autoSaveForm } from "@/lib/userAuth";
 
 import "./selector.css";
 
@@ -75,9 +74,6 @@ export default function Selector() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [userName, setUserName] = useState<string>("");
-    const [hasUserSession, setHasUserSession] = useState(false);
-    const [isCheckingSession, setIsCheckingSession] = useState(true);
-    const [authStatus, setAuthStatus] = useState<string | null>(null);
     
     // New document dialog state
     const [showNewDocDialog, setShowNewDocDialog] = useState(false);
@@ -95,62 +91,7 @@ export default function Selector() {
     const [importFileData, setImportFileData] = useState<any>(null);
     const [importError, setImportError] = useState<string | null>(null);
 
-    // Check user session on mount
-    useEffect(() => {
-        const checkSession = async () => {
-            setIsCheckingSession(true);
-            
-            // Check if user is a guest/anonymous first
-            const status = localStorage.getItem("authStatus");
-            setAuthStatus(status);
-            
-            if (status === "guest" || status === "anonymous") {
-                setHasUserSession(true);
-                setIsCheckingSession(false);
-                return;
-            }
-            
-            // If no authStatus, don't even try to check server - just fail fast
-            if (!status) {
-                console.log("No authStatus found, skipping session check");
-                setHasUserSession(false);
-                setIsCheckingSession(false);
-                return;
-            }
-            
-            // Only check server session if we have an authStatus
-            try {
-                const result = await checkUserSession();
-                if (result.success && result.email) {
-                    setHasUserSession(true);
-                } else {
-                    setHasUserSession(false);
-                }
-            } catch (error: any) {
-                console.error("Error checking user session:", error);
-                
-                // If 429 error, disable online mode and force offline
-                if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
-                    console.log("429 error detected - forcing offline mode");
-                    // Clear online auth status and redirect to login
-                    localStorage.removeItem("authStatus");
-                    localStorage.removeItem("mediform_session_token");
-                    localStorage.removeItem("emailForSignIn");
-                    // Set flag to disable online mode
-                    localStorage.setItem("online_disabled", "true");
-                    setHasUserSession(false);
-                } else {
-                    // On other errors, treat as no session
-                    setHasUserSession(false);
-                }
-            } finally {
-                setIsCheckingSession(false);
-            }
-        };
-
-        checkSession();
-    }, []);
-
+    // Load user name from localStorage
     useEffect(() => {
         const userInfo = localStorage.getItem("userInfo");
         if (userInfo) {
@@ -159,110 +100,22 @@ export default function Selector() {
         }
     }, []);
 
-    // Load user documents - from backend for email users, from localStorage for anonymous
+    // Load user documents from localStorage
     useEffect(() => {
-        const loadDocuments = async () => {
-            const status = localStorage.getItem("authStatus");
-            console.log("📚 Loading documents - authStatus:", status);
-            
-            if (status === "email") {
-                // Try to load from backend first
-                console.log("🌐 Attempting to load from backend...");
-                try {
-                    const result = await loadAllUserSubmissions();
-                    console.log("📥 Backend response:", result);
-                    console.log("📥 Backend response success:", result.success);
-                    console.log("📥 Backend response documents:", result.documents);
-                    console.log("📥 Backend response documents length:", result.documents?.length);
-                    
-                    if (result.success && result.documents) {
-                        if (result.documents.length === 0) {
-                            console.log("ℹ️ Backend returned 0 documents");
-                            setUserDocuments([]);
-                            return;
-                        }
-                        
-                        // Convert backend documents to our format and sync with localStorage
-                        const backendDocs: UserDocument[] = result.documents.map(doc => ({
-                            id: doc.documentId || doc.id,
-                            templateId: doc.templateId,
-                            templateTitle: doc.templateTitle,
-                            name: doc.name,
-                            createdAt: doc.createdAt,
-                            updatedAt: doc.updatedAt,
-                        }))
-                        // Sort by updatedAt descending (most recent first)
-                        .sort((a, b) => {
-                            const timeA = typeof a.updatedAt === 'number' ? a.updatedAt : new Date(a.updatedAt).getTime();
-                            const timeB = typeof b.updatedAt === 'number' ? b.updatedAt : new Date(b.updatedAt).getTime();
-                            return timeB - timeA;
-                        });
-                        
-                        console.log("📄 Converted & sorted documents:", backendDocs);
-                        
-                        // Merge with local documents (keep local ones that aren't on backend yet)
-                        const localDocs = loadUserDocuments();
-                        console.log("💾 Local documents:", localDocs);
-                        
-                        const backendDocIds = new Set(backendDocs.map(d => d.id));
-                        const mergedDocs = [
-                            ...backendDocs,
-                            ...localDocs.filter(d => !backendDocIds.has(d.id))
-                        ];
-                        
-                        console.log("🔀 Merged documents:", mergedDocs);
-                        
-                        setUserDocuments(mergedDocs);
-                        saveUserDocuments(mergedDocs);
-                        
-                        // Also store the form data from backend to localStorage
-                        result.documents.forEach(doc => {
-                            const docId = doc.documentId || doc.id;
-                            if (doc.data) {
-                                localStorage.setItem(`doc_${docId}`, JSON.stringify(doc.data));
-                                console.log("💾 Stored data for document:", docId);
-                            }
-                        });
-                        
-                        console.log("✅ Loaded", backendDocs.length, "documents from backend");
-                        return;
-                    } else {
-                        console.log("ℹ️ No documents from backend or request failed");
-                    }
-                } catch (error) {
-                    console.error("❌ Error loading from backend, falling back to localStorage:", error);
-                }
-            }
-            
-            // Fall back to localStorage (for anonymous users or if backend fails)
-            console.log("💾 Loading from localStorage");
-            const localDocs = loadUserDocuments();
-            console.log("💾 Found", localDocs.length, "local documents");
-            setUserDocuments(localDocs);
-        };
-        
-        if (!isCheckingSession && hasUserSession) {
-            console.log("🚀 Triggering document load - isCheckingSession:", isCheckingSession, "hasUserSession:", hasUserSession);
-            loadDocuments();
-        } else {
-            console.log("⏳ Waiting for session check - isCheckingSession:", isCheckingSession, "hasUserSession:", hasUserSession);
-        }
-    }, [isCheckingSession, hasUserSession, reloadTrigger]);
+        const docs = loadUserDocuments();
+        setUserDocuments(docs);
+    }, [reloadTrigger]);
 
-    // Reload documents when returning to this page (e.g., after editing)
+    // Reload documents when returning to this page
     useEffect(() => {
         const handleVisibilityChange = () => {
-            if (!document.hidden && hasUserSession) {
-                console.log("👁️ Page became visible, reloading documents...");
+            if (!document.hidden) {
                 setReloadTrigger(prev => prev + 1);
             }
         };
 
         const handleFocus = () => {
-            if (hasUserSession) {
-                console.log("🔄 Window focused, reloading documents...");
-                setReloadTrigger(prev => prev + 1);
-            }
+            setReloadTrigger(prev => prev + 1);
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -272,12 +125,10 @@ export default function Selector() {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('focus', handleFocus);
         };
-    }, [hasUserSession]);
+    }, []);
 
+    // Fetch templates on mount
     useEffect(() => {
-        // Fetch templates when session check is complete and user has access
-        if (isCheckingSession || !hasUserSession) return;
-        
         const fetchTemplates = async () => {
             try {
                 setIsLoading(true);
@@ -300,19 +151,7 @@ export default function Selector() {
         };
 
         fetchTemplates();
-    }, [hasUserSession, isCheckingSession]);
-
-    // Redirect to main login if no user session
-    useEffect(() => {
-        if (!isCheckingSession && !hasUserSession) {
-            // Clear invalid data
-            localStorage.removeItem("authStatus");
-            localStorage.removeItem("mediform_session_token");
-            
-            // Navigate back to root using React Router
-            navigate('/', { replace: true });
-        }
-    }, [isCheckingSession, hasUserSession, navigate]);
+    }, []);
 
     const handleCreateDocument = (template: FormTemplate) => {
         setSelectedTemplate(template);
@@ -346,21 +185,6 @@ export default function Selector() {
         const updatedDocs = [...userDocuments, newDoc];
         setUserDocuments(updatedDocs);
         saveUserDocuments(updatedDocs);
-
-        // Save to backend for email users (initial empty document)
-        const currentAuthStatus = localStorage.getItem("authStatus");
-        if (currentAuthStatus === "email") {
-            try {
-                await autoSaveForm(newDoc.id, {}, {
-                    templateId: newDoc.templateId,
-                    templateTitle: newDoc.templateTitle,
-                    name: newDoc.name
-                });
-                console.log("✅ Document metadata saved to backend");
-            } catch (error) {
-                console.error("Failed to save document to backend:", error);
-            }
-        }
         
         setShowNewDocDialog(false);
         setSelectedTemplate(null);
@@ -475,21 +299,6 @@ export default function Selector() {
         setUserDocuments(updatedDocs);
         saveUserDocuments(updatedDocs);
 
-        // Save to backend for email users (with imported data)
-        const currentAuthStatus = localStorage.getItem("authStatus");
-        if (currentAuthStatus === "email") {
-            try {
-                await autoSaveForm(newDoc.id, importFileData.data, {
-                    templateId: newDoc.templateId,
-                    templateTitle: newDoc.templateTitle,
-                    name: newDoc.name
-                });
-                console.log("✅ Imported document saved to backend");
-            } catch (error) {
-                console.error("Failed to save imported document to backend:", error);
-            }
-        }
-
         // Close dialog and reset
         setShowImportDialog(false);
         setImportFileData(null);
@@ -520,25 +329,6 @@ export default function Selector() {
             minute: '2-digit'
         });
     };
-
-    // Show loading while checking session
-    if (isCheckingSession) {
-        return (
-            <div className="min-h-screen bg-sky-50 flex items-center justify-center">
-                <div className="text-center space-y-4">
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto text-ocean-teal" />
-                    <p className="text-slate-600 font-medium">
-                        Preverjanje dostopa...
-                    </p>
-                </div>
-            </div>
-        );
-    }
-
-    // Show nothing while redirecting (navigation handled in useEffect above)
-    if (!hasUserSession) {
-        return null;
-    }
 
     if (isLoading) {
         return (
@@ -593,11 +383,6 @@ export default function Selector() {
                         </span>
                     </NavLink>
                     <div className="flex items-center gap-2">
-                        {authStatus === 'anonymous' && (
-                            <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
-                                Offline
-                            </span>
-                        )}
                         <NavLink to="/profil">
                             <Button
                                 variant="outline"
@@ -636,7 +421,7 @@ export default function Selector() {
                                 className="flex items-center gap-2 border-ocean-teal text-ocean-teal hover:bg-ocean-light"
                             >
                                 <Upload className="h-4 w-4" />
-                                <span className="hidden sm:inline">Uvozi JSON</span>
+                                <span>Uvozi JSON</span>
                             </Button>
                             <input
                                 id="importJsonInput"
@@ -659,7 +444,7 @@ export default function Selector() {
                                     display: none;
                                 }
                             `}</style>
-                            <div className={`flex gap-4 pb-4 ${templates.length <= 3 ? 'justify-center' : ''}`}>
+                            <div className={`flex flex-col sm:flex-row gap-4 pb-4 ${templates.length <= 3 ? 'sm:justify-center' : ''}`}>
                                 {templates.map((template, index) => (
                                     <motion.div
                                         key={template.id}
@@ -669,8 +454,7 @@ export default function Selector() {
                                             duration: 0.3,
                                             delay: index * 0.05,
                                         }}
-                                        className="flex-shrink-0"
-                                        style={{ width: '320px' }}
+                                        className="flex-shrink-0 w-full sm:w-[320px]"
                                     >
                                         <Card className="h-full hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-ocean-teal">
                                             <CardHeader className="pb-3">

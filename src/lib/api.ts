@@ -317,3 +317,43 @@ export const legacyDeleteForm = async (formId: string): Promise<{ success: boole
     const result = await deleteForm(formId);
     return { success: result.success, error: result.error };
 };
+
+// ==================== EXPORT ENDPOINT ====================
+// Save exported document to backend for archiving
+
+export interface ExportData {
+    email: string;
+    userInfo: {
+        ime: string;
+        priimek: string;
+        razred: string;
+        sola?: string;
+        podrocje?: string;
+    };
+    document: any;
+    exportType: 'pdf' | 'json';
+    documentName?: string;
+}
+
+export const saveExport = async (exportData: ExportData): Promise<{ success: boolean; error?: string }> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/exports`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(exportData),
+        });
+
+        if (!response.ok) {
+            console.warn('⚠️ Failed to save export to backend, continuing offline');
+            return { success: false, error: 'Backend unavailable' };
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.warn('⚠️ Could not reach backend for export archiving:', error);
+        // Don't fail the export if backend is unavailable
+        return { success: false, error: 'Network error' };
+    }
+};
