@@ -195,7 +195,12 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         const storageKey = getStorageKey();
         
         if (storageKey) {
-            localStorage.setItem(storageKey, JSON.stringify(newList));
+            const expirationDate = Date.now() + 60 * 24 * 60 * 60 * 1000; // 60 dni v ms
+            const dataToStore = {
+                state: newList,
+                expires: expirationDate,
+            };
+            localStorage.setItem(storageKey, JSON.stringify(dataToStore));
             updateDocumentMetadata();
         }
     };
@@ -216,48 +221,53 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         if (storageKey) {
             const storedData = localStorage.getItem(storageKey);
             if (storedData) {
-                const parsedData = JSON.parse(storedData);
-                if (parsedData) {
-                    Object.values(parsedData.categories).forEach((category) => {
-                        Object.values((category as Category).subcategories).forEach(
-                            (subcategory) => {
-                                Object.entries(subcategory.elements).forEach(
-                                    ([, element]) => {
-                                        // Skip table elements
-                                        if ((element as TableElement).type === "table") return;
-                                        const el = element as Element;
-                                        if (el.option_type === "multiple") {
-                                            el.value = castToArray(
-                                                el.value
-                                            );
+                const parsedStored = JSON.parse(storedData);
+                if (parsedStored) {
+                    if (parsedStored.expires && Date.now() > parsedStored.expires) {
+                        localStorage.removeItem(storageKey);
+                    } else {
+                        const parsedData = parsedStored.state || parsedStored; // Podpora za stare podakte
+                        Object.values(parsedData.categories).forEach((category) => {
+                            Object.values((category as Category).subcategories).forEach(
+                                (subcategory) => {
+                                    Object.entries(subcategory.elements).forEach(
+                                        ([, element]) => {
+                                            // Skip table elements
+                                            if ((element as TableElement).type === "table") return;
+                                            const el = element as Element;
+                                            if (el.option_type === "multiple") {
+                                                el.value = castToArray(
+                                                    el.value
+                                                );
+                                            }
                                         }
-                                    }
-                                );
-                            }
-                        );
-                    });
-                    
-                    // Initialize datum_oddaje if not set
-                    if (parsedData.patient_data && !parsedData.patient_data.datum_oddaje) {
-                        parsedData.patient_data.datum_oddaje = new Date().toISOString().split('T')[0];
+                                    );
+                                }
+                            );
+                        });
+                        
+                        // Initialize datum_oddaje if not set
+                        if (parsedData.patient_data && !parsedData.patient_data.datum_oddaje) {
+                            parsedData.patient_data.datum_oddaje = new Date().toISOString().split('T')[0];
+                        }
+                        
+                        setList(parsedData);
+                        // Expand first category by default
+                        const categoryIds = Object.keys(parsedData.categories);
+                        if (categoryIds.length > 0) {
+                            setOpenCategories({ [categoryIds[0]]: true });
+                        }
+                        setIsLoading(false);
+                        return;
                     }
-                    
-                    setList(parsedData);
-                    // Expand first category by default
-                    const categoryIds = Object.keys(parsedData.categories);
-                    if (categoryIds.length > 0) {
-                        setOpenCategories({ [categoryIds[0]]: true });
-                    }
-                    setIsLoading(false);
-                    return;
                 }
             }
         }
 
-        // If no saved document data, fetch template from Firebase
+        // If no saved document data, load template from cached forms
         try {
+            console.log("Loading form from cached forms...");
             const formData = await getFormById(formId) as List | null;
-            console.log("Firebase template response:", formData);
             if (formData) {
                 Object.values(formData.categories || {}).forEach((category: any) => {
                     Object.values(category.subcategories || {}).forEach(
@@ -274,28 +284,34 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         }
                     );
                 });
-                
+
                 // Initialize datum_oddaje if not set
                 if (formData.patient_data && !formData.patient_data.datum_oddaje) {
                     formData.patient_data.datum_oddaje = new Date().toISOString().split('T')[0];
                 }
-                
+
                 setList(formData);
                 // Expand first category by default
                 const categoryIds = Object.keys(formData.categories || {});
                 if (categoryIds.length > 0) {
                     setOpenCategories({ [categoryIds[0]]: true });
                 }
-                
+
                 // If this is a document, save initial template as document data
                 if (docId && storageKey) {
-                    localStorage.setItem(storageKey, JSON.stringify(formData));
+                    const expirationDate = Date.now() + 60 * 24 * 60 * 60 * 1000;
+                    const dataToStore = {
+                        state: formData,
+                        expires: expirationDate,
+                    };
+                    localStorage.setItem(storageKey, JSON.stringify(dataToStore));
                 }
             } else {
-                console.error("Form not found in Firebase. Looking for ID:", formId);
+                console.error("Form not found in cache. Available forms should be in /public/cached-forms/");
             }
         } catch (error) {
-            console.error("Error fetching form from Firebase:", error);
+            console.error("Error loading form from cache:", error);
+            console.error("Form not found in cache. Available forms should be in /public/cached-forms/");
         }
         
         setIsLoading(false);
@@ -483,7 +499,13 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `${list.title.replace(/\s/g, '_')}_export.json`;
+        
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 5).replace(":", "-");
+        const age = list?.patient_data?.starost || "neznano";
+        link.download = `OBRAVNAVA-${dateStr}-${timeStr}-${age}let.json`;
+        
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -886,9 +908,13 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             const pdfBlob = await generatePdfFromJson(list as JsonData, userInfoForPdf);
             const link = document.createElement("a");
             link.href = URL.createObjectURL(pdfBlob);
-            link.download = `${list?.title || "checklist"}_${userInfo.ime}_${
-                userInfo.priimek
-            }.pdf`;
+            
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 5).replace(":", "-");
+            const age = list?.patient_data?.starost || "neznano";
+            link.download = `OBRAVNAVA-${dateStr}-${timeStr}-${age}let.pdf`;
+            
             link.click();
 
             setShowSuccess(true);

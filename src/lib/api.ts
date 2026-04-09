@@ -26,28 +26,8 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
 
 // Ping the backend to check if it's available
 export const pingBackend = async (): Promise<boolean> => {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-        
-        const response = await fetch(`${API_BASE_URL}/forms`, {
-            method: 'GET',
-            signal: controller.signal,
-        });
-        
-        clearTimeout(timeoutId);
-        isBackendAvailable = response.ok;
-        
-        if (!isBackendAvailable) {
-            console.warn('⚠️ Backend returned non-OK status, using cached forms');
-        }
-        
-        return isBackendAvailable;
-    } catch (error) {
-        console.warn('⚠️ Backend is unavailable, switching to offline mode:', error);
-        isBackendAvailable = false;
-        return false;
-    }
+    isBackendAvailable = false;
+    return false;
 };
 
 // Get backend availability status
@@ -60,8 +40,10 @@ const loadCachedFormsIndex = async (): Promise<any[]> => {
     try {
         const response = await fetch('/cached-forms/index.json');
         if (response.ok) {
-            console.warn('⚠️ Loading forms from local cache (offline mode)');
-            return await response.json();
+            const data = await response.json();
+            console.log('⚠️ Loading forms from local cache (offline mode)');
+            // Handle both array format and {forms: []} format
+            return Array.isArray(data) ? data : (data.forms || []);
         }
         return [];
     } catch (error) {
@@ -190,58 +172,16 @@ export interface FormResponse {
     message?: string;
 }
 
-// Get all forms (public) - with fallback to cached forms
+// Get all forms (public) - cache only
 export const getAllForms = async (): Promise<FormData[]> => {
-    // If we know backend is unavailable, go straight to cache
-    if (!isBackendAvailable) {
-        return await loadCachedFormsIndex();
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/forms`);
-        const data: FormsResponse = await response.json();
-
-        if (data.success && data.data) {
-            isBackendAvailable = true;
-            return data.data;
-        }
-        
-        // Fallback to cached forms
-        console.warn('⚠️ Backend returned empty response, falling back to cached forms');
-        return await loadCachedFormsIndex();
-    } catch (error) {
-        console.error('Error getting forms from backend:', error);
-        isBackendAvailable = false;
-        // Fallback to cached forms
-        return await loadCachedFormsIndex();
-    }
+    isBackendAvailable = false;
+    return await loadCachedFormsIndex();
 };
 
-// Get form by ID (public) - with fallback to cached forms
+// Get form by ID (public) - cache only
 export const getFormById = async (formId: string): Promise<FormData | null> => {
-    // If we know backend is unavailable, go straight to cache
-    if (!isBackendAvailable) {
-        return await loadCachedFormById(formId);
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/forms/${encodeURIComponent(formId)}`);
-        const data: FormResponse = await response.json();
-
-        if (data.success && data.data) {
-            isBackendAvailable = true;
-            return data.data;
-        }
-        
-        // Fallback to cached form
-        console.warn(`⚠️ Backend returned empty response for form "${formId}", falling back to cache`);
-        return await loadCachedFormById(formId);
-    } catch (error) {
-        console.error('Error getting form from backend:', error);
-        isBackendAvailable = false;
-        // Fallback to cached form
-        return await loadCachedFormById(formId);
-    }
+    isBackendAvailable = false;
+    return await loadCachedFormById(formId);
 };
 
 // Create form (authenticated)

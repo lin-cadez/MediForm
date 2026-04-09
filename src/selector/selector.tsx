@@ -132,19 +132,21 @@ export default function Selector() {
         const fetchTemplates = async () => {
             try {
                 setIsLoading(true);
-                const fetchedForms = await getAllForms();
                 
-                // Map Firebase forms to our format
+                console.log("Fetching templates from cached forms...");
+                const fetchedForms = await getAllForms();
+
                 const templateItems: FormTemplate[] = fetchedForms.map((form: any) => ({
                     id: form.id,
                     title: form.title || "Brez naslova",
                     description: form.description || null,
                 }));
-                
+
                 setTemplates(templateItems);
+                console.log("Loaded templates from cache");
             } catch (err) {
                 console.error("Error fetching templates:", err);
-                setError("Napaka pri nalaganju predlog. Poskusite znova.");
+                setError("Napaka pri nalaganju predlog. Preverite internetno povezavo.");
             } finally {
                 setIsLoading(false);
             }

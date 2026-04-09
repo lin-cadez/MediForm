@@ -7,6 +7,7 @@ import Selector from "./selector/selector";
 import Profil from "./profil/profil";
 import UserInfoForm from "./components/UserInfoForm";
 import CookieConsent from "./components/CookieConsent";
+import DownloadPage from "./components/DownloadPage";
 
 import TermsOfUse from "./profil/Terms";
 import PrivacyPolicy from "./profil/Privacy";
@@ -96,6 +97,8 @@ function AppContent() {
                         {/* Legal pages - always accessible */}
                         <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
                         <Route path="/zasebnost" element={<PrivacyPolicy />} />
+                        {/* Download page - always accessible */}
+                        <Route path="/download" element={<DownloadPage />} />
                         {/* All other routes require user info */}
                         <Route path="*" element={<UserInfoForm onSubmit={handleUserInfoSubmit} />} />
                     </Routes>
@@ -112,6 +115,8 @@ function AppContent() {
                     {/* Legal pages - always accessible */}
                     <Route path="/pogoji-uporabe" element={<TermsOfUse />} />
                     <Route path="/zasebnost" element={<PrivacyPolicy />} />
+                    {/* Download page - always accessible */}
+                    <Route path="/download" element={<DownloadPage />} />
                     {/* Checklist - for filling out forms */}
                     <Route
                         path="/checklist/*"
