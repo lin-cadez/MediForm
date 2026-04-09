@@ -43,14 +43,15 @@ export default function TermsOfUse() {
                             </p>
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
                                 <li>Vsi podatki o obrazcih se hranijo <strong>izključno v vašem brskalniku</strong> (localStorage).</li>
-                                <li>Ob vnosu emaila se ta shrani v piškotke za prepoznavanje uporabnika.</li>
-                                <li>Obrazci se ne shranjujejo na strežnik med izpolnjevanjem.</li>
-                                <li>Podatki se pošljejo na strežnik <strong>samo ob izvozu</strong> (PDF ali JSON) za namen arhiviranja.</li>
+                                <li>Podatki se <strong>nikoli ne pošiljajo na strežnik</strong>.</li>
+                                <li>Tudi izvoz (PDF ali JSON) poteka izključno lokalno v vašem brskalniku in se nikamor ne arhivira.</li>
+                                <li>Vsak dokument ima <strong>rok veljavnosti dveh mesecev (60 dni)</strong>. Po poteku se samodejno izbriše.</li>
+                                <li>Ob odjavi iz aplikacije se <strong>izbrišejo vsi lokalno shranjeni podatki</strong>, vključno z dokumenti in podatki o seji.</li>
                             </ul>
                             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                 <p className="text-blue-700 text-sm">
-                                    <strong>Pomembno:</strong> Če izbrišete podatke brskalnika, piškotke ali zamenjate napravo, 
-                                    boste izgubili vse shranjene podatke. Priporočamo reden izvoz pomembnih dokumentov.
+                                    <strong>Pomembno:</strong> Če izbrišete podatke brskalnika, se odjavite, preteče rok 60 dni ali zamenjate napravo, 
+                                    boste izgubili vse shranjene podatke. Priporočamo sproten izvoz pomembnih dokumentov.
                                 </p>
                             </div>
                         </section>
@@ -61,15 +62,16 @@ export default function TermsOfUse() {
                                 Vaši podatki se shranjujejo na naslednje načine:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
-                                <li><strong>Email naslov:</strong> Shranjen v piškotkih in localStorage za prepoznavanje.</li>
-                                <li><strong>Osebni podatki (ime, priimek, razred, šola):</strong> Shranjeni lokalno v brskalniku.</li>
-                                <li><strong>Izpolnjeni obrazci:</strong> Shranjeni lokalno v brskalniku.</li>
-                                <li><strong>Izvoženi dokumenti:</strong> Ob izvozu se kopija JSON podatkov lahko pošlje na strežnik za arhiviranje.</li>
+                                <li><strong>Email naslov:</strong> Shranjen v piškotkih za hitrejšo prijavo.</li>
+                                <li><strong>Osebni podatki (ime, priimek, razred, šola):</strong> Shranjeni izključno lokalno v brskalniku.</li>
+                                <li><strong>Izpolnjeni obrazci:</strong> Shranjeni lokalno v brskalniku z rokom veljavnosti 60 dni. Po izteku se samodejno izbrišejo.</li>
+                                <li><strong>Medgeneracijski podatki:</strong> Izvoz (PDF ali JSON) poteka povsem lokalno. Aplikacija na nobeni točki ne pošlje podatkov na zunanji strežnik.</li>
+                                <li><strong>Odjava:</strong> Odjava iz aplikacije trajno izbriše piškotke seje in vse lokalno shranjene podatke iz brskalnika.</li>
                             </ul>
                             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                                 <p className="text-green-700 text-sm">
-                                    <strong>Brez internetne povezave:</strong> Aplikacija deluje tudi brez interneta. 
-                                    Izvoz PDF in JSON je mogoč tudi offline - podatki se preprosto ne arhivirajo na strežnik.
+                                    <strong>Brez internetne povezave:</strong> Aplikacija je zasnovana kot »Frontend-only« – vsebuje zgolj 
+                                    uporabniški vmesnik. Ko se vsebina naloži, za izpolnjevanje in izvoz ne potrebujete interneta.
                                 </p>
                             </div>
                         </section>
@@ -131,11 +133,11 @@ export default function TermsOfUse() {
                                 Aplikacija uporablja:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li><strong>Piškotke:</strong> Za shranjevanje vašega email naslova</li>
-                                <li><strong>localStorage:</strong> Za shranjevanje obrazcev in osebnih podatkov</li>
+                                <li><strong>Piškotke:</strong> Za shranjevanje vaše uporabniške seje, pri prijavi in prijavi. Ob odjavi se piškotki izbrišejo.</li>
+                                <li><strong>localStorage:</strong> Za samodejno shranjevanje vašega vnosnega dela (obrazcev). Vsi izpolnjeni podatki imajo <strong>rok veljavnosti 60 dni</strong> in se po tem roku brez vrnitve odstranijo.</li>
                             </ul>
                             <p className="text-slate-600 mt-2">
-                                Ti podatki so nujni za delovanje aplikacije in se ne uporabljajo za sledenje ali oglaševanje.
+                                Nobena tretja oseba (niti razvijalec sistema) in noben strežnik ne bo deležen prejetja the podatkov ob in po pošiljanju. Predhodna avtomatizirana anonimizacija vpisov pacientov zagotovi varno PDF in JSON generiranje (OBRAVNAVA-DATUM-URA-STAROST). Ti podatki se ne uporabljajo za sledenje ali oglaševanje.
                             </p>
                         </section>
 

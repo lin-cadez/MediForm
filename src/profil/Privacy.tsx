@@ -52,35 +52,34 @@ export default function PrivacyPolicy() {
                             <ul className="list-disc pl-6 text-slate-600">
                                 <li><strong>Identifikacijski podatki:</strong> Ime, priimek, email naslov</li>
                                 <li><strong>Izobraževalni podatki:</strong> Razred, šola, področje usposabljanja</li>
-                                <li><strong>Uporabniški podatki:</strong> Izpolnjeni obrazci in njihova vsebina</li>
-                                <li><strong>Tehnični podatki:</strong> Podatki o seji, piškotki za delovanje aplikacije</li>
+                                <li><strong>Uporabniški podatki:</strong> Izpolnjeni obrazci in podatki o pacientovi obravnavi – izključuje neposredno identifikacijo pacienta in ne sme vsebovati njegovih resničnih osebnih podatkov (npr. imena)</li>
+                                <li><strong>Tehnični podatki:</strong> Piškotki za delovanje aplikacije in upravljanje seje</li>
                             </ul>
                             
                             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                <h3 className="text-md font-semibold text-green-800 mb-2">🔒 Anonimni način uporabe</h3>
+                                <h3 className="text-md font-semibold text-green-800 mb-2">🔒 Izključno lokalna obdelava</h3>
                                 <p className="text-green-700 text-sm">
-                                    Če uporabljate aplikacijo v <strong>anonimnem načinu</strong>, se vaši podatki 
-                                    <strong> NE pošiljajo na naše strežnike</strong>. Vsi podatki (ime, priimek, 
-                                    razred, šola, izpolnjeni obrazci) se hranijo <strong>izključno lokalno</strong> v 
-                                    vašem brskalniku (localStorage). Pri anonimnem načinu:
+                                    Aplikacija je zasnovana tako, da se vaši podatki <strong> NIKOLI ne pošiljajo na naše strežnike 
+                                    ali kateri koli zunanji sistem </strong> (frontend-only rešitev). Vsi podatki (identifikacijski 
+                                    podatki, podatki o šoli in izpolnjeni obrazci) se hranijo <strong>izključno lokalno</strong> v 
+                                    lokalnem pomnilniku (localStorage) vaše naprave. Pri tem velja dodati:
                                 </p>
                                 <ul className="list-disc pl-6 text-green-700 text-sm mt-2">
-                                    <li>Ne zbiramo nobenih osebnih podatkov</li>
-                                    <li>Ne uporabljamo piškotkov za sledenje</li>
-                                    <li>Edina komunikacija s strežnikom je nalaganje obrazcev (statična vsebina)</li>
-                                    <li>Ob brisanju podatkov brskalnika se vsi vaši podatki trajno izbrišejo</li>
+                                    <li>Samodejno shranjevanje obrazcev poteka lokalno ob vsakem vnosu</li>
+                                    <li>Vsak izpolnjen obrazec ima določen <strong>rok veljavnosti dveh mesecev (60 dni)</strong> in se po preteku samodejno trajno izbriše</li>
+                                    <li><strong>Ob odjavi (Logout)</strong> se vaša seja zaključi in <strong>vsi podatki, piskotki in shranjeni obrazci v brskalniku se trajno izbrišejo</strong></li>
+                                    <li>Ne uporabljamo piškotkov za sledenje (analitiko) ali oglaševanje</li>
+                                    <li>Zaradi varstva osebnih podatkov pacientov so generirani naslovi izvoženih PDF datotek <strong>popolnoma anonimizirani</strong> v formatu <code>OBRAVNAVA-DATUM-URA-STAROST.pdf</code></li>
                                 </ul>
                             </div>
                         </section>
 
                         <section>
                             <h2 className="text-lg font-semibold mt-4">4. Namen obdelave</h2>
-                            <p className="text-slate-600">Vaše osebne podatke obdelujemo za naslednje namene:</p>
+                            <p className="text-slate-600">Vaše osebne podatke obdelujemo izključno na napravi (v brskalniku) za naslednje namene:</p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li>Omogočanje prijave in dostopa do aplikacije</li>
-                                <li>Shranjevanje in prikaz izpolnjenih obrazcev</li>
-                                <li>Generiranje PDF dokumentov</li>
-                                <li>Zagotavljanje tehničnega delovanja aplikacije</li>
+                                <li>Omogočanje začasne prijave, ki ne poteka preko avtentikacije (nastavitev podatkov za poimenovano oddajo na telefonih)</li>
+                                <li><strong>Samodejno lokalno shranjevanje</strong> vaših izpolnjenih vnosov in nastavitev obrazca – podatkov v nobenem primeru (niti lokalnega PDF in JSON dokumenta) ne potujejo na noben centralni sistem.</li>
                             </ul>
                         </section>
 
@@ -117,18 +116,18 @@ export default function PrivacyPolicy() {
                         </section>
 
                         <section>
-                            <h2 className="text-lg font-semibold mt-4">7. Hramba podatkov</h2>
+                            <h2 className="text-lg font-semibold mt-4">7. Hramba podatkov in GDPR anonimiziranje</h2>
                             <p className="text-slate-600">
-                                Vaše podatke hranimo, dokler:
+                                Shranjujemo le nujne podatke o prijavi, obravnavi (PDF dokument in JSON obrazec) 
+                                in veljavnost dokumentov je omejena za lokalni brskalnik:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li>Imate aktiven uporabniški račun</li>
-                                <li>Ne zahtevate izbrisa</li>
-                                <li>Ne prekličete privolitve</li>
+                                <li>Vsak lokalno shranjeni obrazec vsebuje <strong>časovni žig veljavnosti (potek: 60 dni)</strong> in se po tem roku permanentno in samodejno izbriše</li>
+                                <li>Ob vsaki pričetku ali koncu, če se iz sistema odjavite, aplikacija po izbrisu seje trajno uniči vse shranjene vrednosti in piškotke brskalnikov.</li>
                             </ul>
                             <p className="text-slate-600 mt-2">
-                                Podatki, shranjeni lokalno v brskalniku (localStorage), se hranijo dokler 
-                                jih sami ne izbrišete.
+                                Ime PDF dokumenta (pri izvozu) je sestavljeno samo iz anonimiziranih delov (čas generiranja in starost pacienta), 
+                                tako da slučajni osebni pripis imena pacienta ne pride v ime datoteke same.
                             </p>
                         </section>
 
