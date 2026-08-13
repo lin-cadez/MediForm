@@ -1,13 +1,16 @@
 {
+  "id": "/",
   "name": "MediForm - Zdravstveni obrazci",
   "short_name": "MediForm",
-  "description": "Aplikacija za izpolnjevanje zdravstvenih obrazcev za študente",
+  "description": "Aplikacija za izpolnjevanje zdravstvenih obrazcev za dijake",
   "theme_color": "#0e7490",
   "background_color": "#f0f9ff",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
+  "lang": "sl",
+  "categories": ["education", "medical", "productivity"],
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -25,7 +28,15 @@
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
-      "purpose": "apple touch icon"
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/Izvoz.jpg",
+      "sizes": "3120x1755",
+      "type": "image/jpeg",
+      "form_factor": "wide"
     }
   ]
 }

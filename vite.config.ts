@@ -13,6 +13,7 @@ export default defineConfig({
 				"favicon.ico",
 				"favicon.svg",
 				"apple-touch-icon.png",
+				"Izvoz.jpg",
 				"logo_only.png",
 				"logo_with_text.png",
 				"CNAME",
@@ -53,16 +54,10 @@ export default defineConfig({
 				],
 				screenshots: [
 					{
-						src: "/Primer_vnaprej_pripravljeno.png",
-						sizes: "1280x720",
-						type: "image/png",
+						src: "/Izvoz.jpg",
+						sizes: "3120x1755",
+						type: "image/jpeg",
 						form_factor: "wide",
-					},
-					{
-						src: "/Organizacija.png",
-						sizes: "720x1280",
-						type: "image/png",
-						form_factor: "narrow",
 					},
 				],
 			},

@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +42,7 @@ interface FormTemplate {
     schoolId: string;
     schoolName: string;
     schoolAddress?: string;
+    professorName?: string;
     subject?: string;
 }
 
@@ -245,6 +245,7 @@ export default function Selector() {
                     schoolId: form.schoolId || DEFAULT_SCHOOL.id,
                     schoolName: form.schoolName || DEFAULT_SCHOOL.name,
                     schoolAddress: form.schoolAddress || DEFAULT_SCHOOL.address,
+                    professorName: form.professorName || form.teacherName || form.createdBy || undefined,
                     subject: form.subject || form.predmet || null,
                 }));
 
@@ -313,13 +314,6 @@ export default function Selector() {
         
         // Navigate to the new document
         navigate(`/obrazec/${templateToUse.id}?doc=${newDoc.id}`);
-    };
-
-    const handleTemplateSelect = (templateId: string) => {
-        const template = templates.find(item => item.id === templateId) || null;
-        setSelectedTemplateId(templateId);
-        setSelectedTemplate(template);
-        localStorage.setItem(LAST_TEMPLATE_KEY, templateId);
     };
 
     const handleDeleteDocument = (doc: UserDocument, e: React.MouseEvent) => {
@@ -459,7 +453,7 @@ export default function Selector() {
     };
 
     const lastUsedTemplate = templates.find(template => template.id === selectedTemplateId) || templates[0] || null;
-    const selectedTemplateForChooser = templates.find(template => template.id === selectedTemplateId) || lastUsedTemplate;
+    const useTemplateCarousel = templates.length > 3;
 
     if (isLoading) {
         return (
@@ -569,117 +563,71 @@ export default function Selector() {
 
                 {/* Template Selection */}
                 {templates.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                        {lastUsedTemplate && (
+                    <div
+                        className={
+                            useTemplateCarousel
+                                ? "mb-12 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+                                : "mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                        }
+                    >
+                        {templates.map((template, index) => {
+                            const isLastUsed = template.id === lastUsedTemplate?.id;
+
+                            return (
                             <motion.div
-                                initial={{ opacity: 0, x: -16 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.3 }}
+                                key={template.id}
+                                initial={{ opacity: 0, y: 16 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: index * 0.04 }}
+                                className={useTemplateCarousel ? "w-[17rem] sm:w-[18rem] flex-none snap-start" : undefined}
                             >
-                                <Card className="aspect-square border-2 border-cyan-700 bg-white shadow-sm hover:shadow-lg transition-shadow">
-                                    <CardHeader className="pb-3">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
-                                                <FileText className="h-5 w-5 text-cyan-700 flex-shrink-0 mt-0.5" />
-                                                <span>Zadnja predloga <span className="font-normal text-slate-500">(nazadnje uporabljena)</span></span>
+                                <Card
+                                    className={`border bg-white shadow-sm transition-shadow hover:shadow-lg ${
+                                        isLastUsed ? "border-cyan-300" : "border-slate-200 hover:border-cyan-300"
+                                    }`}
+                                >
+                                    <CardHeader className="pb-4">
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-cyan-200 bg-cyan-50">
+                                                <FileText className="h-5 w-5 text-cyan-700" />
+                                            </div>
+                                            <CardTitle className="text-lg font-bold leading-snug text-slate-900">
+                                                {template.title}
                                             </CardTitle>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="h-[calc(100%-5rem)] flex flex-col justify-between space-y-4">
-                                        <div className="space-y-3">
-                                            <div>
-                                                <h3 className="font-semibold text-slate-900 leading-snug">
-                                                    {lastUsedTemplate.title}
-                                                </h3>
-                                                {lastUsedTemplate.description && (
-                                                    <p className="text-sm text-slate-600 mt-2 line-clamp-3">
-                                                        {lastUsedTemplate.description}
-                                                    </p>
-                                                )}
+                                    <CardContent className="space-y-4">
+                                        <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+                                            <div className="flex items-start gap-3">
+                                                <School className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                <span>{template.schoolName}</span>
                                             </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                <Badge variant="outline" className="border-cyan-700 bg-cyan-50 text-cyan-900">
-                                                    <School className="h-3 w-3 mr-1" />
-                                                    {lastUsedTemplate.schoolName}
-                                                </Badge>
-                                                {lastUsedTemplate.subject && (
-                                                    <Badge variant="outline" className="border-slate-300 bg-white text-slate-700">
-                                                        {lastUsedTemplate.subject}
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                            {template.professorName && (
+                                                <div className="flex items-start gap-3">
+                                                    <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span>{template.professorName}</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <Button
-                                            onClick={() => handleCreateDocument(lastUsedTemplate)}
-                                            className="w-full bg-cyan-700 text-white hover:bg-cyan-800"
-                                        >
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            Nadaljuj s to predlogo
-                                        </Button>
+                                        <div className="border-t border-slate-200 pt-4">
+                                            <Button
+                                                onClick={() => handleCreateDocument(template)}
+                                                variant={isLastUsed ? "default" : "outline"}
+                                                className={
+                                                    isLastUsed
+                                                        ? "w-full bg-cyan-700 text-white hover:bg-cyan-800"
+                                                        : "w-full border-cyan-700 bg-white text-cyan-800 hover:bg-cyan-50 hover:text-cyan-900"
+                                                }
+                                            >
+                                                <Plus className="h-4 w-4 mr-2" />
+                                                Uporabi
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </motion.div>
-                        )}
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 16 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: 0.05 }}
-                        >
-                            <Card className="h-full min-h-[18rem] border-2 border-slate-300 bg-white shadow-sm hover:border-cyan-700 hover:shadow-lg transition-shadow">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
-                                        <FileText className="h-5 w-5 text-cyan-700 flex-shrink-0 mt-0.5" />
-                                        <span>Izberi katerokoli predlogo</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="templateQuickSelect">Predloga</Label>
-                                        <select
-                                            id="templateQuickSelect"
-                                            value={selectedTemplateForChooser?.id || ""}
-                                            onChange={(e) => handleTemplateSelect(e.target.value)}
-                                            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700"
-                                        >
-                                            {templates.map(template => (
-                                                <option key={template.id} value={template.id}>
-                                                    {template.schoolName} - {template.title}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {selectedTemplateForChooser && (
-                                        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 space-y-2">
-                                            <div className="flex flex-wrap gap-2">
-                                                <Badge variant="outline" className="border-cyan-700 bg-cyan-50 text-cyan-900">
-                                                    <School className="h-3 w-3 mr-1" />
-                                                    {selectedTemplateForChooser.schoolName}
-                                                </Badge>
-                                                {selectedTemplateForChooser.subject && (
-                                                    <Badge variant="outline" className="border-slate-300 bg-white text-slate-700">
-                                                        {selectedTemplateForChooser.subject}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-slate-600">
-                                                {selectedTemplateForChooser.description || "Brez opisa predloge."}
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    <Button
-                                        onClick={() => selectedTemplateForChooser && handleCreateDocument(selectedTemplateForChooser)}
-                                        disabled={!selectedTemplateForChooser}
-                                        className="w-full bg-cyan-700 text-white hover:bg-cyan-800"
-                                    >
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Izberi in nadaljuj
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                            );
+                        })}
                     </div>
                 ) : !isLoading && (
                     <motion.div
@@ -786,24 +734,6 @@ export default function Selector() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
-                        <div className="space-y-2 mb-4">
-                            <Label htmlFor="templateSelect">Predloga</Label>
-                            <select
-                                id="templateSelect"
-                                value={selectedTemplateForChooser?.id || ""}
-                                onChange={(e) => handleTemplateSelect(e.target.value)}
-                                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700"
-                            >
-                                {templates.map(template => (
-                                    <option key={template.id} value={template.id}>
-                                        {template.schoolName} - {template.title}
-                                    </option>
-                                ))}
-                            </select>
-                            <p className="text-xs text-slate-500">
-                                Zadnja izbrana predloga se shrani za naslednjič.
-                            </p>
-                        </div>
                         <Label htmlFor="docName">Ime dokumenta</Label>
                         <Input
                             id="docName"
@@ -812,7 +742,7 @@ export default function Selector() {
                                 setNewDocName(e.target.value);
                                 setDuplicateNameError(false);
                             }}
-                            placeholder="npr. Pacient Janez Novak"
+                            placeholder="Pacient UKC 01"
                             className={`mt-2 ${duplicateNameError ? 'border-red-500' : ''}`}
                             autoFocus
                         />
@@ -886,7 +816,7 @@ export default function Selector() {
                                         setImportDocName(e.target.value);
                                         setImportError(null);
                                     }}
-                                    placeholder="npr. Pacient Janez Novak"
+                                    placeholder="Pacient UKC 01"
                                     className="mt-2"
                                     autoFocus
                                 />
