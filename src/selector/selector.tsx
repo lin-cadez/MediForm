@@ -742,7 +742,7 @@ export default function Selector() {
                                 setNewDocName(e.target.value);
                                 setDuplicateNameError(false);
                             }}
-                            placeholder="Pacient UKC 01"
+                            placeholder="npr. Pacient UKC 01"
                             className={`mt-2 ${duplicateNameError ? 'border-red-500' : ''}`}
                             autoFocus
                         />
@@ -816,7 +816,7 @@ export default function Selector() {
                                         setImportDocName(e.target.value);
                                         setImportError(null);
                                     }}
-                                    placeholder="Pacient UKC 01"
+                                    placeholder="npr. Pacient UKC 01"
                                     className="mt-2"
                                     autoFocus
                                 />
