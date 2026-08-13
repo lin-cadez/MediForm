@@ -50,22 +50,25 @@ export default function PrivacyPolicy() {
                             <h2 className="text-lg font-semibold mt-4">3. Katere podatke zbiramo</h2>
                             <p className="text-slate-600">Zbiramo naslednje osebne podatke:</p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li><strong>Identifikacijski podatki:</strong> Ime, priimek, email naslov</li>
+                                <li><strong>Identifikacijski podatki dijaka:</strong> Ime in priimek</li>
                                 <li><strong>Izobraževalni podatki:</strong> Razred, šola, področje usposabljanja</li>
                                 <li><strong>Uporabniški podatki:</strong> Izpolnjeni obrazci in podatki o pacientovi obravnavi – izključuje neposredno identifikacijo pacienta in ne sme vsebovati njegovih resničnih osebnih podatkov (npr. imena)</li>
-                                <li><strong>Tehnični podatki:</strong> Piškotki za delovanje aplikacije in upravljanje seje</li>
+                                <li><strong>Tehnični podatki:</strong> Piškotek za shranjevanje soglasja s pogoji uporabe in politiko zasebnosti</li>
                             </ul>
                             
                             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                                 <h3 className="text-md font-semibold text-green-800 mb-2">🔒 Izključno lokalna obdelava</h3>
                                 <p className="text-green-700 text-sm">
-                                    Aplikacija je zasnovana tako, da se vaši podatki <strong> NIKOLI ne pošiljajo na naše strežnike 
-                                    ali kateri koli zunanji sistem </strong> (frontend-only rešitev). Vsi podatki (identifikacijski 
-                                    podatki, podatki o šoli in izpolnjeni obrazci) se hranijo <strong>izključno lokalno</strong> v 
+                                    Aplikacija je zasnovana tako, da se izpolnjeni obrazci in izvozi <strong>ne pošiljajo na Firebase, naše strežnike 
+                                    ali kateri koli zunanji sistem</strong>. Profil dijaka (ime, priimek, razred, šola in področje) se pošlje prek API endpointa 
+                                    <code>/exports</code> za evidenco prijavitelja. Izpolnjeni obrazci se hranijo lokalno v 
                                     lokalnem pomnilniku (localStorage) vaše naprave. Pri tem velja dodati:
                                 </p>
                                 <ul className="list-disc pl-6 text-green-700 text-sm mt-2">
                                     <li>Samodejno shranjevanje obrazcev poteka lokalno ob vsakem vnosu</li>
+                                    <li>Email prijava je odstranjena; aplikacija ne zahteva email naslova za uporabo</li>
+                                    <li>Na backend se pošlje samo profil dijaka, brez izpolnjenega obrazca in brez pacientovih podatkov</li>
+                                    <li>Izvoz PDF ali JSON se ustvari samo v brskalniku dijaka in se ne arhivira na Firebase, backend ali drug zunanji strežnik</li>
                                     <li>Vsak izpolnjen obrazec ima določen <strong>rok veljavnosti dveh mesecev (60 dni)</strong> in se po preteku samodejno trajno izbriše</li>
                                     <li><strong>Ob odjavi (Logout)</strong> se vaša seja zaključi in <strong>vsi podatki, piskotki in shranjeni obrazci v brskalniku se trajno izbrišejo</strong></li>
                                     <li>Ne uporabljamo piškotkov za sledenje (analitiko) ali oglaševanje</li>
@@ -78,8 +81,9 @@ export default function PrivacyPolicy() {
                             <h2 className="text-lg font-semibold mt-4">4. Namen obdelave</h2>
                             <p className="text-slate-600">Vaše osebne podatke obdelujemo izključno na napravi (v brskalniku) za naslednje namene:</p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li>Omogočanje začasne prijave, ki ne poteka preko avtentikacije (nastavitev podatkov za poimenovano oddajo na telefonih)</li>
-                                <li><strong>Samodejno lokalno shranjevanje</strong> vaših izpolnjenih vnosov in nastavitev obrazca – podatkov v nobenem primeru (niti lokalnega PDF in JSON dokumenta) ne potujejo na noben centralni sistem.</li>
+                                <li>Vnos podatkov dijaka za pripravo obrazca in izvoz dokumenta</li>
+                                <li><strong>Samodejno lokalno shranjevanje</strong> vaših izpolnjenih vnosov in nastavitev obrazca – izpolnjeni obrazci, PDF in JSON dokumenti ne potujejo na noben centralni sistem.</li>
+                                <li><strong>Evidentiranje prijavitelja:</strong> prek API endpointa <code>/exports</code> se pošlje samo profil dijaka.</li>
                             </ul>
                         </section>
 
@@ -118,8 +122,8 @@ export default function PrivacyPolicy() {
                         <section>
                             <h2 className="text-lg font-semibold mt-4">7. Hramba podatkov in GDPR anonimiziranje</h2>
                             <p className="text-slate-600">
-                                Shranjujemo le nujne podatke o prijavi, obravnavi (PDF dokument in JSON obrazec) 
-                                in veljavnost dokumentov je omejena za lokalni brskalnik:
+                                Izpolnjeni obrazci se shranjujejo samo v lokalnem brskalniku. Profil dijaka se pošlje prek API endpointa 
+                                <code>/exports</code>. Veljavnost lokalno shranjenih dokumentov je omejena:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
                                 <li>Vsak lokalno shranjeni obrazec vsebuje <strong>časovni žig veljavnosti (potek: 60 dni)</strong> in se po tem roku permanentno in samodejno izbriše</li>
@@ -172,7 +176,6 @@ export default function PrivacyPolicy() {
                                 Aplikacija uporablja nujne piškotke za:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li>Vzdrževanje uporabniške seje</li>
                                 <li>Shranjevanje nastavitev soglasja</li>
                                 <li>Osnovno delovanje aplikacije</li>
                             </ul>
@@ -187,9 +190,9 @@ export default function PrivacyPolicy() {
                                 Za zaščito vaših podatkov uporabljamo:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li>Šifriranje prenosa podatkov (HTTPS/TLS)</li>
-                                <li>Varne metode avtentikacije</li>
-                                <li>Redne varnostne preglede</li>
+                                <li>Delovanje preko varne povezave (HTTPS/TLS)</li>
+                                <li>Lokalno shranjevanje izpolnjenih obrazcev v brskalniku namesto strežniškega arhiviranja</li>
+                                <li>Odstranjeno email prijavo in odstranjeno tiho pošiljanje izvozov; prek API-ja se pošlje samo profil dijaka</li>
                             </ul>
                             <p className="text-slate-600 mt-2">
                                 Kljub sprejetim ukrepom ne moremo zagotavljati popolne varnosti podatkov, 

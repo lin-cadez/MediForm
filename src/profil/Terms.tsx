@@ -43,7 +43,8 @@ export default function TermsOfUse() {
                             </p>
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
                                 <li>Vsi podatki o obrazcih se hranijo <strong>izključno v vašem brskalniku</strong> (localStorage).</li>
-                                <li>Podatki se <strong>nikoli ne pošiljajo na strežnik</strong>.</li>
+                                <li>Podatki o izpolnjenih obrazcih se <strong>nikoli ne pošiljajo na strežnik</strong>.</li>
+                                <li>Profil dijaka (ime, priimek, razred, šola in področje) se pošlje prek obstoječega API endpointa <code>/exports</code>, namenjeno izključno evidentiranju prijavitelja.</li>
                                 <li>Tudi izvoz (PDF ali JSON) poteka izključno lokalno v vašem brskalniku in se nikamor ne arhivira.</li>
                                 <li>Vsak dokument ima <strong>rok veljavnosti dveh mesecev (60 dni)</strong>. Po poteku se samodejno izbriše.</li>
                                 <li>Ob odjavi iz aplikacije se <strong>izbrišejo vsi lokalno shranjeni podatki</strong>, vključno z dokumenti in podatki o seji.</li>
@@ -62,10 +63,9 @@ export default function TermsOfUse() {
                                 Vaši podatki se shranjujejo na naslednje načine:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
-                                <li><strong>Email naslov:</strong> Shranjen v piškotkih za hitrejšo prijavo.</li>
-                                <li><strong>Osebni podatki (ime, priimek, razred, šola):</strong> Shranjeni izključno lokalno v brskalniku.</li>
+                                <li><strong>Podatki dijaka (ime, priimek, razred, šola, področje):</strong> Shranjeni lokalno v brskalniku in poslani prek API endpointa <code>/exports</code> za evidenco prijavitelja.</li>
                                 <li><strong>Izpolnjeni obrazci:</strong> Shranjeni lokalno v brskalniku z rokom veljavnosti 60 dni. Po izteku se samodejno izbrišejo.</li>
-                                <li><strong>Medgeneracijski podatki:</strong> Izvoz (PDF ali JSON) poteka povsem lokalno. Aplikacija na nobeni točki ne pošlje podatkov na zunanji strežnik.</li>
+                                <li><strong>Izvoz:</strong> PDF ali JSON se ustvari samo v brskalniku dijaka. Aplikacija izvoza ne pošlje na Firebase, backend ali drug zunanji strežnik in ga nikjer ne arhivira.</li>
                                 <li><strong>Odjava:</strong> Odjava iz aplikacije trajno izbriše piškotke seje in vse lokalno shranjene podatke iz brskalnika.</li>
                             </ul>
                             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -133,11 +133,11 @@ export default function TermsOfUse() {
                                 Aplikacija uporablja:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600">
-                                <li><strong>Piškotke:</strong> Za shranjevanje vaše uporabniške seje, pri prijavi in prijavi. Ob odjavi se piškotki izbrišejo.</li>
+                                <li><strong>Piškotke:</strong> Samo za shranjevanje soglasja s pogoji uporabe in politiko zasebnosti. Email prijava ni več del aplikacije.</li>
                                 <li><strong>localStorage:</strong> Za samodejno shranjevanje vašega vnosnega dela (obrazcev). Vsi izpolnjeni podatki imajo <strong>rok veljavnosti 60 dni</strong> in se po tem roku brez vrnitve odstranijo.</li>
                             </ul>
                             <p className="text-slate-600 mt-2">
-                                Nobena tretja oseba (niti razvijalec sistema) in noben strežnik ne bo deležen prejetja the podatkov ob in po pošiljanju. Predhodna avtomatizirana anonimizacija vpisov pacientov zagotovi varno PDF in JSON generiranje (OBRAVNAVA-DATUM-URA-STAROST). Ti podatki se ne uporabljajo za sledenje ali oglaševanje.
+                                Izpolnjeni obrazci in izvozi se ne pošiljajo na Firebase, backend ali razvijalcu sistema. Prek API endpointa se pošlje samo profil prijavitelja oziroma dijaka.
                             </p>
                         </section>
 

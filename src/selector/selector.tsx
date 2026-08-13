@@ -29,7 +29,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAllForms } from "@/lib/firebase";
+import { getAllForms } from "@/lib/formsCache";
 
 import "./selector.css";
 

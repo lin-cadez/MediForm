@@ -17,7 +17,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
+import { saveStudentProfile } from "@/lib/api";
 import "./about.css";
+
+const SCHOOL_NAME = "Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana";
 
 interface UserInfo {
     ime: string;
@@ -33,36 +36,32 @@ interface ProfilProps {
 }
 
 export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
-    const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo || {
-        ime: "",
-        priimek: "",
-        razred: "",
-        sola: "Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana",
-        podrocje: "",
+    const [userInfo, setUserInfo] = useState<UserInfo>({
+        ime: initialUserInfo?.ime || "",
+        priimek: initialUserInfo?.priimek || "",
+        razred: initialUserInfo?.razred || "",
+        sola: SCHOOL_NAME,
+        podrocje: initialUserInfo?.podrocje || "",
     });
     const [errors, setErrors] = useState<Partial<UserInfo>>({});
     const [saved, setSaved] = useState(false);
     const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
-    const [authStatus, setAuthStatus] = useState<'anonymous' | 'email' | null>(null);
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
     useEffect(() => {
         const savedUserInfo = localStorage.getItem("userInfo");
         if (savedUserInfo) {
-            setUserInfo(JSON.parse(savedUserInfo));
-        }
-        
-        // Check auth status
-        const status = localStorage.getItem("authStatus");
-        if (status === 'anonymous') {
-            setAuthStatus('anonymous');
-        } else {
-            setAuthStatus('email');
+            const parsed = JSON.parse(savedUserInfo);
+            const { email: _email, ...infoWithoutEmail } = parsed;
+            setUserInfo({
+                ...infoWithoutEmail,
+                sola: SCHOOL_NAME,
+            });
         }
     }, []);
 
     const handleInputChange = (field: keyof UserInfo, value: string) => {
-        const updatedInfo = { ...userInfo, [field]: value };
+        const updatedInfo = { ...userInfo, [field]: field === "sola" ? SCHOOL_NAME : value };
         setUserInfo(updatedInfo);
         
         // Clear existing timeout
@@ -82,7 +81,7 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const newErrors: Partial<UserInfo> = {};
@@ -96,7 +95,9 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
             return;
         }
 
-        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        const infoToSave = { ...userInfo, sola: SCHOOL_NAME };
+        localStorage.setItem("userInfo", JSON.stringify(infoToSave));
+        await saveStudentProfile(infoToSave);
         setSaved(true);
 
         setTimeout(() => {
@@ -151,11 +152,9 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                         <p className="text-sm text-muted-foreground mt-2">
                             Tukaj lahko uredite svoje podatke.
                         </p>
-                        {authStatus === 'anonymous' && (
-                            <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm text-left">
-                                <strong>Anonimni način:</strong> Vsi podatki so shranjeni samo v vašem brskalniku. Nobeni podatki niso poslani na strežnik.
-                            </p>
-                        )}
+                        <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm text-left">
+                            Izpolnjeni obrazci ostanejo shranjeni samo v vašem brskalniku. Prek API-ja se pošlje samo profil dijaka.
+                        </p>
                     </motion.div>
                 </CardHeader>
                 <CardContent>
@@ -275,17 +274,7 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                                                 : "border-ocean-frost"
                                         }`}
                                     >
-                             <option value="" disabled>Izberite šolo</option>
-                                <option value="Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana">Srednja zdravstvena šola Ljubljana, Poljanska cesta 61, 1000 Ljubljana</option>
-                                <option value="Srednja zdravstvena šola Jesenice, Ulica bratov Rupar 2, 4270 Jesenice">Srednja zdravstvena šola Jesenice, Ulica bratov Rupar 2, 4270 Jesenice</option>
-                                <option value="Šolski center Nova Gorica – Gimnazija in zdravstvena šola, Cankarjeva ulica 10, 5000 Nova Gorica">Šolski center Nova Gorica – Gimnazija in zdravstvena šola, Cankarjeva ulica 10, 5000 Nova Gorica</option>
-                                <option value="Šolski center Novo mesto – Srednja zdravstvena in kemijska šola, Šegova ulica 112, 8000 Novo mesto">Šolski center Novo mesto – Srednja zdravstvena in kemijska šola, Šegova ulica 112, 8000 Novo mesto</option>
-                                <option value="Srednja zdravstvena in kozmetična šola Celje, Ipavčeva ulica 10, 3000 Celje">Srednja zdravstvena in kozmetična šola Celje, Ipavčeva ulica 10, 3000 Celje</option>
-                                <option value="Srednja zdravstvena in kozmetična šola Maribor, Miloša Zidanška 3, 2000 Maribor">Srednja zdravstvena in kozmetična šola Maribor, Miloša Zidanška 3, 2000 Maribor</option>
-                                <option value="Srednja zdravstvena šola Murska Sobota, Ulica dr. Vrbnjaka 2, 9000 Murska Sobota">Srednja zdravstvena šola Murska Sobota, Ulica dr. Vrbnjaka 2, 9000 Murska Sobota</option>
-                                <option value="Srednja zdravstvena šola Slovenj Gradec, Gosposvetska cesta 2, 2380 Slovenj Gradec">Srednja zdravstvena šola Slovenj Gradec, Gosposvetska cesta 2, 2380 Slovenj Gradec</option>
-                                <option value="Srednja šola Izola, Ulica Prekomorskih brigad 7, 6310 Izola">Srednja šola Izola, Ulica Prekomorskih brigad 7, 6310 Izola</option>
-
+                                        <option value={SCHOOL_NAME}>{SCHOOL_NAME}</option>
                                     </select>
                                     {errors.sola && (
                                         <p className="text-sm text-red-600">

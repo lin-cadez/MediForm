@@ -68,8 +68,7 @@ const loadCachedFormById = async (formId: string): Promise<any | null> => {
 };
 
 // ==================== AUTH ENDPOINTS ====================
-// Note: Primary authentication is handled via Firebase Email Link in firebaseAuth.ts
-// These functions are kept for session management
+// These legacy functions are kept for compatibility with older admin tooling.
 
 export interface LoginResponse {
     success: boolean;
@@ -102,7 +101,7 @@ export const checkSession = async (): Promise<{ success: boolean; user?: any }> 
     }
 };
 
-// Legacy login function (deprecated - use email link auth instead)
+// Legacy username/password login function.
 export const login = async (username: string, password: string): Promise<LoginResponse> => {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -244,7 +243,7 @@ export const deleteForm = async (formId: string): Promise<{ success: boolean; er
 };
 
 // ==================== LEGACY COMPATIBILITY ====================
-// These functions maintain backward compatibility with the old firebase.ts interface
+// These functions remain for older admin tooling and are not used by the student flow.
 
 export const legacySaveForm = async (formId: string, formData: any): Promise<{ success: boolean; error?: any }> => {
     const result = await saveForm(formId, formData);
@@ -258,42 +257,57 @@ export const legacyDeleteForm = async (formId: string): Promise<{ success: boole
     return { success: result.success, error: result.error };
 };
 
-// ==================== EXPORT ENDPOINT ====================
-// Save exported document to backend for archiving
+// ==================== STUDENT PROFILE ENDPOINT ====================
+// Reuses the existing /exports backend route, but sends only student profile data.
 
-export interface ExportData {
-    email: string;
-    userInfo: {
-        ime: string;
-        priimek: string;
-        razred: string;
-        sola?: string;
-        podrocje?: string;
-    };
-    document: any;
-    exportType: 'pdf' | 'json';
-    documentName?: string;
+export interface StudentProfileData {
+    ime: string;
+    priimek: string;
+    razred: string;
+    sola: string;
+    podrocje?: string;
 }
 
-export const saveExport = async (exportData: ExportData): Promise<{ success: boolean; error?: string }> => {
+const sanitizeStudentProfile = (profile: StudentProfileData): StudentProfileData => ({
+    ime: profile.ime.trim(),
+    priimek: profile.priimek.trim(),
+    razred: profile.razred.trim(),
+    sola: profile.sola.trim(),
+    podrocje: profile.podrocje?.trim() || "",
+});
+
+export const saveStudentProfile = async (
+    profile: StudentProfileData
+): Promise<{ success: boolean; error?: string }> => {
+    const studentProfile = sanitizeStudentProfile(profile);
+
     try {
         const response = await fetch(`${API_BASE_URL}/exports`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(exportData),
+            keepalive: true,
+            body: JSON.stringify({
+                email: "",
+                userInfo: studentProfile,
+                document: {
+                    type: "student-profile",
+                    studentProfile,
+                    submittedAt: new Date().toISOString(),
+                },
+                exportType: "json",
+                documentName: "student-profile",
+            }),
         });
 
         if (!response.ok) {
-            console.warn('⚠️ Failed to save export to backend, continuing offline');
-            return { success: false, error: 'Backend unavailable' };
+            return { success: false, error: "Napaka pri shranjevanju profila dijaka" };
         }
 
         return await response.json();
     } catch (error) {
-        console.warn('⚠️ Could not reach backend for export archiving:', error);
-        // Don't fail the export if backend is unavailable
-        return { success: false, error: 'Network error' };
+        console.warn("Could not save student profile:", error);
+        return { success: false, error: "Profil dijaka ni bil poslan" };
     }
 };

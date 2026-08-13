@@ -35,9 +35,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
-import { getFormById } from "@/lib/firebase";
+import { getFormById } from "@/lib/formsCache";
 import { DatePicker } from "@/components/ui/date-picker";
-import { saveExport } from "@/lib/api";
 
 interface UserInfo {
     ime: string;
@@ -170,11 +169,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
     const [validationError, setValidationError] = useState<string | null>(null);
     const [missingFields, setMissingFields] = useState<string[]>([]);
     const [isPatientSectionOpen, setIsPatientSectionOpen] = useState(true);
-    
-    // User email from localStorage
-    const [userEmail, setUserEmail] = useState<string | null>(null);
-
-
     // Handle patient data changes
     const handlePatientDataChange = (field: keyof PatientData, value: string) => {
         setList((prevList) => {
@@ -445,21 +439,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         return `checklist_${formId}`;
     };
 
-    // Load user email from localStorage on mount
-    useEffect(() => {
-        const savedInfo = localStorage.getItem("userInfo");
-        if (savedInfo) {
-            try {
-                const parsed = JSON.parse(savedInfo);
-                if (parsed.email) {
-                    setUserEmail(parsed.email);
-                }
-            } catch (e) {
-                console.error("Error parsing userInfo:", e);
-            }
-        }
-    }, []);
-
     useEffect(() => {
         fetchData();
     }, []);
@@ -473,25 +452,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     const handleExportJson = async () => {
         if (!list) return;
-        
-        // Get user info from localStorage
-        const storedUserInfo = localStorage.getItem("userInfo");
-        const userInfoData = storedUserInfo ? JSON.parse(storedUserInfo) : userInfo;
-        
-        // Archive to backend (non-blocking)
-        saveExport({
-            email: userInfoData.email || '',
-            userInfo: {
-                ime: userInfoData.ime || '',
-                priimek: userInfoData.priimek || '',
-                razred: userInfoData.razred || '',
-                sola: userInfoData.sola,
-                podrocje: userInfoData.podrocje,
-            },
-            document: list,
-            exportType: 'json',
-            documentName: getDocName() || list.title,
-        }).catch(err => console.warn('Export archiving failed:', err));
         
         // Generate and download JSON locally
         const jsonString = JSON.stringify(list, null, 2);
@@ -890,21 +850,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             const storedUserInfo = localStorage.getItem("userInfo");
             const userInfoForPdf = storedUserInfo ? JSON.parse(storedUserInfo) : userInfo;
             
-            // Archive to backend (non-blocking)
-            saveExport({
-                email: userInfoForPdf.email || '',
-                userInfo: {
-                    ime: userInfoForPdf.ime || '',
-                    priimek: userInfoForPdf.priimek || '',
-                    razred: userInfoForPdf.razred || '',
-                    sola: userInfoForPdf.sola,
-                    podrocje: userInfoForPdf.podrocje,
-                },
-                document: list,
-                exportType: 'pdf',
-                documentName: getDocName() || list?.title,
-            }).catch(err => console.warn('Export archiving failed:', err));
-            
             const pdfBlob = await generatePdfFromJson(list as JsonData, userInfoForPdf);
             const link = document.createElement("a");
             link.href = URL.createObjectURL(pdfBlob);
@@ -1098,12 +1043,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                 {list!.title}
                             </p>
                         )}
-                        {userEmail && !getDocId() && (
-                            <div className="flex items-center justify-center gap-1.5">
-                                <p className="text-[10px] sm:text-xs text-slate-500 truncate">{userEmail}</p>
-                            </div>
-                        )}
-                       
                     </div>
 
                     <div className="hidden sm:flex items-center gap-2">
