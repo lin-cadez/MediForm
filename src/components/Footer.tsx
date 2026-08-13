@@ -37,7 +37,6 @@ export default function Footer() {
                     >
                         Lin Čadež
                     </a>
-                    , Vegova Ljubljana
                 </p>
             </div>
         </footer>
