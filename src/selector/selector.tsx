@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -31,7 +31,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAllForms } from "@/lib/formsCache";
+import { getAllForms, getFormById } from "@/lib/formsCache";
 import PWAInstallButton from "@/components/PWAInstallButton";
 
 import "./selector.css";
@@ -76,8 +76,93 @@ const saveUserDocuments = (docs: UserDocument[]) => {
 const LAST_TEMPLATE_KEY = "lastSelectedTemplateId";
 const DEFAULT_SCHOOL = {
     id: "szslj",
-    name: "Srednja zdravstvena šola Ljubljana",
+    name: "Srednja zdravstvena Å¡ola Ljubljana",
     address: "Poljanska cesta 61, 1000 Ljubljana",
+};
+
+const isRecord = (value: unknown): value is Record<string, any> => {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+};
+
+const sortedEntries = (value: Record<string, any>) => {
+    return Object.entries(value).sort(([a], [b]) => a.localeCompare(b, "sl"));
+};
+
+const getElementSchema = (element: any) => {
+    const base = {
+        type: element?.type || null,
+        title: element?.title || null,
+        unit: element?.unit || null,
+        optionType: element?.option_type || null,
+        options: Array.isArray(element?.options) ? [...element.options].sort() : [],
+    };
+
+    if (element?.type === "table") {
+        return {
+            ...base,
+            columns: Array.isArray(element?.columns)
+                ? element.columns.map((column: any) => ({
+                    key: column?.key || null,
+                    title: column?.title || null,
+                    hint: column?.hint || null,
+                }))
+                : [],
+        };
+    }
+
+    return base;
+};
+
+const getFormSchemaSignature = (formData: any): string | null => {
+    if (!isRecord(formData?.categories)) return null;
+
+    const categories = sortedEntries(formData.categories).map(([categoryId, category]) => {
+        const categoryRecord = isRecord(category) ? category : {};
+        const subcategories = isRecord(categoryRecord.subcategories)
+            ? sortedEntries(categoryRecord.subcategories).map(([subcategoryId, subcategory]) => {
+                const subcategoryRecord = isRecord(subcategory) ? subcategory : {};
+                const elements = isRecord(subcategoryRecord.elements)
+                    ? sortedEntries(subcategoryRecord.elements).map(([elementId, element]) => ({
+                        id: elementId,
+                        schema: getElementSchema(element),
+                    }))
+                    : [];
+
+                return {
+                    id: subcategoryId,
+                    title: subcategoryRecord.title || null,
+                    elements,
+                };
+            })
+            : [];
+
+        return {
+            id: categoryId,
+            title: categoryRecord.title || null,
+            subcategories,
+        };
+    });
+
+    return JSON.stringify({ categories });
+};
+
+const findTemplateMatchingImportedSchema = async (
+    importedData: any,
+    templates: FormTemplate[]
+): Promise<FormTemplate | null> => {
+    const importedSignature = getFormSchemaSignature(importedData);
+    if (!importedSignature) return null;
+
+    for (const template of templates) {
+        const templateData = await getFormById(template.id);
+        const templateSignature = getFormSchemaSignature(templateData);
+
+        if (templateSignature && templateSignature === importedSignature) {
+            return template;
+        }
+    }
+
+    return null;
 };
 
 export default function Selector() {
@@ -274,16 +359,15 @@ export default function Selector() {
                 const importedData = JSON.parse(text);
 
                 // Validate basic structure
-                if (!importedData.title || !importedData.categories) {
+                if (!importedData.categories) {
                     setImportError("Neveljavna JSON struktura. Datoteka ne vsebuje podatkov obrazca.");
                     setShowImportDialog(true);
                     return;
                 }
 
-                // Find matching template by title
-                const matchingTemplate = templates.find(t => t.title === importedData.title);
+                const matchingTemplate = await findTemplateMatchingImportedSchema(importedData, templates);
                 if (!matchingTemplate) {
-                    setImportError(`Predloga "${importedData.title}" ni bilo mogoče najti. Poskrbite, da predloga obstaja.`);
+                    setImportError("Uvoženi JSON se ne ujema z nobeno znano šolsko predlogo. Uvoz je dovoljen samo za vnaprej pripravljene sheme.");
                     setShowImportDialog(true);
                     return;
                 }
@@ -321,7 +405,7 @@ export default function Selector() {
         );
         
         if (nameExists) {
-            setImportError("Dokument s tem imenom že obstaja. Prosim izberite drugo ime.");
+            setImportError("Dokument s tem imenom Å¾e obstaja. Prosim izberite drugo ime.");
             return;
         }
 
@@ -556,7 +640,7 @@ export default function Selector() {
                             <FileText className="h-8 w-8 text-ocean-teal" />
                         </div>
                         <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                            Ni razpoložljivih predlog
+                            Ni razpoloÅ¾ljivih predlog
                         </h3>
                         <p className="text-slate-600">
                             Preverite znova pozneje.
@@ -666,7 +750,7 @@ export default function Selector() {
                                 ))}
                             </select>
                             <p className="text-xs text-slate-500">
-                                Zadnja izbrana predloga se shrani za naslednjič.
+                                Zadnja izbrana predloga se shrani za naslednjiÄ.
                             </p>
                         </div>
                         <Label htmlFor="docName">Ime dokumenta</Label>
@@ -683,13 +767,13 @@ export default function Selector() {
                         />
                         {duplicateNameError && (
                             <p className="text-sm text-red-500 mt-2">
-                                Dokument s tem imenom že obstaja. Izberite drugo ime.
+                                Dokument s tem imenom Å¾e obstaja. Izberite drugo ime.
                             </p>
                         )}
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowNewDocDialog(false)}>
-                            Prekliči
+                            PrekliÄi
                         </Button>
                         <Button 
                             onClick={confirmCreateDocument}
@@ -706,21 +790,21 @@ export default function Selector() {
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Izbriši dokument</DialogTitle>
+                        <DialogTitle>IzbriÅ¡i dokument</DialogTitle>
                         <DialogDescription>
-                            Ali ste prepričani, da želite izbrisati dokument "{docToDelete?.name}"?
+                            Ali ste prepriÄani, da Å¾elite izbrisati dokument "{docToDelete?.name}"?
                             Ta dejanje je trajno.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-                            Prekliči
+                            PrekliÄi
                         </Button>
                         <Button 
                             onClick={confirmDeleteDocument}
                             variant="destructive"
                         >
-                            Izbriši
+                            IzbriÅ¡i
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -732,7 +816,7 @@ export default function Selector() {
                     <DialogHeader>
                         <DialogTitle>Uvozi dokument</DialogTitle>
                         <DialogDescription>
-                            {importError ? "Napaka pri uvozu" : "Vnesite ime za uvoženi dokument"}
+                            {importError ? "Napaka pri uvozu" : "Vnesite ime za uvoÅ¾eni dokument"}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
@@ -768,7 +852,7 @@ export default function Selector() {
                                 setImportError(null);
                             }}
                         >
-                            {importError ? "Zapri" : "Prekliči"}
+                            {importError ? "Zapri" : "PrekliÄi"}
                         </Button>
                         {!importError && (
                             <Button 
