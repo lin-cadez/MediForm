@@ -76,7 +76,7 @@ const saveUserDocuments = (docs: UserDocument[]) => {
 const LAST_TEMPLATE_KEY = "lastSelectedTemplateId";
 const DEFAULT_SCHOOL = {
     id: "szslj",
-    name: "Srednja zdravstvena Å¡ola Ljubljana",
+    name: "Srednja zdravstvena šola Ljubljana",
     address: "Poljanska cesta 61, 1000 Ljubljana",
 };
 
@@ -405,7 +405,7 @@ export default function Selector() {
         );
         
         if (nameExists) {
-            setImportError("Dokument s tem imenom Å¾e obstaja. Prosim izberite drugo ime.");
+            setImportError("Dokument s tem imenom že obstaja. Prosim izberite drugo ime.");
             return;
         }
 
@@ -457,6 +457,9 @@ export default function Selector() {
             minute: '2-digit'
         });
     };
+
+    const lastUsedTemplate = templates.find(template => template.id === selectedTemplateId) || templates[0] || null;
+    const selectedTemplateForChooser = templates.find(template => template.id === selectedTemplateId) || lastUsedTemplate;
 
     if (isLoading) {
         return (
@@ -547,7 +550,7 @@ export default function Selector() {
                                 onClick={() => document.getElementById('importJsonInput')?.click()}
                                 variant="outline"
                                 size="sm"
-                                className="flex items-center gap-2 border-ocean-teal text-ocean-teal hover:bg-ocean-light"
+                                className="flex items-center gap-2 border-slate-300 bg-white text-slate-700 hover:border-cyan-700 hover:bg-cyan-50 hover:text-cyan-900"
                             >
                                 <Upload className="h-4 w-4" />
                                 <span>Uvozi JSON</span>
@@ -564,71 +567,119 @@ export default function Selector() {
                     </motion.div>
                 </div>
 
-                {/* Horizontal Carousel for Templates */}
+                {/* Template Selection */}
                 {templates.length > 0 ? (
-                    <div className="relative mb-12 px-8">
-                        <div className="overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                            <style>{`
-                                .scrollbar-hide::-webkit-scrollbar {
-                                    display: none;
-                                }
-                            `}</style>
-                            <div className={`flex flex-col sm:flex-row gap-4 pb-4 ${templates.length <= 3 ? 'sm:justify-center' : ''}`}>
-                                {templates.map((template, index) => (
-                                    <motion.div
-                                        key={template.id}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: index * 0.05,
-                                        }}
-                                        className="flex-shrink-0 w-full sm:w-[320px]"
-                                    >
-                                        <Card className={`h-full hover:shadow-lg transition-shadow border-2 ${selectedTemplateId === template.id ? "border-ocean-teal bg-ocean-light/20" : "border-slate-200 hover:border-ocean-teal"}`}>
-                                            <CardHeader className="pb-3">
-                                                <div className="flex items-start justify-between gap-2 mb-3">
-                                                    <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
-                                                        <FileText className="h-5 w-5 text-ocean-teal flex-shrink-0 mt-0.5" />
-                                                        <span>{template.title}</span>
-                                                    </CardTitle>
-                                                    {selectedTemplateId === template.id && (
-                                                        <Badge className="bg-ocean-teal text-white shrink-0">
-                                                            Zadnja
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-wrap gap-2">
-                                                    <Badge variant="outline" className="border-ocean-teal text-ocean-teal">
-                                                        <School className="h-3 w-3 mr-1" />
-                                                        {template.schoolName}
-                                                    </Badge>
-                                                    {template.subject && (
-                                                        <Badge variant="outline">
-                                                            {template.subject}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            </CardHeader>
-                                            <CardContent className="space-y-4">
-                                                {template.description && (
-                                                    <p className="text-sm text-slate-600 leading-relaxed min-h-[60px]">
-                                                        {template.description}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+                        {lastUsedTemplate && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -16 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card className="aspect-square border-2 border-cyan-700 bg-white shadow-sm hover:shadow-lg transition-shadow">
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
+                                                <FileText className="h-5 w-5 text-cyan-700 flex-shrink-0 mt-0.5" />
+                                                <span>Zadnja predloga <span className="font-normal text-slate-500">(nazadnje uporabljena)</span></span>
+                                            </CardTitle>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="h-[calc(100%-5rem)] flex flex-col justify-between space-y-4">
+                                        <div className="space-y-3">
+                                            <div>
+                                                <h3 className="font-semibold text-slate-900 leading-snug">
+                                                    {lastUsedTemplate.title}
+                                                </h3>
+                                                {lastUsedTemplate.description && (
+                                                    <p className="text-sm text-slate-600 mt-2 line-clamp-3">
+                                                        {lastUsedTemplate.description}
                                                     </p>
                                                 )}
-                                                <Button
-                                                    onClick={() => handleCreateDocument(template)}
-                                                    className="w-full bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white"
-                                                >
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    Izberi in nadaljuj
-                                                </Button>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </div>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <Badge variant="outline" className="border-cyan-700 bg-cyan-50 text-cyan-900">
+                                                    <School className="h-3 w-3 mr-1" />
+                                                    {lastUsedTemplate.schoolName}
+                                                </Badge>
+                                                {lastUsedTemplate.subject && (
+                                                    <Badge variant="outline" className="border-slate-300 bg-white text-slate-700">
+                                                        {lastUsedTemplate.subject}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <Button
+                                            onClick={() => handleCreateDocument(lastUsedTemplate)}
+                                            className="w-full bg-cyan-700 text-white hover:bg-cyan-800"
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Nadaljuj s to predlogo
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        )}
+
+                        <motion.div
+                            initial={{ opacity: 0, x: 16 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: 0.05 }}
+                        >
+                            <Card className="h-full min-h-[18rem] border-2 border-slate-300 bg-white shadow-sm hover:border-cyan-700 hover:shadow-lg transition-shadow">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
+                                        <FileText className="h-5 w-5 text-cyan-700 flex-shrink-0 mt-0.5" />
+                                        <span>Izberi katerokoli predlogo</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="templateQuickSelect">Predloga</Label>
+                                        <select
+                                            id="templateQuickSelect"
+                                            value={selectedTemplateForChooser?.id || ""}
+                                            onChange={(e) => handleTemplateSelect(e.target.value)}
+                                            className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700"
+                                        >
+                                            {templates.map(template => (
+                                                <option key={template.id} value={template.id}>
+                                                    {template.schoolName} - {template.title}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    {selectedTemplateForChooser && (
+                                        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 space-y-2">
+                                            <div className="flex flex-wrap gap-2">
+                                                <Badge variant="outline" className="border-cyan-700 bg-cyan-50 text-cyan-900">
+                                                    <School className="h-3 w-3 mr-1" />
+                                                    {selectedTemplateForChooser.schoolName}
+                                                </Badge>
+                                                {selectedTemplateForChooser.subject && (
+                                                    <Badge variant="outline" className="border-slate-300 bg-white text-slate-700">
+                                                        {selectedTemplateForChooser.subject}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-slate-600">
+                                                {selectedTemplateForChooser.description || "Brez opisa predloge."}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        onClick={() => selectedTemplateForChooser && handleCreateDocument(selectedTemplateForChooser)}
+                                        disabled={!selectedTemplateForChooser}
+                                        className="w-full bg-cyan-700 text-white hover:bg-cyan-800"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Izberi in nadaljuj
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </div>
                 ) : !isLoading && (
                     <motion.div
@@ -640,7 +691,7 @@ export default function Selector() {
                             <FileText className="h-8 w-8 text-ocean-teal" />
                         </div>
                         <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                            Ni razpoloÅ¾ljivih predlog
+                            Ni razpoložljivih predlog
                         </h3>
                         <p className="text-slate-600">
                             Preverite znova pozneje.
@@ -739,9 +790,9 @@ export default function Selector() {
                             <Label htmlFor="templateSelect">Predloga</Label>
                             <select
                                 id="templateSelect"
-                                value={selectedTemplateId}
+                                value={selectedTemplateForChooser?.id || ""}
                                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                                className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-700"
                             >
                                 {templates.map(template => (
                                     <option key={template.id} value={template.id}>
@@ -750,7 +801,7 @@ export default function Selector() {
                                 ))}
                             </select>
                             <p className="text-xs text-slate-500">
-                                Zadnja izbrana predloga se shrani za naslednjiÄ.
+                                Zadnja izbrana predloga se shrani za naslednjič.
                             </p>
                         </div>
                         <Label htmlFor="docName">Ime dokumenta</Label>
@@ -767,18 +818,18 @@ export default function Selector() {
                         />
                         {duplicateNameError && (
                             <p className="text-sm text-red-500 mt-2">
-                                Dokument s tem imenom Å¾e obstaja. Izberite drugo ime.
+                                Dokument s tem imenom že obstaja. Izberite drugo ime.
                             </p>
                         )}
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowNewDocDialog(false)}>
-                            PrekliÄi
+                            Prekliči
                         </Button>
                         <Button 
                             onClick={confirmCreateDocument}
                             disabled={!newDocName.trim() || !selectedTemplateId}
-                            className="bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
+                            className="bg-cyan-700 text-white hover:bg-cyan-800"
                         >
                             Ustvari
                         </Button>
@@ -790,21 +841,21 @@ export default function Selector() {
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>IzbriÅ¡i dokument</DialogTitle>
+                        <DialogTitle>Izbriši dokument</DialogTitle>
                         <DialogDescription>
-                            Ali ste prepriÄani, da Å¾elite izbrisati dokument "{docToDelete?.name}"?
+                            Ali ste prepričani, da želite izbrisati dokument "{docToDelete?.name}"?
                             Ta dejanje je trajno.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-                            PrekliÄi
+                            Prekliči
                         </Button>
                         <Button 
                             onClick={confirmDeleteDocument}
                             variant="destructive"
                         >
-                            IzbriÅ¡i
+                            Izbriši
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -816,7 +867,7 @@ export default function Selector() {
                     <DialogHeader>
                         <DialogTitle>Uvozi dokument</DialogTitle>
                         <DialogDescription>
-                            {importError ? "Napaka pri uvozu" : "Vnesite ime za uvoÅ¾eni dokument"}
+                            {importError ? "Napaka pri uvozu" : "Vnesite ime za uvoženi dokument"}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
@@ -852,7 +903,7 @@ export default function Selector() {
                                 setImportError(null);
                             }}
                         >
-                            {importError ? "Zapri" : "PrekliÄi"}
+                            {importError ? "Zapri" : "Prekliči"}
                         </Button>
                         {!importError && (
                             <Button 
