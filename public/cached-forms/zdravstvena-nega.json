@@ -3343,68 +3343,6 @@
       "url": "aplikacija-zdravil",
       "title": "APLIKACIJA ZDRAVIL"
     },
-    "30": {
-      "subcategories": {
-        "30.1": {
-          "title": "Aktivnosti zdravstvene nege",
-          "description": null,
-          "elements": {
-            "30.1.1": {
-              "value": null,
-              "defaultValue": "danes",
-              "type": "date",
-              "hint": "7.10.2025",
-              "unit": null,
-              "title": "Datum izvedbe"
-            },
-            "30.1.4": {
-              "title": "Opazovanje pacienta med in po dajanju zdravil, učinkovin in krvnih pripravkov",
-              "hint": "Opazovala sem pacientko med in po dajanju zdravil per os, če so bile kakšne reakcije ali posebnosti, neželeni učinki, če je vse zdravila zaužila...",
-              "unit": null,
-              "type": "str",
-              "value": null
-            },
-            "30.1.3": {
-              "title": "Dajanje zdravil per os, na kožo, sluznico ter na druge neinvazivne načine",
-              "unit": null,
-              "hint": "Upoštevala sem pravilo 11 P-jev. Pri zajtrku sem pacientki dala zdravila, ki jih je zaužila peroralno in sem preverila in se prepričala, da jih je zares zaužila.",
-              "type": "str",
-              "value": null
-            },
-            "30.1.2": {
-              "type": "str",
-              "value": null,
-              "title": "Identifikacija pacienta",
-              "option_type": "one",
-              "options": [
-                "Pacient identificiran po imenu, priimku, datumu rojstva, zapestnici in dokumentaciji.",
-                "Pacient identificiran po imenu, priimku in datumu rojstva.",
-                "Pacient identificiran s pomočjo zapestnice in dokumentacije."
-              ],
-              "unit": null,
-              "hint": "Identifikacija pravega pacienta (vprašala sem po imenu, priimku, datumu rojstva, preverila sem zapestnico in dokumentacijo)."
-            },
-            "30.1.5": {
-              "type": "str",
-              "value": null,
-              "title": "Sporočanje in dokumentiranje aktivnosti v zvezi z aktivnosti priprave in dajanja zdravil",
-              "option_type": "one",
-              "options": [
-                "Podatki in posebnosti dokumentirani v poročilo ZN.",
-                "Dokumentirano v poročilo ZN, sobna medicinska sestra obveščena.",
-                "Dokumentirano v poročilo ZN."
-              ],
-              "unit": null,
-              "hint": "Podatke in posebnosti v zvezi z zdravili in aplikacijo zdravil sem dokumentirala v poročilo ZN in obvestila sobno medicinsko sestro."
-            }
-          }
-        }
-      },
-      "color": "#FED7AA",
-      "description": "Podatki o izvedeni aktivnosti zdravstvene nege",
-      "url": "aktivnosti-zdravila",
-      "title": "Aktivnosti zdravstvene nege pri aplikaciji zdravila"
-    },
     "31": {
       "title": "Diagnostično terapevtske preiskave",
       "url": "diagnostika",
