@@ -52,7 +52,8 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
         const savedUserInfo = localStorage.getItem("userInfo");
         if (savedUserInfo) {
             const parsed = JSON.parse(savedUserInfo);
-            const { email: _email, ...infoWithoutEmail } = parsed;
+            const { email: _removedEmail, ...infoWithoutEmail } = parsed;
+            void _removedEmail;
             setUserInfo({
                 ...infoWithoutEmail,
                 sola: SCHOOL_NAME,

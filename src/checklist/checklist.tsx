@@ -37,6 +37,7 @@ import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFormById } from "@/lib/formsCache";
 import { DatePicker } from "@/components/ui/date-picker";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 interface UserInfo {
     ime: string;
@@ -441,6 +442,8 @@ export default function Checklist({ userInfo }: ChecklistProps) {
 
     useEffect(() => {
         fetchData();
+        // Form data should load once for the current route/document.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleCategory = (categoryId: string) => {
@@ -1045,57 +1048,60 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         )}
                     </div>
 
-                    <div className="hidden sm:flex items-center gap-2">
-                        <Drawer
-                            open={isExportOpen}
-                            onOpenChange={setIsExportOpen}
-                        >
-                            <DrawerTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent"
-                                    disabled={isExporting}
-                                >
-                                    {isExporting ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Download className="h-4 w-4" />
-                                    )}
-                                </Button>
-                            </DrawerTrigger>
-
-                            <DrawerContent className="max-w-md mx-auto">
-                                <DrawerHeader className="text-center">
-                                    <DrawerTitle className="flex items-center justify-center gap-2">
-                                        <Download className="h-5 w-5" />
-                                        Možnosti izvoza
-                                    </DrawerTitle>
-                                    <DrawerDescription>
-                                        Izvozi svoje poročilo
-                                    </DrawerDescription>
-                                </DrawerHeader>
-
-                                <div className="p-6 space-y-3">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                        <PWAInstallButton compact className="px-2 sm:px-3" />
+                        <div className="hidden sm:flex items-center gap-2">
+                            <Drawer
+                                open={isExportOpen}
+                                onOpenChange={setIsExportOpen}
+                            >
+                                <DrawerTrigger asChild>
                                     <Button
-                                        onClick={exportPdf}
-                                        className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex items-center gap-2 hover:bg-slate-50 transition-colors duration-200 bg-transparent"
                                         disabled={isExporting}
                                     >
-                                        <FileText className="h-5 w-5" />
-                                        Izvozi kot PDF
+                                        {isExporting ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Download className="h-4 w-4" />
+                                        )}
                                     </Button>
-                                    <Button
-                                        onClick={handleExportJson}
-                                        variant="outline"
-                                        className="w-full justify-start gap-3 h-12"
-                                    >
-                                        <FileJson className="h-5 w-5" />
-                                        Izvozi kot JSON
-                                    </Button>
-                                </div>
-                            </DrawerContent>
-                        </Drawer>
+                                </DrawerTrigger>
+
+                                <DrawerContent className="max-w-md mx-auto">
+                                    <DrawerHeader className="text-center">
+                                        <DrawerTitle className="flex items-center justify-center gap-2">
+                                            <Download className="h-5 w-5" />
+                                            Možnosti izvoza
+                                        </DrawerTitle>
+                                        <DrawerDescription>
+                                            Izvozi svoje poročilo
+                                        </DrawerDescription>
+                                    </DrawerHeader>
+
+                                    <div className="p-6 space-y-3">
+                                        <Button
+                                            onClick={exportPdf}
+                                            className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
+                                            disabled={isExporting}
+                                        >
+                                            <FileText className="h-5 w-5" />
+                                            Izvozi kot PDF
+                                        </Button>
+                                        <Button
+                                            onClick={handleExportJson}
+                                            variant="outline"
+                                            className="w-full justify-start gap-3 h-12"
+                                        >
+                                            <FileJson className="h-5 w-5" />
+                                            Izvozi kot JSON
+                                        </Button>
+                                    </div>
+                                </DrawerContent>
+                            </Drawer>
+                        </div>
                     </div>
                 </div>
             </header>

@@ -222,7 +222,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
     // ==================== COVER PAGE ====================
     
-    let coverPage = pdfDoc.addPage([pageWidth, pageHeight]);
+    const coverPage = pdfDoc.addPage([pageWidth, pageHeight]);
     let yOffset = pageHeight - margin;
 
     // Institution name (top left, on every page will be added in header)

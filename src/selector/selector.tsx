@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAllForms } from "@/lib/formsCache";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 import "./selector.css";
 
@@ -385,6 +386,7 @@ export default function Selector() {
                         </span>
                     </NavLink>
                     <div className="flex items-center gap-2">
+                        <PWAInstallButton compact />
                         <NavLink to="/profil">
                             <Button
                                 variant="outline"

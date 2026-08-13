@@ -42,7 +42,8 @@ export default function UserInfoForm({ onSubmit }: UserInfoFormProps) {
     
     if (savedInfo) {
       const parsed = JSON.parse(savedInfo);
-      const { email: _email, ...infoWithoutEmail } = parsed;
+      const { email: _removedEmail, ...infoWithoutEmail } = parsed;
+      void _removedEmail;
       setUserInfo({
         ime: infoWithoutEmail.ime || "",
         priimek: infoWithoutEmail.priimek || "",

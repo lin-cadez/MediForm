@@ -1,297 +1,112 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { NavLink } from "react-router-dom";
+import { ArrowLeft, CheckCircle2, Download, Share, Smartphone, WifiOff } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, CheckCircle2, Smartphone, Zap, Shield, FileText } from "lucide-react";
-import { motion } from "framer-motion";
+import { usePwaInstall } from "@/hooks/usePwaInstall";
 import Footer from "./Footer";
 
 export default function DownloadPage() {
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-    const [isInstalled, setIsInstalled] = useState(false);
-    const [isIOSInstructions, setIsIOSInstructions] = useState(false);
-
-    useEffect(() => {
-        // Check if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            setIsInstalled(true);
-        }
-
-        // Listen for beforeinstallprompt event
-        const handler = (e: Event) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        // Check if iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        setIsIOSInstructions(isIOS && !isInstalled);
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
-        };
-    }, []);
+    const { canInstall, install, isInstalled, isIOS } = usePwaInstall();
 
     const handleInstallClick = async () => {
-        if (!deferredPrompt) {
-            // If no prompt, show iOS instructions or inform user
-            if (isIOSInstructions) {
-                alert('Za namestitev na iOS: Pritisnite gumb "Deli" in izberite "Dodaj na začetni zaslon"');
-            }
-            return;
+        if (canInstall) {
+            await install();
         }
-
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        
-        if (outcome === 'accepted') {
-            setIsInstalled(true);
-        }
-        
-        setDeferredPrompt(null);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50">
-            {/* Header */}
-            <header className="bg-white/80 backdrop-blur-sm border-b border-ocean-frost shadow-sm">
-                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <img 
-                            src="/logo_with_text.png" 
-                            alt="MediForm" 
-                            className="h-10 w-auto"
-                        />
-                    </div>
-                    <a href="/" className="text-ocean-teal hover:text-ocean-deep transition-colors">
-                        Nazaj na aplikacijo
-                    </a>
+        <div className="min-h-screen bg-sky-50 flex flex-col">
+            <header className="bg-white/95 backdrop-blur-sm border-b border-ocean-frost shadow-sm">
+                <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+                    <NavLink
+                        to="/"
+                        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Nazaj
+                    </NavLink>
+                    <img src="/logo_with_text.png" alt="MediForm" className="h-9 w-auto" />
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="max-w-4xl mx-auto px-4 py-12 space-y-12">
-                {/* Hero Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center space-y-6"
-                >
-                    <div className="flex justify-center mb-6">
-                        <img 
-                            src="/logo_only.png" 
-                            alt="MediForm Logo" 
-                            className="h-32 w-32 drop-shadow-lg"
-                        />
+            <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 space-y-6">
+                <section className="text-center space-y-4">
+                    <img src="/logo_only.png" alt="MediForm" className="h-24 w-24 mx-auto" />
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-900">Namesti MediForm</h1>
+                        <p className="text-slate-600 mt-2">
+                            Dodaj aplikacijo na začetni zaslon telefona za hitrejši dostop in uporabo brez interneta.
+                        </p>
                     </div>
-                    
-                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
-                        MediForm
-                    </h1>
-                    
-                    <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-                        Digitalna rešitev za izpolnjevanje zdravstvenih obrazcev za študente
-                    </p>
 
-                    {/* Install Button */}
-                    {!isInstalled ? (
-                        <motion.div
-                            initial={{ scale: 0.9 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.3, delay: 0.2 }}
-                        >
-                            <Button
-                                onClick={handleInstallClick}
-                                size="lg"
-                                className="h-16 px-8 text-lg bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-                            >
-                                <Download className="mr-3 h-6 w-6" />
-                                {isIOSInstructions ? "Prikaži navodila za iOS" : "Namesti aplikacijo"}
-                            </Button>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            initial={{ scale: 0.9 }}
-                            animate={{ scale: 1 }}
-                            className="flex items-center justify-center gap-2 text-green-600 text-lg font-medium"
-                        >
-                            <CheckCircle2 className="h-6 w-6" />
-                            Aplikacija je nameščena!
-                        </motion.div>
-                    )}
-
-                    {isIOSInstructions && (
-                        <Card className="bg-blue-50 border-blue-200 max-w-md mx-auto">
-                            <CardContent className="p-6 space-y-3">
-                                <p className="font-semibold text-blue-900">Navodila za iOS:</p>
-                                <ol className="text-sm text-blue-800 space-y-2 text-left list-decimal list-inside">
-                                    <li>Pritisnite gumb "Deli" (kvadrat s puščico navzgor)</li>
-                                    <li>Pomaknite navzdol in izberite "Dodaj na začetni zaslon"</li>
-                                    <li>Pritisnite "Dodaj"</li>
-                                </ol>
-                            </CardContent>
-                        </Card>
-                    )}
-                </motion.div>
-
-                {/* Features Grid */}
-                <div className="grid md:grid-cols-2 gap-6">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                    >
-                        <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-ocean-light to-ocean-frost rounded-full flex items-center justify-center">
-                                    <Zap className="h-6 w-6 text-ocean-teal" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900">
-                                    Deluje brez interneta
-                                </h3>
-                                <p className="text-slate-600">
-                                    Vsi obrazci in podatki se hranijo lokalno na vaši napravi. Uporabite aplikacijo kadarkoli in kjerkoli, tudi brez internetne povezave.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                    >
-                        <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-ocean-light to-ocean-frost rounded-full flex items-center justify-center">
-                                    <Shield className="h-6 w-6 text-ocean-teal" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900">
-                                    Varnost podatkov
-                                </h3>
-                                <p className="text-slate-600">
-                                    Vaši osebni podatki ostanejo na vaši napravi. Eksportirajo se samo, ko vi to želite.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.5 }}
-                    >
-                        <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-ocean-light to-ocean-frost rounded-full flex items-center justify-center">
-                                    <FileText className="h-6 w-6 text-ocean-teal" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900">
-                                    Enostavno izpolnjevanje
-                                </h3>
-                                <p className="text-slate-600">
-                                    Intuitivni obrazci z avtomatskim shranjevanjem. Nikoli ne izgubite svojega dela.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.6 }}
-                    >
-                        <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-shadow">
-                            <CardContent className="p-6 space-y-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-ocean-light to-ocean-frost rounded-full flex items-center justify-center">
-                                    <Smartphone className="h-6 w-6 text-ocean-teal" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900">
-                                    Mobilna optimizacija
-                                </h3>
-                                <p className="text-slate-600">
-                                    Prilagojena za telefone in tablice. Uporabite na katerikoli napravi.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                </div>
-
-                {/* How it works */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.7 }}
-                    className="text-center space-y-8"
-                >
-                    <h2 className="text-3xl font-bold text-slate-900">
-                        Kako deluje?
-                    </h2>
-                    
-                    <div className="grid md:grid-cols-3 gap-6 text-left">
-                        <Card className="border-0 shadow-md">
-                            <CardContent className="p-6 space-y-3">
-                                <div className="w-10 h-10 bg-ocean-teal text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                    1
-                                </div>
-                                <h4 className="font-semibold text-lg">Namestite aplikacijo</h4>
-                                <p className="text-slate-600 text-sm">
-                                    Kliknite gumb "Namesti aplikacijo" in dodajte MediForm na svoj začetni zaslon.
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-0 shadow-md">
-                            <CardContent className="p-6 space-y-3">
-                                <div className="w-10 h-10 bg-ocean-teal text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                    2
-                                </div>
-                                <h4 className="font-semibold text-lg">Izpolnite obrazce</h4>
-                                <p className="text-slate-600 text-sm">
-                                    Vnesite svoje podatke in izpolnite zdravstvene obrazce preprosto in hitro.
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-0 shadow-md">
-                            <CardContent className="p-6 space-y-3">
-                                <div className="w-10 h-10 bg-ocean-teal text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                    3
-                                </div>
-                                <h4 className="font-semibold text-lg">Izvozite PDF</h4>
-                                <p className="text-slate-600 text-sm">
-                                    Ko končate, izvozite obrazec kot PDF in ga delite s svojimi mentorji.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </motion.div>
-
-                {/* CTA Section */}
-                {!isInstalled && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.8 }}
-                        className="text-center space-y-6 py-12"
-                    >
-                        <h2 className="text-3xl font-bold text-slate-900">
-                            Pripravljen začeti?
-                        </h2>
+                    {isInstalled ? (
+                        <div className="inline-flex items-center gap-2 text-green-700 font-medium">
+                            <CheckCircle2 className="h-5 w-5" />
+                            Aplikacija je že nameščena
+                        </div>
+                    ) : canInstall ? (
                         <Button
                             onClick={handleInstallClick}
                             size="lg"
-                            className="h-16 px-8 text-lg bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                            className="bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white"
                         >
-                            <Download className="mr-3 h-6 w-6" />
-                            {isIOSInstructions ? "Prikaži navodila za iOS" : "Namesti MediForm"}
+                            <Download className="mr-2 h-5 w-5" />
+                            Namesti aplikacijo
                         </Button>
-                    </motion.div>
-                )}
+                    ) : (
+                        <p className="text-sm text-slate-500">
+                            Če gumb za namestitev ni prikazan, uporabi navodila spodaj.
+                        </p>
+                    )}
+                </section>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                    <Card className="border-ocean-frost">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Smartphone className="h-5 w-5 text-ocean-teal" />
+                                Android / Chrome
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm text-slate-600">
+                            <p>Odpri MediForm v Chromu in pritisni gumb Namesti.</p>
+                            <p>Če gumba ni, odpri meni brskalnika in izberi Namesti aplikacijo ali Dodaj na začetni zaslon.</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-ocean-frost">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Share className="h-5 w-5 text-ocean-teal" />
+                                iPhone / Safari
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm text-slate-600">
+                            <p>Odpri MediForm v Safariju.</p>
+                            <p>Pritisni Deli, nato Dodaj na začetni zaslon in potrdi z Dodaj.</p>
+                            {!isIOS && (
+                                <p className="text-xs text-slate-500">
+                                    Ta navodila veljajo za iOS naprave.
+                                </p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card className="border-ocean-frost bg-white/80">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <WifiOff className="h-5 w-5 text-ocean-teal" />
+                            Brez interneta
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm text-slate-600">
+                        <p>Predloge obrazcev, shranjeni dokumenti in izvoz PDF/JSON delujejo lokalno po prvem nalaganju aplikacije.</p>
+                        <p>Pošiljanje profila dijaka na API potrebuje internet; če povezave ni, obrazec vseeno ostane shranjen v brskalniku.</p>
+                    </CardContent>
+                </Card>
             </main>
 
             <Footer />
