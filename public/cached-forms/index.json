@@ -3,6 +3,10 @@
     "id": "zdravstvena-nega",
     "title": "Poročilo o zdravstveni negi pacienta",
     "description": "Poročilo o zdravstveni negi pacienta za praktični pouk.",
+    "schoolId": "szslj",
+    "schoolName": "Srednja zdravstvena šola Ljubljana",
+    "schoolAddress": "Poljanska cesta 61, 1000 Ljubljana",
+    "subject": "Zdravstvena nega",
     "url": "/obrazec/zdravstvena-nega"
   }
 ]

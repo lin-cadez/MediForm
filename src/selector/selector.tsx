@@ -14,9 +14,11 @@ import {
     FileEdit,
     Clock,
     Upload,
+    School,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +40,10 @@ interface FormTemplate {
     id: string;
     title: string;
     description: string | null;
+    schoolId: string;
+    schoolName: string;
+    schoolAddress?: string;
+    subject?: string;
 }
 
 interface UserDocument {
@@ -67,6 +73,13 @@ const saveUserDocuments = (docs: UserDocument[]) => {
     localStorage.setItem("userDocuments", JSON.stringify(docs));
 };
 
+const LAST_TEMPLATE_KEY = "lastSelectedTemplateId";
+const DEFAULT_SCHOOL = {
+    id: "szslj",
+    name: "Srednja zdravstvena šola Ljubljana",
+    address: "Poljanska cesta 61, 1000 Ljubljana",
+};
+
 export default function Selector() {
     const navigate = useNavigate();
     const [templates, setTemplates] = useState<FormTemplate[]>([]);
@@ -79,6 +92,9 @@ export default function Selector() {
     // New document dialog state
     const [showNewDocDialog, setShowNewDocDialog] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<FormTemplate | null>(null);
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string>(() => {
+        return localStorage.getItem(LAST_TEMPLATE_KEY) || "";
+    });
     const [newDocName, setNewDocName] = useState("");
     const [duplicateNameError, setDuplicateNameError] = useState(false);
     
@@ -141,9 +157,20 @@ export default function Selector() {
                     id: form.id,
                     title: form.title || "Brez naslova",
                     description: form.description || null,
+                    schoolId: form.schoolId || DEFAULT_SCHOOL.id,
+                    schoolName: form.schoolName || DEFAULT_SCHOOL.name,
+                    schoolAddress: form.schoolAddress || DEFAULT_SCHOOL.address,
+                    subject: form.subject || form.predmet || null,
                 }));
 
                 setTemplates(templateItems);
+                setSelectedTemplateId(current => {
+                    const remembered = current || localStorage.getItem(LAST_TEMPLATE_KEY) || "";
+                    if (templateItems.some(template => template.id === remembered)) {
+                        return remembered;
+                    }
+                    return templateItems[0]?.id || "";
+                });
                 console.log("Loaded templates from cache");
             } catch (err) {
                 console.error("Error fetching templates:", err);
@@ -158,13 +185,16 @@ export default function Selector() {
 
     const handleCreateDocument = (template: FormTemplate) => {
         setSelectedTemplate(template);
+        setSelectedTemplateId(template.id);
+        localStorage.setItem(LAST_TEMPLATE_KEY, template.id);
         setNewDocName("");
         setDuplicateNameError(false);
         setShowNewDocDialog(true);
     };
 
     const confirmCreateDocument = async () => {
-        if (!selectedTemplate || !newDocName.trim()) return;
+        const templateToUse = templates.find(template => template.id === selectedTemplateId) || selectedTemplate;
+        if (!templateToUse || !newDocName.trim()) return;
         
         // Check if document name already exists
         const nameExists = userDocuments.some(
@@ -178,8 +208,8 @@ export default function Selector() {
         
         const newDoc: UserDocument = {
             id: generateId(),
-            templateId: selectedTemplate.id,
-            templateTitle: selectedTemplate.title,
+            templateId: templateToUse.id,
+            templateTitle: templateToUse.title,
             name: newDocName.trim(),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -190,12 +220,21 @@ export default function Selector() {
         saveUserDocuments(updatedDocs);
         
         setShowNewDocDialog(false);
-        setSelectedTemplate(null);
+        setSelectedTemplate(templateToUse);
+        setSelectedTemplateId(templateToUse.id);
+        localStorage.setItem(LAST_TEMPLATE_KEY, templateToUse.id);
         setNewDocName("");
         setDuplicateNameError(false);
         
         // Navigate to the new document
-        navigate(`/obrazec/${selectedTemplate.id}?doc=${newDoc.id}`);
+        navigate(`/obrazec/${templateToUse.id}?doc=${newDoc.id}`);
+    };
+
+    const handleTemplateSelect = (templateId: string) => {
+        const template = templates.find(item => item.id === templateId) || null;
+        setSelectedTemplateId(templateId);
+        setSelectedTemplate(template);
+        localStorage.setItem(LAST_TEMPLATE_KEY, templateId);
     };
 
     const handleDeleteDocument = (doc: UserDocument, e: React.MouseEvent) => {
@@ -251,6 +290,8 @@ export default function Selector() {
 
                 // Store data and show dialog for name input
                 setImportFileData({ data: importedData, template: matchingTemplate });
+                setSelectedTemplateId(matchingTemplate.id);
+                localStorage.setItem(LAST_TEMPLATE_KEY, matchingTemplate.id);
                 setImportDocName("");
                 setImportError(null);
                 setShowImportDialog(true);
@@ -460,12 +501,30 @@ export default function Selector() {
                                         }}
                                         className="flex-shrink-0 w-full sm:w-[320px]"
                                     >
-                                        <Card className="h-full hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-ocean-teal">
+                                        <Card className={`h-full hover:shadow-lg transition-shadow border-2 ${selectedTemplateId === template.id ? "border-ocean-teal bg-ocean-light/20" : "border-slate-200 hover:border-ocean-teal"}`}>
                                             <CardHeader className="pb-3">
-                                                <CardTitle className="text-lg font-bold text-slate-900 mb-2 flex items-start gap-2">
-                                                    <FileText className="h-5 w-5 text-ocean-teal flex-shrink-0 mt-0.5" />
-                                                    <span>{template.title}</span>
-                                                </CardTitle>
+                                                <div className="flex items-start justify-between gap-2 mb-3">
+                                                    <CardTitle className="text-lg font-bold text-slate-900 flex items-start gap-2">
+                                                        <FileText className="h-5 w-5 text-ocean-teal flex-shrink-0 mt-0.5" />
+                                                        <span>{template.title}</span>
+                                                    </CardTitle>
+                                                    {selectedTemplateId === template.id && (
+                                                        <Badge className="bg-ocean-teal text-white shrink-0">
+                                                            Zadnja
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Badge variant="outline" className="border-ocean-teal text-ocean-teal">
+                                                        <School className="h-3 w-3 mr-1" />
+                                                        {template.schoolName}
+                                                    </Badge>
+                                                    {template.subject && (
+                                                        <Badge variant="outline">
+                                                            {template.subject}
+                                                        </Badge>
+                                                    )}
+                                                </div>
                                             </CardHeader>
                                             <CardContent className="space-y-4">
                                                 {template.description && (
@@ -478,7 +537,7 @@ export default function Selector() {
                                                     className="w-full bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white"
                                                 >
                                                     <Plus className="h-4 w-4 mr-2" />
-                                                    Ustvari dokument
+                                                    Izberi in nadaljuj
                                                 </Button>
                                             </CardContent>
                                         </Card>
@@ -592,6 +651,24 @@ export default function Selector() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
+                        <div className="space-y-2 mb-4">
+                            <Label htmlFor="templateSelect">Predloga</Label>
+                            <select
+                                id="templateSelect"
+                                value={selectedTemplateId}
+                                onChange={(e) => handleTemplateSelect(e.target.value)}
+                                className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            >
+                                {templates.map(template => (
+                                    <option key={template.id} value={template.id}>
+                                        {template.schoolName} - {template.title}
+                                    </option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-slate-500">
+                                Zadnja izbrana predloga se shrani za naslednjič.
+                            </p>
+                        </div>
                         <Label htmlFor="docName">Ime dokumenta</Label>
                         <Input
                             id="docName"
@@ -616,7 +693,7 @@ export default function Selector() {
                         </Button>
                         <Button 
                             onClick={confirmCreateDocument}
-                            disabled={!newDocName.trim()}
+                            disabled={!newDocName.trim() || !selectedTemplateId}
                             className="bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf"
                         >
                             Ustvari

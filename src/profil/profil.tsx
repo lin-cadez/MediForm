@@ -153,9 +153,6 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                         <p className="text-sm text-muted-foreground mt-2">
                             Tukaj lahko uredite svoje podatke.
                         </p>
-                        <p className="mt-4 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm text-left">
-                            Izpolnjeni obrazci ostanejo shranjeni samo v vašem brskalniku. Prek API-ja se pošlje samo profil dijaka.
-                        </p>
                     </motion.div>
                 </CardHeader>
                 <CardContent>
