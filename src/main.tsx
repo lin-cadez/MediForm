@@ -4,10 +4,23 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import App from './App.tsx'
 
-registerSW({
+const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
-    window.location.reload()
+    void updateSW(true)
+  },
+  onRegisteredSW(_swUrl, registration) {
+    if (!registration) return
+
+    const checkForUpdates = () => {
+      if (navigator.onLine) {
+        void registration.update()
+      }
+    }
+
+    checkForUpdates()
+    window.addEventListener('online', checkForUpdates)
+    window.setInterval(checkForUpdates, 60 * 60 * 1000)
   },
 })
 

@@ -37,7 +37,6 @@ import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFormById } from "@/lib/formsCache";
 import { DatePicker } from "@/components/ui/date-picker";
-import PWAInstallButton from "@/components/PWAInstallButton";
 
 interface UserInfo {
     ime: string;
@@ -1049,7 +1048,6 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     </div>
 
                     <div className="flex items-center gap-1 sm:gap-2">
-                        <PWAInstallButton compact className="px-2 sm:px-3" />
                         <div className="hidden sm:flex items-center gap-2">
                             <Drawer
                                 open={isExportOpen}
