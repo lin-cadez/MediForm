@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -751,6 +752,25 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         </div>
                     );
                 }
+            case "longtext":
+                return (
+                    <div className="space-y-2">
+                        <Textarea
+                            rows={3}
+                            value={commonValue ?? ""}
+                            onChange={(e) =>
+                                handleInputChange(
+                                    categoryId,
+                                    subcategoryId,
+                                    elementId,
+                                    e.target.value
+                                )
+                            }
+                            placeholder={element.hint ?? ""}
+                            className="transition-all duration-200"
+                        />
+                    </div>
+                );
             case "bool":
                 return (
                     <div className="flex items-center space-x-3 py-2">

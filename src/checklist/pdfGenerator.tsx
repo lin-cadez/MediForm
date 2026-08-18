@@ -323,6 +323,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         const isLongPudField = (element: Element): boolean => {
             const title = element.title.toLowerCase();
             return Boolean(
+                element.type === "longtext" ||
                 element.option_type === "multiple" ||
                 title.includes("evalvacija") ||
                 title.includes("refleksija") ||

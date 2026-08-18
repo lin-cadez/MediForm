@@ -461,7 +461,7 @@
             },
             "3.3.3": {
               "title": "Posebne težave ali dogodki",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Opišite posebnosti dneva ali vpišite /, če jih ni bilo.",
               "value": null
@@ -513,7 +513,7 @@
             },
             "4.1.3": {
               "title": "Moja kratka evalvacija dneva",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Zapišite kratko refleksijo po posvetu z mentorjem/ico.",
               "required": true,

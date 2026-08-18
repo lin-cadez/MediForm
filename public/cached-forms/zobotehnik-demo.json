@@ -106,14 +106,14 @@
             },
             "1.2.3": {
               "title": "Namen in posebnosti izdelka",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Opišite funkcionalne in estetske zahteve iz delovnega naloga.",
               "value": null
             },
             "1.2.4": {
               "title": "Načrt izdelave",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Na kratko navedite načrtovane faze dela.",
               "value": null
@@ -237,7 +237,7 @@
             },
             "3.1.2": {
               "title": "Odstopanja od načrta ali zapleti",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Opišite napako, možen vzrok in izvedeni popravek; če jih ni bilo, napišite brez posebnosti.",
               "value": null
@@ -291,7 +291,7 @@
             },
             "4.1.3": {
               "title": "Ugotovitve in izvedeni popravki",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Navedite izmerjene ali opažene pomanjkljivosti in način odprave.",
               "value": null
@@ -329,14 +329,14 @@
             },
             "5.1.2": {
               "title": "Podatki za sledljivost",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Navedite uporabljene oznake serij, lotov ali druge sledljive podatke brez osebnih podatkov pacienta.",
               "value": null
             },
             "5.1.3": {
               "title": "Posebnosti pri varnosti ali higieni",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Navedite posebnosti ali zapišite brez posebnosti.",
               "value": null
@@ -357,14 +357,14 @@
           "elements": {
             "6.1.1": {
               "title": "Kaj sem se naučil/a",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Opišite pridobljeno strokovno znanje in spretnosti.",
               "value": null
             },
             "6.1.2": {
               "title": "Kaj bi naslednjič izboljšal/a",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Navedite konkreten korak, pri katerem želite izboljšati natančnost ali učinkovitost.",
               "value": null
@@ -385,7 +385,7 @@
             },
             "6.1.4": {
               "title": "Opomba mentorja",
-              "type": "str",
+              "type": "longtext",
               "unit": null,
               "hint": "Povratna informacija o postopku, kakovosti in samostojnosti dijaka.",
               "value": null
@@ -395,42 +395,6 @@
               "type": "num",
               "unit": null,
               "hint": "1-5",
-              "value": null
-            }
-          }
-        }
-      }
-    },
-    "7": {
-      "title": "Opombe za prilagoditev šoli",
-      "url": "opombe-prilagoditev",
-      "color": "#E0F2FE",
-      "description": "Opombe, ki jih šola lahko uporabi pri prilagoditvi predloge.",
-      "subcategories": {
-        "7.1": {
-          "title": "Prilagoditve",
-          "description": null,
-          "elements": {
-            "7.1.1": {
-              "title": "Možne prilagoditve predloge",
-              "type": "str",
-              "unit": null,
-              "option_type": "multiple",
-              "options": [
-                "seznam vrst izdelkov se lahko prilagodi modulom in letniku dijaka",
-                "pri digitalnem postopku se lahko dodajo fotografije ali posnetki CAD-načrta",
-                "za vsak izdelek naj se uporabijo samo relevantni kriteriji kontrole kakovosti",
-                "izraze, merila ocenjevanja in obvezne faze potrdi učitelj zobne protetike",
-                "v poročilo se ne vpisujejo ime, priimek, datum rojstva ali drugi prepoznavni podatki pacienta"
-              ],
-              "hint": "Izberite opombe, ki so smiselne za šolo.",
-              "value": []
-            },
-            "7.1.2": {
-              "title": "Dodatna opomba šole",
-              "type": "str",
-              "unit": null,
-              "hint": "Prostor za dodatna navodila ali prilagoditve šole.",
               "value": null
             }
           }

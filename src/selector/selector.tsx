@@ -45,6 +45,7 @@ interface FormTemplate {
     schoolAddress?: string;
     professorName?: string;
     subject?: string;
+    documentNameHint?: string;
 }
 
 interface UserDocument {
@@ -249,6 +250,7 @@ export default function Selector() {
                     schoolAddress: form.schoolAddress || DEFAULT_SCHOOL.address,
                     professorName: form.professorName || form.teacherName || form.createdBy || undefined,
                     subject: form.subject || form.predmet || null,
+                    documentNameHint: form.documentNameHint || undefined,
                 }));
 
                 setTemplates(templateItems);
@@ -779,7 +781,7 @@ export default function Selector() {
                                 setNewDocName(e.target.value);
                                 setDuplicateNameError(false);
                             }}
-                            placeholder="npr. Pacient UKC 01"
+                            placeholder={selectedTemplate?.documentNameHint || "npr. Pacient UKC 01"}
                             className={`mt-2 ${duplicateNameError ? 'border-red-500' : ''}`}
                             autoFocus
                         />

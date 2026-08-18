@@ -8,6 +8,7 @@
     "schoolAddress": "Poljanska cesta 61, 1000 Ljubljana",
     "professorName": "Helena Božič",
     "subject": "Zdravstvena nega",
+    "documentNameHint": "npr. Pacient UKC 01",
     "url": "/obrazec/zdravstvena-nega"
   },
   {
@@ -18,6 +19,7 @@
     "schoolName": "Srednja šola test",
     "professorName": "MediForm",
     "subject": "Predšolska vzgoja",
+    "documentNameHint": "Vrtec Petre Mavčič Junij 2026",
     "url": "/obrazec/predsolska-vzgoja-demo"
   },
   {
@@ -28,6 +30,7 @@
     "schoolName": "Srednja šola test",
     "professorName": "MediForm",
     "subject": "Zobna protetika",
+    "documentNameHint": "npr. DN-2026-001 totalna proteza",
     "url": "/obrazec/zobotehnik-demo"
   }
 ]
