@@ -634,7 +634,7 @@ export default function Selector() {
                                                     <span className="template-school-name">{template.schoolName}</span>
                                                 </div>
                                                 <div className={`template-author-row flex items-start gap-3 ${template.professorName ? "" : "invisible"}`}>
-                                                    <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                    <User className="mt-1.5 h-4 w-4 shrink-0 text-slate-500" />
                                                     <span>{template.professorName || "Avtor"}</span>
                                                 </div>
                                             </div>
