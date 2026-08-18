@@ -38,33 +38,66 @@ export const getBackendStatus = (): boolean => isBackendAvailable;
 // Load cached forms index
 const loadCachedFormsIndex = async (): Promise<any[]> => {
     try {
-        const response = await fetch('/cached-forms/index.json');
+        const response = await fetch(`/cached-forms/index.json?v=${Date.now()}`, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache',
+                Pragma: 'no-cache',
+            },
+        });
         if (response.ok) {
             const data = await response.json();
-            console.log('⚠️ Loading forms from local cache (offline mode)');
+            console.log('Loading fresh forms index');
             // Handle both array format and {forms: []} format
             return Array.isArray(data) ? data : (data.forms || []);
         }
-        return [];
+    } catch (error) {
+        console.warn('Fresh forms index unavailable, falling back to cached copy:', error);
+    }
+
+    try {
+        const fallbackResponse = await fetch('/cached-forms/index.json');
+        if (fallbackResponse.ok) {
+            const data = await fallbackResponse.json();
+            console.log('⚠️ Loading forms from local cache (offline mode)');
+            return Array.isArray(data) ? data : (data.forms || []);
+        }
     } catch (error) {
         console.error('Failed to load cached forms index:', error);
-        return [];
     }
+
+    return [];
 };
 
 // Load a specific cached form by ID
 const loadCachedFormById = async (formId: string): Promise<any | null> => {
     try {
-        const response = await fetch(`/cached-forms/${formId}.json`);
+        const response = await fetch(`/cached-forms/${formId}.json?v=${Date.now()}`, {
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache',
+                Pragma: 'no-cache',
+            },
+        });
         if (response.ok) {
-            console.warn(`⚠️ Loading form "${formId}" from local cache (offline mode)`);
+            console.log(`Loading fresh form "${formId}"`);
             return await response.json();
         }
-        return null;
+    } catch (error) {
+        console.warn(`Fresh form "${formId}" unavailable, falling back to cached copy:`, error);
+    }
+
+    try {
+        const fallbackResponse = await fetch(`/cached-forms/${formId}.json`);
+        if (fallbackResponse.ok) {
+            console.warn(`⚠️ Loading form "${formId}" from local cache (offline mode)`);
+            return await fallbackResponse.json();
+        }
     } catch (error) {
         console.error(`Failed to load cached form ${formId}:`, error);
-        return null;
     }
+
+    return null;
 };
 
 // ==================== AUTH ENDPOINTS ====================

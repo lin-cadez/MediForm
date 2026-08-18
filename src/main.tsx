@@ -4,6 +4,17 @@ import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import App from './App.tsx'
 
+let didReloadForServiceWorkerUpdate = false
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (didReloadForServiceWorkerUpdate) return
+    didReloadForServiceWorkerUpdate = true
+    console.info('[PWA] New service worker is controlling the app. Reloading.')
+    window.location.reload()
+  })
+}
+
 const updateSW = registerSW({
   immediate: true,
   onNeedRefresh() {
