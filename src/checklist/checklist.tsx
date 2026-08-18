@@ -37,7 +37,6 @@ import SingleSelectInput from "./SingleSelectComponent";
 import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFormById } from "@/lib/formsCache";
-import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 
 interface UserInfo {
@@ -160,6 +159,32 @@ const sortEntries = <T,>(entries: [string, T][]): [string, T][] => {
         }
         return 0;
     });
+};
+
+const getTodayDateInputValue = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
+
+const normalizeDateInputValue = (value: unknown): string => {
+    if (typeof value !== "string" || !value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+    const slDateMatch = value.match(/^(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})$/);
+    if (slDateMatch) {
+        return `${slDateMatch[3]}-${slDateMatch[2].padStart(2, "0")}-${slDateMatch[1].padStart(2, "0")}`;
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    const year = parsed.getFullYear();
+    const month = String(parsed.getMonth() + 1).padStart(2, "0");
+    const day = String(parsed.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
 };
 
 export default function Checklist({ userInfo }: ChecklistProps) {
@@ -687,7 +712,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         // For date fields with defaultValue "danes", use today's date
         let defaultVal = element.value;
         if (element.type === "date" && element.defaultValue === "danes") {
-            defaultVal = new Date().toLocaleDateString("sl-SI");
+            defaultVal = getTodayDateInputValue();
         }
         
         const commonValue =
@@ -821,17 +846,18 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             case "date":
                 return (
                     <div className="space-y-2">
-                        <DatePicker
-                            value={commonValue as string | null}
-                            onChange={(value) =>
+                        <Input
+                            type="date"
+                            value={normalizeDateInputValue(commonValue)}
+                            onChange={(e) =>
                                 handleInputChange(
                                     categoryId,
                                     subcategoryId,
                                     elementId,
-                                    value
+                                    e.target.value
                                 )
                             }
-                            placeholder={element.hint || "Izberite datum..."}
+                            className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                         />
                     </div>
                 );
@@ -857,6 +883,18 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         }
     };
 
+    const getEffectiveElementValue = (element: Element) => {
+        if (element.type === "date" && element.defaultValue === "danes" && !element.value) {
+            return getTodayDateInputValue();
+        }
+
+        if (element.value !== null && element.value !== undefined && element.value !== "") {
+            return element.value;
+        }
+
+        return element.defaultValue ?? element.value;
+    };
+
     const validateRequiredFields = (): { isValid: boolean; missingFields: string[] } => {
         if (!list) return { isValid: false, missingFields: [] };
         
@@ -869,11 +907,12 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     if ((element as TableElement).type === "table") return;
                     const el = element as Element;
                     if (el.required) {
+                        const effectiveValue = getEffectiveElementValue(el);
                         const hasValue = el.type === "bool" 
-                            ? el.value === true
-                            : Array.isArray(el.value) 
-                                ? el.value.length > 0
-                                : el.value !== null && el.value !== undefined && el.value !== "";
+                            ? effectiveValue === true
+                            : Array.isArray(effectiveValue) 
+                                ? effectiveValue.length > 0
+                                : effectiveValue !== null && effectiveValue !== undefined && effectiveValue !== "";
                         
                         if (!hasValue) {
                             missing.push(el.title);
@@ -938,23 +977,24 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     // Skip table elements in completion stats
                     if ((element as TableElement).type === "table") return;
                     const el = element as Element;
+                    const effectiveValue = getEffectiveElementValue(el);
                     total++;
                     // For boolean fields, any explicit value (true or false) counts as answered
                     if (el.type === "bool") {
-                        if (el.value === true || el.value === false) {
+                        if (effectiveValue === true || effectiveValue === false) {
                             completed++;
                         }
-                    } else if (Array.isArray(el.value)) {
+                    } else if (Array.isArray(effectiveValue)) {
                         // For multi-select, count as completed if array has items
-                        if (el.value.length > 0) {
+                        if (effectiveValue.length > 0) {
                             completed++;
                         }
                     } else {
                         // For other types, check for non-null, non-empty values
                         if (
-                            el.value !== null &&
-                            el.value !== undefined &&
-                            el.value !== ""
+                            effectiveValue !== null &&
+                            effectiveValue !== undefined &&
+                            effectiveValue !== ""
                         ) {
                             completed++;
                         }
@@ -1007,19 +1047,20 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             }
             
             const el = element as Element;
+            const effectiveValue = getEffectiveElementValue(el);
             
             // For boolean fields, any explicit value (true or false) counts as answered
             if (el.type === "bool") {
-                return el.value === true || el.value === false;
+                return effectiveValue === true || effectiveValue === false;
             }
             
             // For multi-select, check if array has items
-            if (Array.isArray(el.value)) {
-                return el.value.length > 0;
+            if (Array.isArray(effectiveValue)) {
+                return effectiveValue.length > 0;
             }
             
             // For other types, check for non-null, non-empty values
-            return el.value !== null && el.value !== undefined && el.value !== "";
+            return effectiveValue !== null && effectiveValue !== undefined && effectiveValue !== "";
         });
     };
 
