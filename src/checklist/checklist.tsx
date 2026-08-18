@@ -37,6 +37,7 @@ import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFormById } from "@/lib/formsCache";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface UserInfo {
     ime: string;
@@ -740,7 +741,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         e.target.value
                                     )
                                 }
-                                placeholder={element.hint || "Enter value..."}
+                                placeholder={element.hint ?? ""}
                                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
                             />
                         </div>
@@ -807,6 +808,23 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                 )
                             }
                             placeholder={element.hint || "Izberite datum..."}
+                        />
+                    </div>
+                );
+            case "time":
+                return (
+                    <div className="space-y-2">
+                        <TimePicker
+                            value={commonValue as string | null}
+                            onChange={(value) =>
+                                handleInputChange(
+                                    categoryId,
+                                    subcategoryId,
+                                    elementId,
+                                    value
+                                )
+                            }
+                            placeholder={element.hint || "Izberite čas..."}
                         />
                     </div>
                 );

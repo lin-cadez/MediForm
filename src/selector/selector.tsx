@@ -453,6 +453,12 @@ export default function Selector() {
     };
 
     const lastUsedTemplate = templates.find(template => template.id === selectedTemplateId) || templates[0] || null;
+    const orderedTemplates = lastUsedTemplate
+        ? [
+            lastUsedTemplate,
+            ...templates.filter(template => template.id !== lastUsedTemplate.id),
+        ]
+        : templates;
     const useTemplateCarousel = templates.length > 3;
 
     if (isLoading) {
@@ -570,10 +576,7 @@ export default function Selector() {
                                 : "mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                         }
                     >
-                        {templates.map((template, index) => {
-                            const isLastUsed = template.id === lastUsedTemplate?.id;
-
-                            return (
+                        {orderedTemplates.map((template, index) => (
                             <motion.div
                                 key={template.id}
                                 initial={{ opacity: 0, y: 16 }}
@@ -582,9 +585,7 @@ export default function Selector() {
                                 className={useTemplateCarousel ? "w-[17rem] sm:w-[18rem] flex-none snap-start" : undefined}
                             >
                                 <Card
-                                    className={`border bg-white shadow-sm transition-shadow hover:shadow-lg ${
-                                        isLastUsed ? "border-cyan-300" : "border-slate-200 hover:border-cyan-300"
-                                    }`}
+                                    className="border border-slate-200 bg-white shadow-sm transition-shadow hover:border-cyan-300 hover:shadow-lg"
                                 >
                                     <CardHeader className="pb-4">
                                         <div className="flex items-start gap-3">
@@ -612,12 +613,8 @@ export default function Selector() {
                                         <div className="border-t border-slate-200 pt-4">
                                             <Button
                                                 onClick={() => handleCreateDocument(template)}
-                                                variant={isLastUsed ? "default" : "outline"}
-                                                className={
-                                                    isLastUsed
-                                                        ? "w-full bg-cyan-700 text-white hover:bg-cyan-800"
-                                                        : "w-full border-cyan-700 bg-white text-cyan-800 hover:bg-cyan-50 hover:text-cyan-900"
-                                                }
+                                                variant="outline"
+                                                className="w-full border-cyan-700 bg-white text-cyan-800 hover:bg-cyan-50 hover:text-cyan-900"
                                             >
                                                 <Plus className="h-4 w-4 mr-2" />
                                                 Uporabi
@@ -626,8 +623,7 @@ export default function Selector() {
                                     </CardContent>
                                 </Card>
                             </motion.div>
-                            );
-                        })}
+                        ))}
                     </div>
                 ) : !isLoading && (
                     <motion.div

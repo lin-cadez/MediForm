@@ -9,18 +9,38 @@ const updateSW = registerSW({
   onNeedRefresh() {
     void updateSW(true)
   },
-  onRegisteredSW(_swUrl, registration) {
+  onRegisteredSW(swUrl, registration) {
     if (!registration) return
 
-    const checkForUpdates = () => {
-      if (navigator.onLine) {
-        void registration.update()
+    const checkForUpdates = async () => {
+      if (!navigator.onLine) return
+
+      try {
+        await fetch(swUrl, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+          },
+        })
+      } catch {
+        return
+      }
+
+      await registration.update()
+    }
+
+    const checkWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void checkForUpdates()
       }
     }
 
-    checkForUpdates()
-    window.addEventListener('online', checkForUpdates)
-    window.setInterval(checkForUpdates, 60 * 60 * 1000)
+    void checkForUpdates()
+    window.addEventListener('online', () => void checkForUpdates())
+    window.addEventListener('focus', () => void checkForUpdates())
+    document.addEventListener('visibilitychange', checkWhenVisible)
+    window.setInterval(() => void checkForUpdates(), 5 * 60 * 1000)
   },
 })
 

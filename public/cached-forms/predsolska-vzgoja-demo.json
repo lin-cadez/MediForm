@@ -7,8 +7,8 @@
   "predmet": "Predšolska vzgoja",
   "schoolId": "predsolska-demo",
   "schoolName": "Srednja šola test",
+  "professorName": "MediForm",
   "educationProgram": "SSI-Predšolska vzgoja / Poklicni tečaj-Predšolska vzgoja",
-  "organizerName": "KARMEN LEMUT",
   "categories": {
     "1": {
       "title": "Glava poročila",
@@ -30,7 +30,7 @@
             },
             "1.1.2": {
               "title": "Čas od",
-              "type": "str",
+              "type": "time",
               "unit": null,
               "hint": "npr. 8:00",
               "required": true,
@@ -38,7 +38,7 @@
             },
             "1.1.3": {
               "title": "Čas do",
-              "type": "str",
+              "type": "time",
               "unit": null,
               "hint": "npr. 14:00",
               "required": true,
@@ -135,8 +135,7 @@
               "title": "Organizator/ica PUD v šoli",
               "type": "str",
               "unit": null,
-              "hint": "KARMEN LEMUT",
-              "value": "KARMEN LEMUT"
+              "value": null
             }
           }
         }
@@ -518,26 +517,6 @@
               "unit": null,
               "hint": "Zapišite kratko refleksijo po posvetu z mentorjem/ico.",
               "required": true,
-              "value": null
-            },
-            "4.1.4": {
-              "title": "Posvet z mentorjem/ico",
-              "type": "str",
-              "unit": null,
-              "option_type": "one",
-              "options": [
-                "evalvacijo sem zapisal/a po posvetu z mentorjem/ico",
-                "o zapisu se bom z mentorjem/ico še posvetoval/a",
-                "mentor/ica je dnevnik pregledal/a"
-              ],
-              "hint": "evalvacijo sem zapisal/a po posvetu z mentorjem/ico",
-              "value": null
-            },
-            "4.1.5": {
-              "title": "Podpis mentorja/ice",
-              "type": "str",
-              "unit": null,
-              "hint": "Ime in priimek mentorja/ice",
               "value": null
             }
           }

@@ -16,6 +16,7 @@
     "description": "Demo dnevno poročilo praktičnega usposabljanja z delom za program predšolska vzgoja.",
     "schoolId": "predsolska-demo",
     "schoolName": "Srednja šola test",
+    "professorName": "MediForm",
     "subject": "Predšolska vzgoja",
     "url": "/obrazec/predsolska-vzgoja-demo"
   }
