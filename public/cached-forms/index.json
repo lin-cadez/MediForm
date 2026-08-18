@@ -21,16 +21,5 @@
     "subject": "Predšolska vzgoja",
     "documentNameHint": "Vrtec Petre Mavčič Junij 2026",
     "url": "/obrazec/predsolska-vzgoja-demo"
-  },
-  {
-    "id": "zobotehnik-demo",
-    "title": "Poročilo o izdelavi zobnoprotetičnega izdelka",
-    "description": "Demo poročilo o praktičnem pouku za program tehnik zobne protetike.",
-    "schoolId": "zobotehnik-demo",
-    "schoolName": "Srednja šola test",
-    "professorName": "MediForm",
-    "subject": "Zobna protetika",
-    "documentNameHint": "npr. DN-2026-001 totalna proteza",
-    "url": "/obrazec/zobotehnik-demo"
   }
 ]
