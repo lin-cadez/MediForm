@@ -1,0 +1,548 @@
+{
+  "id": "predsolska-vzgoja-demo",
+  "url": "predsolska-vzgoja-demo",
+  "reportType": "preschool_pud",
+  "title": "Predšolska vzgoja SŠ Demo",
+  "description": "Demo dnevno poročilo praktičnega usposabljanja z delom za program predšolska vzgoja.",
+  "predmet": "Predšolska vzgoja",
+  "schoolId": "predsolska-demo",
+  "schoolName": "Srednja šola test",
+  "educationProgram": "SSI-Predšolska vzgoja / Poklicni tečaj-Predšolska vzgoja",
+  "organizerName": "KARMEN LEMUT",
+  "categories": {
+    "1": {
+      "title": "Glava poročila",
+      "description": "Osnovni podatki dnevnega poročila PUD.",
+      "color": "#0e7490",
+      "subcategories": {
+        "1.1": {
+          "title": "Podatki o dnevu",
+          "description": null,
+          "elements": {
+            "1.1.1": {
+              "title": "Za dan",
+              "type": "date",
+              "unit": null,
+              "hint": "Izberite datum PUD",
+              "defaultValue": "danes",
+              "required": true,
+              "value": null
+            },
+            "1.1.2": {
+              "title": "Čas od",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. 8:00",
+              "required": true,
+              "value": null
+            },
+            "1.1.3": {
+              "title": "Čas do",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. 14:00",
+              "required": true,
+              "value": null
+            },
+            "1.1.4": {
+              "title": "Del dneva",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "dopoldan",
+                "popoldan",
+                "cel dan",
+                "izmensko delo"
+              ],
+              "hint": "dopoldan",
+              "value": null
+            }
+          }
+        },
+        "1.2": {
+          "title": "Vrtec in skupina",
+          "description": null,
+          "elements": {
+            "1.2.1": {
+              "title": "Naziv vrtca",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. Vrtec Ciciban",
+              "required": true,
+              "value": null
+            },
+            "1.2.2": {
+              "title": "Enota vrtca",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. Enota Sonček",
+              "value": null
+            },
+            "1.2.3": {
+              "title": "Skupina",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. Metulji",
+              "required": true,
+              "value": null
+            },
+            "1.2.4": {
+              "title": "Starost otrok",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "1-2 leti",
+                "2-3 leta",
+                "3-4 leta",
+                "4-5 let",
+                "5-6 let",
+                "kombiniran oddelek"
+              ],
+              "hint": "4-5 let",
+              "value": null
+            }
+          }
+        },
+        "1.3": {
+          "title": "Mentorstvo",
+          "description": null,
+          "elements": {
+            "1.3.1": {
+              "title": "Mentor/ica kandidatu/ki",
+              "type": "str",
+              "unit": null,
+              "hint": "Ime in priimek mentorja/ice",
+              "required": true,
+              "value": null
+            },
+            "1.3.2": {
+              "title": "Naziv mentorjevega delovnega mesta",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "vzgojitelj/ica predšolskih otrok",
+                "pomočnik/ica vzgojitelja/ice",
+                "svetovalni/a delavec/ka",
+                "drugo"
+              ],
+              "hint": "vzgojitelj/ica predšolskih otrok",
+              "value": null
+            },
+            "1.3.3": {
+              "title": "Organizator/ica PUD v šoli",
+              "type": "str",
+              "unit": null,
+              "hint": "KARMEN LEMUT",
+              "value": "KARMEN LEMUT"
+            }
+          }
+        }
+      }
+    },
+    "2": {
+      "title": "Načrtovana dejavnost dneva",
+      "description": "Opišite cilje, vsebino, motivacijo, potek in svojo vlogo pri načrtovani dejavnosti.",
+      "color": "#16a34a",
+      "subcategories": {
+        "2.1": {
+          "title": "Priprava dejavnosti",
+          "description": null,
+          "elements": {
+            "2.1.1": {
+              "title": "Področje dejavnosti",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "gibanje",
+                "jezik",
+                "umetnost",
+                "družba",
+                "narava",
+                "matematika",
+                "rutinske dejavnosti"
+              ],
+              "hint": "jezik",
+              "required": true,
+              "value": null
+            },
+            "2.1.2": {
+              "title": "Tema dejavnosti",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. Jesenski plodovi",
+              "required": true,
+              "value": null
+            },
+            "2.1.3": {
+              "title": "Cilji dejavnosti",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "otrok razvija govor in bogati besedišče",
+                "otrok razvija fino motoriko",
+                "otrok sodeluje v skupini",
+                "otrok upošteva dogovorjena pravila",
+                "otrok razvija samostojnost pri dejavnosti",
+                "otrok spoznava naravno okolje",
+                "otrok izraža doživljanje skozi ustvarjanje"
+              ],
+              "hint": "Izberite ali dopišite cilje",
+              "value": []
+            },
+            "2.1.4": {
+              "title": "Motivacija",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "pogovor v jutranjem krogu",
+                "slikanica ali zgodba",
+                "pesem ali izštevanka",
+                "didaktična igra",
+                "opazovanje predmeta",
+                "gibalna igra",
+                "lutka"
+              ],
+              "hint": "slikanica ali zgodba",
+              "value": null
+            }
+          }
+        },
+        "2.2": {
+          "title": "Izvedba dejavnosti",
+          "description": null,
+          "elements": {
+            "2.2.1": {
+              "title": "Potek dejavnosti",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "uvodni pogovor z otroki",
+                "predstavitev materialov in pravil",
+                "delo v manjših skupinah",
+                "samostojno raziskovanje otrok",
+                "usmerjanje otrok z vprašanji",
+                "skupno vrednotenje izdelkov ali doživetij",
+                "pospravljanje prostora po dejavnosti"
+              ],
+              "hint": "Izberite potek ali dopišite svoje korake",
+              "value": []
+            },
+            "2.2.2": {
+              "title": "Moja vloga in zadolžitve",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "pripravila/pripravil sem prostor in pripomočke",
+                "spodbujala/spodbujal sem otroke k sodelovanju",
+                "pomagala/pomagal sem otrokom pri izvedbi naloge",
+                "skrbela/skrbel sem za varnost otrok",
+                "opazovala/opazoval sem odzive otrok",
+                "vodila/vodil sem del dejavnosti",
+                "sodelovala/sodeloval sem pri pospravljanju"
+              ],
+              "hint": "Izberite ali dopišite svoje naloge",
+              "value": []
+            },
+            "2.2.3": {
+              "title": "Uresničeni cilji",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "cilji so bili v celoti uresničeni",
+                "cilji so bili večinoma uresničeni",
+                "cilji so bili delno uresničeni",
+                "cilje bi bilo treba prilagoditi"
+              ],
+              "hint": "cilji so bili večinoma uresničeni",
+              "value": null
+            },
+            "2.2.4": {
+              "title": "Predlogi za izboljšavo",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "dejavnost bi razdelil/a na krajše korake",
+                "pripravila/pripravil bi več materiala",
+                "otroke bi razdelil/a v manjše skupine",
+                "več časa bi namenil/a pogovoru po dejavnosti",
+                "dodala/dodal bi dodatno gibalno aktivnost",
+                "izvedba ni potrebovala večjih sprememb"
+              ],
+              "hint": "Izberite ali dopišite predloge",
+              "value": []
+            }
+          }
+        }
+      }
+    },
+    "3": {
+      "title": "Opazovanje dejavnosti in življenja v skupini",
+      "description": "Izberite področja, ki ste jih ta dan opazovali ali pri njih sodelovali.",
+      "color": "#f59e0b",
+      "subcategories": {
+        "3.1": {
+          "title": "Dnevna rutina",
+          "description": null,
+          "elements": {
+            "3.1.1": {
+              "title": "Rutinske dejavnosti",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "sprejem otrok in slovo od staršev",
+                "prosta igra otrok",
+                "priprava na hranjenje",
+                "pomoč pri hranjenju",
+                "umivanje in osebna higiena",
+                "priprava na počitek",
+                "prebujanje in urejanje otrok",
+                "odhajanje otrok domov"
+              ],
+              "hint": "Izberite dnevne rutine",
+              "value": []
+            },
+            "3.1.2": {
+              "title": "Moje zadolžitve pri rutini",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "sprejemal/a sem otroke v igralnici",
+                "pomagal/a sem pri umivanju rok",
+                "urejal/a sem prostor pred obrokom",
+                "pomagal/a sem pri hranjenju",
+                "pripravil/a sem ležišča ali igrače za počitek",
+                "umirjal/a sem otroke pred počitkom",
+                "pomagal/a sem pri oblačenju in odhodu domov"
+              ],
+              "hint": "Izberite ali dopišite zadolžitve",
+              "value": []
+            },
+            "3.1.3": {
+              "title": "Odnos otrok do hrane, počitka ali rutine",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "otroci so rutino sprejeli mirno",
+                "nekateri otroci so potrebovali dodatno spodbudo",
+                "otroci so bili pri rutini večinoma samostojni",
+                "pri rutini so se pojavile manjše težave",
+                "rutina je potekala po ustaljenem redu"
+              ],
+              "hint": "rutina je potekala po ustaljenem redu",
+              "value": null
+            }
+          }
+        },
+        "3.2": {
+          "title": "Igra, prostor in odnosi",
+          "description": null,
+          "elements": {
+            "3.2.1": {
+              "title": "Igrače in materiali",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "kocke in konstrukcijski materiali",
+                "družabne in didaktične igre",
+                "lutke in igra vlog",
+                "likovni material",
+                "knjige in slikanice",
+                "glasbeni instrumenti",
+                "gibalni pripomočki",
+                "naravni materiali"
+              ],
+              "hint": "Izberite igrače in materiale",
+              "value": []
+            },
+            "3.2.2": {
+              "title": "Najbolj priljubljena igra",
+              "type": "str",
+              "unit": null,
+              "hint": "npr. igra vlog v kotičku kuhinje",
+              "value": null
+            },
+            "3.2.3": {
+              "title": "Ureditev prostora",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "prostor je omogočal varno in samostojno igro",
+                "igralni kotički so bili jasno razporejeni",
+                "prostor je bilo treba prilagoditi dejavnosti",
+                "materiali so bili otrokom dostopni",
+                "ureditev prostora je spodbujala sodelovanje"
+              ],
+              "hint": "prostor je omogočal varno in samostojno igro",
+              "value": null
+            },
+            "3.2.4": {
+              "title": "Medsebojni odnosi in reševanje konfliktov",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "otroci so sodelovali in si pomagali",
+                "konflikte so reševali s pomočjo odrasle osebe",
+                "nekateri otroci so potrebovali usmerjanje pri deljenju igrač",
+                "opazna je bila dobra povezanost skupine",
+                "pri igri so se oblikovale manjše skupine",
+                "odrasli so otroke spodbujali k dogovarjanju"
+              ],
+              "hint": "Izberite opažanja",
+              "value": []
+            },
+            "3.2.5": {
+              "title": "Sodelovanje s starši",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "sodelovanja s starši ta dan nisem opazil/a",
+                "opazoval/a sem kratek pogovor ob prihodu",
+                "opazoval/a sem kratek pogovor ob odhodu",
+                "sodeloval/a sem pri predaji informacij mentorici",
+                "starši so izrazili vprašanje ali skrb"
+              ],
+              "hint": "opazoval/a sem kratek pogovor ob odhodu",
+              "value": null
+            }
+          }
+        },
+        "3.3": {
+          "title": "Individualni pristopi in posebnosti",
+          "description": null,
+          "elements": {
+            "3.3.1": {
+              "title": "Razlike med otroki",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "razlike v govornem izražanju",
+                "razlike v samostojnosti",
+                "razlike v motoričnih spretnostih",
+                "razlike v vztrajnosti pri dejavnosti",
+                "razlike v odzivanju na navodila",
+                "razlike v vključevanju v skupinsko igro"
+              ],
+              "hint": "Izberite opažene razlike",
+              "value": []
+            },
+            "3.3.2": {
+              "title": "Možni individualni pristopi",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "dodatna verbalna spodbuda",
+                "nazorna demonstracija naloge",
+                "več časa za izvedbo",
+                "delo v paru",
+                "prilagoditev zahtevnosti naloge",
+                "umiritev in individualni pogovor",
+                "ponovitev navodil"
+              ],
+              "hint": "Izberite pristope",
+              "value": []
+            },
+            "3.3.3": {
+              "title": "Posebne težave ali dogodki",
+              "type": "str",
+              "unit": null,
+              "hint": "Opišite posebnosti dneva ali vpišite /, če jih ni bilo.",
+              "value": null
+            }
+          }
+        }
+      }
+    },
+    "4": {
+      "title": "Evalvacija dneva",
+      "description": "Kratka refleksija delovnega dne po posvetu z mentorjem/ico.",
+      "color": "#7c3aed",
+      "subcategories": {
+        "4.1": {
+          "title": "Refleksija",
+          "description": null,
+          "elements": {
+            "4.1.1": {
+              "title": "Kaj mi je uspelo",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "uspešno sem se vključil/a v delo skupine",
+                "otrokom sem nudil/a primerno pomoč",
+                "upošteval/a sem navodila mentorice/mentorja",
+                "samostojno sem opravil/a dogovorjene naloge",
+                "z otroki sem vzpostavil/a spoštljiv odnos",
+                "pravočasno sem pripravil/a prostor in pripomočke"
+              ],
+              "hint": "Izberite dosežke dneva",
+              "value": []
+            },
+            "4.1.2": {
+              "title": "Izzivi dneva",
+              "type": "str",
+              "unit": null,
+              "option_type": "multiple",
+              "options": [
+                "potreboval/a sem več časa za pripravo",
+                "težje je bilo usmerjati pozornost vseh otrok",
+                "pri nekaterih otrocih je bila potrebna dodatna spodbuda",
+                "izziv je bilo prilagajanje dejavnosti starosti otrok",
+                "izziv je bilo reševanje konflikta med otroki",
+                "večjih težav ni bilo"
+              ],
+              "hint": "Izberite izzive",
+              "value": []
+            },
+            "4.1.3": {
+              "title": "Moja kratka evalvacija dneva",
+              "type": "str",
+              "unit": null,
+              "hint": "Zapišite kratko refleksijo po posvetu z mentorjem/ico.",
+              "required": true,
+              "value": null
+            },
+            "4.1.4": {
+              "title": "Posvet z mentorjem/ico",
+              "type": "str",
+              "unit": null,
+              "option_type": "one",
+              "options": [
+                "evalvacijo sem zapisal/a po posvetu z mentorjem/ico",
+                "o zapisu se bom z mentorjem/ico še posvetoval/a",
+                "mentor/ica je dnevnik pregledal/a"
+              ],
+              "hint": "evalvacijo sem zapisal/a po posvetu z mentorjem/ico",
+              "value": null
+            },
+            "4.1.5": {
+              "title": "Podpis mentorja/ice",
+              "type": "str",
+              "unit": null,
+              "hint": "Ime in priimek mentorja/ice",
+              "value": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

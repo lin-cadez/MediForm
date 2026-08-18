@@ -9,5 +9,14 @@
     "professorName": "Helena Božič",
     "subject": "Zdravstvena nega",
     "url": "/obrazec/zdravstvena-nega"
+  },
+  {
+    "id": "predsolska-vzgoja-demo",
+    "title": "Predšolska vzgoja SŠ Demo",
+    "description": "Demo dnevno poročilo praktičnega usposabljanja z delom za program predšolska vzgoja.",
+    "schoolId": "predsolska-demo",
+    "schoolName": "Srednja šola test",
+    "subject": "Predšolska vzgoja",
+    "url": "/obrazec/predsolska-vzgoja-demo"
   }
 ]

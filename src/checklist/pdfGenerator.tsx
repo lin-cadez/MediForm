@@ -5,10 +5,11 @@ interface Element {
     title: string;
     unit: string | null;
     hint: string | null;
-    value: string | boolean | string[] | null;
+    value: string | number | boolean | string[] | null;
     type?: string;
     options?: string[];
     option_type?: string;
+    defaultValue?: string | boolean | string[] | number | null;
 }
 
 interface TableRow {
@@ -54,9 +55,14 @@ interface PatientData {
 }
 
 interface JsonData {
+    id?: string;
+    reportType?: string;
     title: string;
     description: string;
     predmet?: string;
+    schoolName?: string;
+    educationProgram?: string;
+    organizerName?: string;
     patient_data?: PatientData;
     categories: Record<string, Category>;
 }
@@ -218,6 +224,249 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             font: fontToUse,
             color: rgb(...color),
         });
+    };
+
+    if (data.reportType === "preschool_pud") {
+        let pudPage = pdfDoc.addPage([pageWidth, pageHeight]);
+        let pudY = pageHeight - margin;
+        const contentWidth = pageWidth - 2 * margin;
+        const pudInstitutionName = data.schoolName || institutionName || "Srednja šola test";
+
+        const formatValue = (value: Element["value"] | undefined): string => {
+            if (typeof value === "boolean") return value ? "DA" : "NE";
+            if (Array.isArray(value)) return value.length ? value.join(", ") : "/";
+            if (value === null || value === undefined || value === "") return "/";
+            return String(value);
+        };
+
+        const formatDateValue = (value: string): string => {
+            if (!value || value === "/") return "/";
+            const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!match) return value;
+            return `${Number(match[3])}. ${Number(match[2])}. ${match[1]}`;
+        };
+
+        const getElement = (elementId: string): Element | undefined => {
+            for (const category of Object.values(data.categories)) {
+                for (const subcategory of Object.values(category.subcategories || {})) {
+                    const element = subcategory.elements?.[elementId] as Element | undefined;
+                    if (element) return element;
+                }
+            }
+            return undefined;
+        };
+
+        const getValue = (elementId: string): string => {
+            const element = getElement(elementId);
+            const value = element?.value ?? element?.defaultValue;
+            if (element?.type === "date" && value === "danes") {
+                return formatDate(new Date());
+            }
+            return element?.type === "date" ? formatDateValue(formatValue(value)) : formatValue(value);
+        };
+
+        const drawPudHeader = (currentPage: PDFPage) => {
+            currentPage.drawText(pudInstitutionName, {
+                x: margin,
+                y: pageHeight - 22,
+                size: 8,
+                font,
+                color: rgb(0.35, 0.35, 0.35),
+            });
+            currentPage.drawText(formatDate(new Date()), {
+                x: pageWidth - margin - 70,
+                y: pageHeight - 22,
+                size: 8,
+                font,
+                color: rgb(0.35, 0.35, 0.35),
+            });
+        };
+
+        const addPudPage = () => {
+            pudPage = pdfDoc.addPage([pageWidth, pageHeight]);
+            pudY = pageHeight - margin;
+            drawPudHeader(pudPage);
+            pudY -= 30;
+        };
+
+        const ensurePudSpace = (height: number) => {
+            if (pudY - height < margin) {
+                addPudPage();
+            }
+        };
+
+        const drawSectionTitle = (title: string) => {
+            ensurePudSpace(36);
+            pudPage.drawRectangle({
+                x: margin,
+                y: pudY - 22,
+                width: contentWidth,
+                height: 28,
+                color: rgb(0.88, 0.96, 0.98),
+            });
+            pudPage.drawText(title, {
+                x: margin + 10,
+                y: pudY - 13,
+                size: 12,
+                font: fontBold,
+                color: rgb(0.05, 0.32, 0.38),
+            });
+            pudY -= 38;
+        };
+
+        const drawInfoRow = (label: string, value: string) => {
+            const labelWidth = 150;
+            const valueWidth = contentWidth - labelWidth;
+            const valueLines = wrapText(value || "/", valueWidth - 14, font, 9);
+            const rowHeight = Math.max(26, valueLines.length * 12 + 12);
+            ensurePudSpace(rowHeight + 4);
+
+            pudPage.drawRectangle({
+                x: margin,
+                y: pudY - rowHeight,
+                width: contentWidth,
+                height: rowHeight,
+                borderColor: rgb(0, 0, 0),
+                borderWidth: 0.5,
+            });
+            pudPage.drawLine({
+                start: { x: margin + labelWidth, y: pudY },
+                end: { x: margin + labelWidth, y: pudY - rowHeight },
+                thickness: 0.5,
+                color: rgb(0, 0, 0),
+            });
+            pudPage.drawText(label, {
+                x: margin + 6,
+                y: pudY - 17,
+                size: 9,
+                font: fontBold,
+                color: rgb(0, 0, 0),
+            });
+            valueLines.forEach((line, index) => {
+                pudPage.drawText(line, {
+                    x: margin + labelWidth + 7,
+                    y: pudY - 17 - index * 12,
+                    size: 9,
+                    font,
+                    color: rgb(0, 0, 0),
+                });
+            });
+            pudY -= rowHeight;
+        };
+
+        const drawField = (label: string, value: string) => {
+            ensurePudSpace(44);
+            pudPage.drawText(label, {
+                x: margin,
+                y: pudY,
+                size: 10,
+                font: fontBold,
+                color: rgb(0.1, 0.1, 0.1),
+            });
+            pudY -= 15;
+
+            const lines = wrapText(value || "/", contentWidth, font, 10);
+            lines.forEach((line) => {
+                ensurePudSpace(14);
+                pudPage.drawText(line, {
+                    x: margin,
+                    y: pudY,
+                    size: 10,
+                    font,
+                    color: rgb(0.15, 0.15, 0.15),
+                });
+                pudY -= 13;
+            });
+            pudY -= 10;
+        };
+
+        drawPudHeader(pudPage);
+        pudY -= 40;
+        drawCenteredText(pudPage, "POROČILO PRAKTIČNEGA USPOSABLJANJA Z DELOM", pudY, fontBold, 16, [0, 0, 0]);
+        pudY -= 24;
+        drawCenteredText(pudPage, data.predmet || "Predšolska vzgoja", pudY, fontBold, 12, [0.2, 0.2, 0.2]);
+        pudY -= 34;
+
+        drawInfoRow("Dijak/inja", userInfo ? `${userInfo.ime} ${userInfo.priimek}` : "/");
+        drawInfoRow("Razred", userInfo?.razred || "/");
+        drawInfoRow("Šola", pudInstitutionName);
+        drawInfoRow("Program", data.educationProgram || data.predmet || "Predšolska vzgoja");
+        pudY -= 12;
+        drawInfoRow("Za dan", getValue("1.1.1"));
+        drawInfoRow("Čas", `${getValue("1.1.2")} - ${getValue("1.1.3")} (${getValue("1.1.4")})`);
+        drawInfoRow("Naziv vrtca in enota", `${getValue("1.2.1")}, ${getValue("1.2.2")}`);
+        drawInfoRow("Skupina", `${getValue("1.2.3")} - ${getValue("1.2.4")}`);
+        drawInfoRow("Mentor/ica kandidatu/ki", getValue("1.3.1"));
+        drawInfoRow("Delovno mesto mentorja/ice", getValue("1.3.2"));
+        const organizerValue = getValue("1.3.3");
+        drawInfoRow(
+            "Organizator/ica PUD v šoli",
+            organizerValue === "/" ? data.organizerName || "KARMEN LEMUT" : organizerValue
+        );
+        pudY -= 24;
+
+        for (const categoryKey of sortKeys(Object.keys(data.categories)).filter((key) => key !== "1")) {
+            const category = data.categories[categoryKey];
+            drawSectionTitle(category.title);
+            if (category.description) {
+                const descHeight = drawWrappedText(
+                    pudPage,
+                    category.description,
+                    margin,
+                    pudY,
+                    contentWidth,
+                    font,
+                    9,
+                    [0.35, 0.35, 0.35]
+                );
+                pudY -= descHeight + 10;
+            }
+
+            for (const subcategoryKey of sortKeys(Object.keys(category.subcategories || {}))) {
+                const subcategory = category.subcategories[subcategoryKey];
+                ensurePudSpace(24);
+                pudPage.drawText(subcategory.title, {
+                    x: margin,
+                    y: pudY,
+                    size: 11,
+                    font: fontBold,
+                    color: rgb(0, 0, 0),
+                });
+                pudY -= 18;
+
+                for (const elementKey of sortKeys(Object.keys(subcategory.elements || {}))) {
+                    const element = subcategory.elements[elementKey] as Element;
+                    drawField(element.title, formatValue(element.value));
+                }
+                pudY -= 4;
+            }
+        }
+
+        ensurePudSpace(70);
+        pudY -= 10;
+        pudPage.drawText(`Datum: ${formatDate(new Date())}`, {
+            x: margin,
+            y: pudY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        pudPage.drawText("Podpis mentorja/ice:", {
+            x: pageWidth / 2,
+            y: pudY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        pudPage.drawLine({
+            start: { x: pageWidth / 2 + 115, y: pudY - 3 },
+            end: { x: pageWidth - margin, y: pudY - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        const pdfBytes = await pdfDoc.save();
+        return new Blob([pdfBytes as BlobPart], { type: "application/pdf" });
     };
 
     // ==================== COVER PAGE ====================

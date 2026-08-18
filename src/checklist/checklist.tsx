@@ -47,6 +47,8 @@ interface UserInfo {
 }
 
 interface JsonData {
+    id?: string;
+    reportType?: string;
     title: string;
     description: string;
     categories: Record<
@@ -130,6 +132,8 @@ interface PatientData {
 }
 
 interface List {
+    id?: string;
+    reportType?: string;
     title: string;
     description: string;
     url: string;
@@ -452,6 +456,19 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         }));
     };
 
+    const getExportBaseName = () => {
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 5).replace(":", "-");
+
+        if (list?.reportType === "preschool_pud") {
+            return `PUD-PREDSOLSKA-VZGOJA-${dateStr}-${timeStr}`;
+        }
+
+        const age = list?.patient_data?.starost || "neznano";
+        return `OBRAVNAVA-${dateStr}-${timeStr}-${age}let`;
+    };
+
     const handleExportJson = async () => {
         if (!list) return;
         
@@ -461,12 +478,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        
-        const now = new Date();
-        const dateStr = now.toISOString().slice(0, 10);
-        const timeStr = now.toTimeString().slice(0, 5).replace(":", "-");
-        const age = list?.patient_data?.starost || "neznano";
-        link.download = `OBRAVNAVA-${dateStr}-${timeStr}-${age}let.json`;
+        link.download = `${getExportBaseName()}.json`;
         
         document.body.appendChild(link);
         link.click();
@@ -855,12 +867,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             const pdfBlob = await generatePdfFromJson(list as JsonData, userInfoForPdf);
             const link = document.createElement("a");
             link.href = URL.createObjectURL(pdfBlob);
-            
-            const now = new Date();
-            const dateStr = now.toISOString().slice(0, 10);
-            const timeStr = now.toTimeString().slice(0, 5).replace(":", "-");
-            const age = list?.patient_data?.starost || "neznano";
-            link.download = `OBRAVNAVA-${dateStr}-${timeStr}-${age}let.pdf`;
+            link.download = `${getExportBaseName()}.pdf`;
             
             link.click();
 
