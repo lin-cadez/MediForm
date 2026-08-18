@@ -701,6 +701,447 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         return new Blob([pdfBytes as BlobPart], { type: "application/pdf" });
     };
 
+    if (data.reportType === "dental_technician") {
+        let dentalPage = pdfDoc.addPage([pageWidth, pageHeight]);
+        let dentalY = pageHeight - margin;
+        const contentWidth = pageWidth - 2 * margin;
+        const dentalInstitutionName = data.schoolName || institutionName || "Srednja šola test";
+
+        const formatDentalValue = (value: Element["value"] | undefined): string => {
+            if (typeof value === "boolean") return value ? "DA" : "NE";
+            if (Array.isArray(value)) return value.length ? value.join(", ") : "/";
+            if (value === null || value === undefined || value === "") return "/";
+            return String(value);
+        };
+
+        const formatDentalDateValue = (value: string): string => {
+            if (!value || value === "/") return "/";
+            const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (!match) return value;
+            return `${Number(match[3])}. ${Number(match[2])}. ${match[1]}`;
+        };
+
+        const getDentalElement = (elementId: string): Element | undefined => {
+            for (const category of Object.values(data.categories)) {
+                for (const subcategory of Object.values(category.subcategories || {})) {
+                    const element = subcategory.elements?.[elementId] as Element | undefined;
+                    if (element) return element;
+                }
+            }
+            return undefined;
+        };
+
+        const getDentalValue = (elementId: string): string => {
+            const element = getDentalElement(elementId);
+            const value = element?.value ?? element?.defaultValue;
+            return element?.type === "date" ? formatDentalDateValue(formatDentalValue(value)) : formatDentalValue(value);
+        };
+
+        const drawDentalHeader = (currentPage: PDFPage) => {
+            currentPage.drawText(dentalInstitutionName, {
+                x: margin,
+                y: pageHeight - 20,
+                size: 8,
+                font,
+                color: rgb(0.4, 0.4, 0.4),
+            });
+            currentPage.drawText(formatDate(new Date()), {
+                x: pageWidth - margin - 60,
+                y: pageHeight - 20,
+                size: 9,
+                font,
+                color: rgb(0.4, 0.4, 0.4),
+            });
+        };
+
+        const addDentalPage = () => {
+            dentalPage = pdfDoc.addPage([pageWidth, pageHeight]);
+            dentalY = pageHeight - margin;
+            drawDentalHeader(dentalPage);
+            dentalY -= 30;
+        };
+
+        const ensureDentalSpace = (height: number) => {
+            if (dentalY - height < margin) {
+                addDentalPage();
+            }
+        };
+
+        const drawDentalCoverRow = (
+            label: string,
+            value: string,
+            label2?: string,
+            value2?: string,
+            label3?: string,
+            value3?: string
+        ) => {
+            const cells = [
+                { label, value },
+                ...(label2 ? [{ label: label2, value: value2 || "/" }] : []),
+                ...(label3 ? [{ label: label3, value: value3 || "/" }] : []),
+            ];
+            const cellWidth = contentWidth / cells.length;
+            const linesByCell = cells.map((cell) =>
+                wrapText(`${cell.label} ${cell.value || "/"}`, cellWidth - 10, font, 9)
+            );
+            const rowHeight = Math.max(25, Math.max(...linesByCell.map((lines) => lines.length)) * 12 + 10);
+
+            dentalPage.drawRectangle({
+                x: margin,
+                y: dentalY - rowHeight,
+                width: contentWidth,
+                height: rowHeight,
+                borderColor: rgb(0, 0, 0),
+                borderWidth: 0.5,
+            });
+
+            cells.forEach((_, index) => {
+                const cellX = margin + index * cellWidth;
+                if (index > 0) {
+                    dentalPage.drawLine({
+                        start: { x: cellX, y: dentalY },
+                        end: { x: cellX, y: dentalY - rowHeight },
+                        thickness: 0.5,
+                        color: rgb(0, 0, 0),
+                    });
+                }
+                linesByCell[index].forEach((line, lineIndex) => {
+                    dentalPage.drawText(line, {
+                        x: cellX + 5,
+                        y: dentalY - 15 - lineIndex * 12,
+                        size: 9,
+                        font,
+                        color: rgb(0, 0, 0),
+                    });
+                });
+            });
+
+            dentalY -= rowHeight;
+        };
+
+        let dentalLogo = null;
+        try {
+            const logoBytes = await fetchImage("/logo_only.png");
+            dentalLogo = await pdfDoc.embedPng(logoBytes);
+        } catch (e) {
+            console.warn("Could not load logo:", e);
+        }
+
+        dentalPage.drawText(dentalInstitutionName, {
+            x: margin,
+            y: dentalY,
+            size: 10,
+            font,
+            color: rgb(0.3, 0.3, 0.3),
+        });
+        dentalY -= 34;
+
+        if (dentalLogo) {
+            const logoHeight = 58;
+            const logoWidth = (dentalLogo.width / dentalLogo.height) * logoHeight;
+            dentalPage.drawImage(dentalLogo, {
+                x: pageWidth / 2 - logoWidth / 2,
+                y: dentalY - logoHeight,
+                width: logoWidth,
+                height: logoHeight,
+            });
+            dentalY -= logoHeight + 40;
+        } else {
+            drawCenteredText(dentalPage, "MediForm", dentalY - 30, fontBold, 24, [0.07, 0.45, 0.50]);
+            dentalY -= 90;
+        }
+
+        drawCenteredText(dentalPage, data.title.toUpperCase(), dentalY, fontBold, 18, [0, 0, 0]);
+        dentalY -= 30;
+        drawCenteredText(dentalPage, data.predmet || "Zobna protetika - praktični pouk", dentalY, fontBold, 14, [0.2, 0.2, 0.2]);
+        dentalY -= 48;
+
+        drawDentalCoverRow(
+            "Ime in priimek dijaka:",
+            userInfo ? `${userInfo.ime} ${userInfo.priimek}` : "/",
+            "Razred:",
+            userInfo?.razred || "/",
+            "Šolsko leto:",
+            getSchoolYear()
+        );
+        drawDentalCoverRow("Šola:", dentalInstitutionName, "Avtor predloge:", "MediForm");
+        drawDentalCoverRow("Šifra delovnega naloga:", getDentalValue("1.1.1"), "Anonimizirana oznaka pacienta:", getDentalValue("1.1.2"));
+        drawDentalCoverRow("Datum začetka:", getDentalValue("1.1.3"), "Datum zaključka:", getDentalValue("1.1.4"));
+        drawDentalCoverRow("Zobnoprotetični izdelek:", getDentalValue("1.2.1"), "Čeljust in področje:", getDentalValue("1.2.2"));
+        drawDentalCoverRow("Mentor/ica:", getDentalValue("1.1.5"), "Delovno mesto:", getDentalValue("1.1.6"));
+        dentalY -= 28;
+
+        const dentalNotice = "Poročilo ne sme vsebovati imena, priimka, datuma rojstva ali drugih prepoznavnih podatkov pacienta. Uporabi se samo šifra delovnega naloga oziroma anonimizirana oznaka.";
+        const dentalNoticeHeight = drawWrappedText(
+            dentalPage,
+            dentalNotice,
+            margin,
+            dentalY,
+            contentWidth,
+            font,
+            10,
+            [0, 0, 0]
+        );
+        dentalY -= dentalNoticeHeight + 22;
+
+        dentalPage.drawText(`Datum: ${formatDate(new Date())}`, {
+            x: margin,
+            y: dentalY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        dentalPage.drawText("Podpis dijaka/inje:", {
+            x: pageWidth / 2,
+            y: dentalY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+
+        addDentalPage();
+
+        const drawDentalSectionTitle = (title: string, categoryColor?: [number, number, number]) => {
+            ensureDentalSpace(42);
+            const headerColor = categoryColor ? lightenColor(categoryColor, 0.25) : [0.92, 0.96, 0.98] as [number, number, number];
+            dentalPage.drawRectangle({
+                x: margin,
+                y: dentalY - 18,
+                width: contentWidth,
+                height: 25,
+                color: rgb(...headerColor),
+            });
+            dentalPage.drawText(title, {
+                x: margin + 5,
+                y: dentalY - 13,
+                size: 12,
+                font: fontBold,
+                color: rgb(0, 0, 0),
+            });
+            dentalY -= 30;
+        };
+
+        const drawDentalSubcategoryTitle = (title: string, color: [number, number, number]) => {
+            ensureDentalSpace(34);
+            dentalPage.drawRectangle({
+                x: margin + 10,
+                y: dentalY - 13,
+                width: contentWidth - 20,
+                height: 20,
+                color: rgb(...color),
+            });
+            dentalPage.drawText(title, {
+                x: margin + 15,
+                y: dentalY - 8,
+                size: 11,
+                font: fontBold,
+                color: rgb(0, 0, 0),
+            });
+            dentalY -= 25;
+        };
+
+        const drawDentalKeyValueTable = (rows: string[][]) => {
+            const labelWidth = 170;
+            const valueWidth = contentWidth - 20 - labelWidth;
+            rows.forEach(([label, value]) => {
+                const labelLines = wrapText(label || "/", labelWidth - 12, fontBold, 9);
+                const valueLines = wrapText(value || "/", valueWidth - 12, font, 9);
+                const rowHeight = Math.max(26, Math.max(labelLines.length, valueLines.length) * 12 + 12);
+                ensureDentalSpace(rowHeight + 2);
+
+                const tableX = margin + 10;
+                dentalPage.drawRectangle({
+                    x: tableX,
+                    y: dentalY - rowHeight,
+                    width: contentWidth - 20,
+                    height: rowHeight,
+                    borderColor: rgb(0, 0, 0),
+                    borderWidth: 0.5,
+                });
+                dentalPage.drawLine({
+                    start: { x: tableX + labelWidth, y: dentalY },
+                    end: { x: tableX + labelWidth, y: dentalY - rowHeight },
+                    thickness: 0.5,
+                    color: rgb(0, 0, 0),
+                });
+                labelLines.forEach((line, index) => {
+                    dentalPage.drawText(line, {
+                        x: tableX + 6,
+                        y: dentalY - 17 - index * 12,
+                        size: 9,
+                        font: fontBold,
+                        color: rgb(0, 0, 0),
+                    });
+                });
+                valueLines.forEach((line, index) => {
+                    dentalPage.drawText(line, {
+                        x: tableX + labelWidth + 6,
+                        y: dentalY - 17 - index * 12,
+                        size: 9,
+                        font,
+                        color: rgb(0, 0, 0),
+                    });
+                });
+                dentalY -= rowHeight;
+            });
+            dentalY -= 10;
+        };
+
+        const drawDentalDataTable = (element: TableElement, headerColor: [number, number, number]) => {
+            const tableX = margin + 10;
+            const tableWidth = contentWidth - 20;
+            const columnCount = element.columns.length;
+            const colWidth = tableWidth / columnCount;
+            const drawRow = (values: string[], isHeader: boolean) => {
+                const rowLines = values.map((value) => wrapText(value || "/", colWidth - 10, isHeader ? fontBold : font, 8));
+                const rowHeight = Math.max(24, Math.max(...rowLines.map((lines) => lines.length)) * 10 + 10);
+                ensureDentalSpace(rowHeight + 2);
+
+                if (isHeader) {
+                    dentalPage.drawRectangle({
+                        x: tableX,
+                        y: dentalY - rowHeight,
+                        width: tableWidth,
+                        height: rowHeight,
+                        color: rgb(...headerColor),
+                    });
+                }
+
+                rowLines.forEach((lines, columnIndex) => {
+                    const cellX = tableX + columnIndex * colWidth;
+                    dentalPage.drawRectangle({
+                        x: cellX,
+                        y: dentalY - rowHeight,
+                        width: colWidth,
+                        height: rowHeight,
+                        borderColor: rgb(0, 0, 0),
+                        borderWidth: 0.5,
+                    });
+                    lines.forEach((line, lineIndex) => {
+                        dentalPage.drawText(line, {
+                            x: cellX + 5,
+                            y: dentalY - 12 - lineIndex * 10,
+                            size: 8,
+                            font: isHeader ? fontBold : font,
+                            color: rgb(0, 0, 0),
+                        });
+                    });
+                });
+
+                dentalY -= rowHeight;
+            };
+
+            drawRow(element.columns.map((column) => column.title), true);
+            if (element.rows.length) {
+                element.rows.forEach((row) => {
+                    drawRow(element.columns.map((column) => row[column.key] || "/"), false);
+                });
+            } else {
+                drawRow(element.columns.map(() => "/"), false);
+            }
+            dentalY -= 12;
+        };
+
+        for (const categoryKey of sortKeys(Object.keys(data.categories))) {
+            const category = data.categories[categoryKey];
+            const categoryColor = category.color ? hexToRgb(category.color) : undefined;
+            const lightCategoryColor = categoryColor ? lightenColor(categoryColor, 0.5) : [0.96, 0.98, 0.99] as [number, number, number];
+            drawDentalSectionTitle(category.title, categoryColor);
+            if (category.description) {
+                const descHeight = drawWrappedText(
+                    dentalPage,
+                    category.description,
+                    margin,
+                    dentalY,
+                    contentWidth,
+                    font,
+                    10,
+                    [0.3, 0.3, 0.3]
+                );
+                dentalY -= descHeight + 10;
+            }
+
+            for (const subcategoryKey of sortKeys(Object.keys(category.subcategories || {}))) {
+                const subcategory = category.subcategories[subcategoryKey];
+                drawDentalSubcategoryTitle(subcategory.title, lightCategoryColor);
+                if (subcategory.description) {
+                    const subDescHeight = drawWrappedText(
+                        dentalPage,
+                        subcategory.description,
+                        margin + 10,
+                        dentalY,
+                        contentWidth - 20,
+                        font,
+                        9,
+                        [0.35, 0.35, 0.35]
+                    );
+                    dentalY -= subDescHeight + 8;
+                }
+
+                const valueRows: string[][] = [];
+                for (const elementKey of sortKeys(Object.keys(subcategory.elements || {}))) {
+                    const element = subcategory.elements[elementKey];
+                    if ((element as TableElement).type === "table") {
+                        if (valueRows.length) {
+                            drawDentalKeyValueTable(valueRows);
+                            valueRows.length = 0;
+                        }
+                        const tableElement = element as TableElement;
+                        dentalPage.drawText(tableElement.title, {
+                            x: margin + 10,
+                            y: dentalY,
+                            size: 10,
+                            font: fontBold,
+                            color: rgb(0, 0, 0),
+                        });
+                        dentalY -= 16;
+                        drawDentalDataTable(tableElement, lightCategoryColor);
+                    } else {
+                        const field = element as Element;
+                        valueRows.push([field.title, formatDentalValue(field.value)]);
+                    }
+                }
+                if (valueRows.length) {
+                    drawDentalKeyValueTable(valueRows);
+                }
+                dentalY -= 8;
+            }
+        }
+
+        ensureDentalSpace(90);
+        dentalY -= 10;
+        dentalPage.drawText("Opomba mentorja/ice:", {
+            x: margin,
+            y: dentalY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        dentalPage.drawLine({
+            start: { x: margin + 120, y: dentalY - 3 },
+            end: { x: pageWidth - margin, y: dentalY - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+        dentalY -= 28;
+        dentalPage.drawText("Podpis mentorja/ice:", {
+            x: pageWidth / 2,
+            y: dentalY,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        dentalPage.drawLine({
+            start: { x: pageWidth / 2 + 115, y: dentalY - 3 },
+            end: { x: pageWidth - margin, y: dentalY - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        const pdfBytes = await pdfDoc.save();
+        return new Blob([pdfBytes as BlobPart], { type: "application/pdf" });
+    };
+
     // ==================== COVER PAGE ====================
     
     const coverPage = pdfDoc.addPage([pageWidth, pageHeight]);

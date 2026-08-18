@@ -1,12 +1,13 @@
 ﻿"use client";
 
 import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     User,
     Loader2,
     AlertCircle,
     FileText,
+    ChevronLeft,
     ChevronRight,
     Plus,
     Trash2,
@@ -192,6 +193,7 @@ export default function Selector() {
     const [importDocName, setImportDocName] = useState("");
     const [importFileData, setImportFileData] = useState<any>(null);
     const [importError, setImportError] = useState<string | null>(null);
+    const templateCarouselRef = useRef<HTMLDivElement | null>(null);
 
     // Load user name from localStorage
     useEffect(() => {
@@ -452,14 +454,28 @@ export default function Selector() {
         });
     };
 
-    const lastUsedTemplate = templates.find(template => template.id === selectedTemplateId) || templates[0] || null;
-    const orderedTemplates = lastUsedTemplate
-        ? [
-            lastUsedTemplate,
-            ...templates.filter(template => template.id !== lastUsedTemplate.id),
-        ]
-        : templates;
+    const orderedTemplates = [...templates].sort((a, b) => {
+        const aIsMediForm = a.professorName?.trim().toLowerCase() === "mediform";
+        const bIsMediForm = b.professorName?.trim().toLowerCase() === "mediform";
+
+        if (aIsMediForm === bIsMediForm) return 0;
+        return aIsMediForm ? 1 : -1;
+    });
     const useTemplateCarousel = templates.length > 3;
+
+    useEffect(() => {
+        templateCarouselRef.current?.scrollTo({ left: 0 });
+    }, [orderedTemplates.length]);
+
+    const scrollTemplateCarousel = (direction: "left" | "right") => {
+        const carousel = templateCarouselRef.current;
+        if (!carousel) return;
+
+        carousel.scrollBy({
+            left: direction === "left" ? -320 : 320,
+            behavior: "smooth",
+        });
+    };
 
     if (isLoading) {
         return (
@@ -569,61 +585,88 @@ export default function Selector() {
 
                 {/* Template Selection */}
                 {templates.length > 0 ? (
-                    <div
-                        className={
-                            useTemplateCarousel
-                                ? "mb-12 flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
-                                : "mb-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-                        }
-                    >
-                        {orderedTemplates.map((template, index) => (
-                            <motion.div
-                                key={template.id}
-                                initial={{ opacity: 0, y: 16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, delay: index * 0.04 }}
-                                className={useTemplateCarousel ? "w-[17rem] sm:w-[18rem] flex-none snap-start" : undefined}
+                    <div className={useTemplateCarousel ? "template-carousel-shell mb-12" : "mb-12"}>
+                        {useTemplateCarousel && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="template-carousel-arrow template-carousel-arrow-left"
+                                onClick={() => scrollTemplateCarousel("left")}
+                                aria-label="Pomakni predloge levo"
                             >
-                                <Card
-                                    className="border border-slate-200 bg-white shadow-sm transition-shadow hover:border-cyan-300 hover:shadow-lg"
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                        )}
+                        <div
+                            ref={useTemplateCarousel ? templateCarouselRef : undefined}
+                            className={
+                                useTemplateCarousel
+                                    ? "template-carousel flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+                                    : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                            }
+                        >
+                            {orderedTemplates.map((template, index) => (
+                                <motion.div
+                                    key={template.id}
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, delay: index * 0.04 }}
+                                    className={useTemplateCarousel ? "template-card-wrap w-[17rem] sm:w-[18rem] flex-none snap-start" : "template-card-wrap"}
                                 >
-                                    <CardHeader className="pb-4">
-                                        <div className="flex items-start gap-3">
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-cyan-200 bg-cyan-50">
-                                                <FileText className="h-5 w-5 text-cyan-700" />
-                                            </div>
-                                            <CardTitle className="text-lg font-bold leading-snug text-slate-900">
-                                                {template.title}
-                                            </CardTitle>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="space-y-3 text-sm leading-relaxed text-slate-700">
+                                    <Card
+                                        className="template-card border border-slate-200 bg-white shadow-sm transition-shadow hover:border-cyan-300 hover:shadow-lg"
+                                    >
+                                        <CardHeader className="pb-4">
                                             <div className="flex items-start gap-3">
-                                                <School className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-                                                <span>{template.schoolName}</span>
-                                            </div>
-                                            {template.professorName && (
-                                                <div className="flex items-start gap-3">
-                                                    <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-                                                    <span>{template.professorName}</span>
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-cyan-200 bg-cyan-50">
+                                                    <FileText className="h-5 w-5 text-cyan-700" />
                                                 </div>
-                                            )}
-                                        </div>
-                                        <div className="border-t border-slate-200 pt-4">
-                                            <Button
-                                                onClick={() => handleCreateDocument(template)}
-                                                variant="outline"
-                                                className="w-full border-cyan-700 bg-white text-cyan-800 hover:bg-cyan-50 hover:text-cyan-900"
-                                            >
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                Uporabi
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                                <CardTitle className="text-lg font-bold leading-snug text-slate-900">
+                                                    {template.title}
+                                                </CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="template-card-content space-y-4">
+                                            <div className="template-card-meta space-y-3 text-sm leading-relaxed text-slate-700">
+                                                <div className="flex items-start gap-3">
+                                                    <School className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span className="template-school-name">{template.schoolName}</span>
+                                                </div>
+                                                {template.professorName && (
+                                                    <div className="flex items-start gap-3">
+                                                        <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                        <span>{template.professorName}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="border-t border-slate-200 pt-4">
+                                                <Button
+                                                    onClick={() => handleCreateDocument(template)}
+                                                    variant="outline"
+                                                    className="w-full border-cyan-700 bg-white text-cyan-800 hover:bg-cyan-50 hover:text-cyan-900"
+                                                >
+                                                    <Plus className="h-4 w-4 mr-2" />
+                                                    Uporabi
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            ))}
+                        </div>
+                        {useTemplateCarousel && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className="template-carousel-arrow template-carousel-arrow-right"
+                                onClick={() => scrollTemplateCarousel("right")}
+                                aria-label="Pomakni predloge desno"
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        )}
                     </div>
                 ) : !isLoading && (
                     <motion.div

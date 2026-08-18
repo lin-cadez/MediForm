@@ -12,6 +12,12 @@ const updateSW = registerSW({
   onRegisteredSW(swUrl, registration) {
     if (!registration) return
 
+    const activateWaitingWorker = () => {
+      if (registration.waiting) {
+        void updateSW(true)
+      }
+    }
+
     const checkForUpdates = async () => {
       if (!navigator.onLine) return
 
@@ -28,6 +34,22 @@ const updateSW = registerSW({
       }
 
       await registration.update()
+      activateWaitingWorker()
+    }
+
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing
+      if (!newWorker) return
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          activateWaitingWorker()
+        }
+      })
+    })
+
+    if (navigator.serviceWorker.controller) {
+      activateWaitingWorker()
     }
 
     const checkWhenVisible = () => {
@@ -39,6 +61,7 @@ const updateSW = registerSW({
     void checkForUpdates()
     window.addEventListener('online', () => void checkForUpdates())
     window.addEventListener('focus', () => void checkForUpdates())
+    window.addEventListener('pageshow', () => void checkForUpdates())
     document.addEventListener('visibilitychange', checkWhenVisible)
     window.setInterval(() => void checkForUpdates(), 5 * 60 * 1000)
   },

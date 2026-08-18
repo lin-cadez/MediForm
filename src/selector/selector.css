@@ -63,6 +63,86 @@
     margin-bottom: 2rem;
 }
 
+.template-carousel-shell {
+    position: relative;
+}
+
+.template-carousel {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scroll-padding-left: 0;
+}
+
+.template-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 10;
+    height: 2.5rem;
+    width: 2.5rem;
+    transform: translateY(-50%);
+    border-color: #bae6fd;
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #155e75;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+}
+
+.template-carousel-arrow:hover {
+    border-color: #0891b2;
+    background-color: #ecfeff;
+    color: #164e63;
+}
+
+.template-carousel-arrow-left {
+    left: -0.75rem;
+}
+
+.template-carousel-arrow-right {
+    right: -0.75rem;
+}
+
+.template-card-wrap {
+    height: 100%;
+}
+
+.template-card {
+    display: flex;
+    min-height: 18.75rem;
+    height: 100%;
+    flex-direction: column;
+}
+
+.template-card-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.template-card-meta {
+    min-height: 5.5rem;
+}
+
+.template-card-content > :last-child {
+    margin-top: auto;
+}
+
+.template-school-name {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+@media (max-width: 640px) {
+    .template-carousel-arrow-left {
+        left: 0.25rem;
+    }
+
+    .template-carousel-arrow-right {
+        right: 0.25rem;
+    }
+}
+
 .list-spacing {
     display: flex;
     flex-direction: column;

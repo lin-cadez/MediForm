@@ -466,6 +466,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             return `PUD-PREDSOLSKA-VZGOJA-${dateStr}-${timeStr}`;
         }
 
+        if (list?.reportType === "dental_technician") {
+            return `ZOBOTEHNIK-POROCILO-${dateStr}-${timeStr}`;
+        }
+
         const age = list?.patient_data?.starost || "neznano";
         return `OBRAVNAVA-${dateStr}-${timeStr}-${age}let`;
     };
