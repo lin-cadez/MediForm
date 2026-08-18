@@ -617,12 +617,12 @@ export default function Selector() {
                                     <Card
                                         className="template-card border border-slate-200 bg-white shadow-sm transition-shadow hover:border-cyan-300 hover:shadow-lg"
                                     >
-                                        <CardHeader className="pb-4">
+                                        <CardHeader className="template-card-header pb-4">
                                             <div className="flex items-start gap-3">
                                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-cyan-200 bg-cyan-50">
                                                     <FileText className="h-5 w-5 text-cyan-700" />
                                                 </div>
-                                                <CardTitle className="text-lg font-bold leading-snug text-slate-900">
+                                                <CardTitle className="template-card-title text-lg font-bold leading-snug text-slate-900">
                                                     {template.title}
                                                 </CardTitle>
                                             </div>
@@ -633,12 +633,10 @@ export default function Selector() {
                                                     <School className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
                                                     <span className="template-school-name">{template.schoolName}</span>
                                                 </div>
-                                                {template.professorName && (
-                                                    <div className="flex items-start gap-3">
-                                                        <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
-                                                        <span>{template.professorName}</span>
-                                                    </div>
-                                                )}
+                                                <div className={`template-author-row flex items-start gap-3 ${template.professorName ? "" : "invisible"}`}>
+                                                    <User className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                                                    <span>{template.professorName || "Avtor"}</span>
+                                                </div>
                                             </div>
                                             <div className="border-t border-slate-200 pt-4">
                                                 <Button

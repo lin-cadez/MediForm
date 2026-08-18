@@ -111,6 +111,19 @@
     flex-direction: column;
 }
 
+.template-card-header {
+    min-height: 7.25rem;
+}
+
+.template-card-title {
+    display: -webkit-box;
+    min-height: 4.65rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
 .template-card-content {
     display: flex;
     flex: 1;
@@ -119,6 +132,10 @@
 
 .template-card-meta {
     min-height: 5.5rem;
+}
+
+.template-author-row {
+    min-height: 1.5rem;
 }
 
 .template-card-content > :last-child {
