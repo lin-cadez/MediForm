@@ -1,0 +1,61 @@
+.mediform-time-picker .react-time-picker,
+.mediform-time-picker .react-time-picker__wrapper {
+  width: 100%;
+}
+
+.mediform-time-picker .react-time-picker__wrapper {
+  min-height: 2.5rem;
+  border: 0;
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.mediform-time-picker .react-time-picker__inputGroup {
+  flex: 1;
+  min-width: 0;
+}
+
+.mediform-time-picker .react-time-picker__inputGroup__input {
+  min-width: 1.4rem;
+  color: rgb(15 23 42);
+  outline: none;
+}
+
+.mediform-time-picker .react-time-picker__inputGroup__divider {
+  padding: 0 0.125rem;
+  color: rgb(71 85 105);
+}
+
+.mediform-time-picker .react-time-picker__button {
+  padding: 0.25rem;
+  color: rgb(71 85 105);
+}
+
+.mediform-time-picker .react-time-picker__button:hover {
+  color: rgb(14 116 144);
+}
+
+.mediform-time-picker .react-time-picker__clock {
+  z-index: 99999;
+}
+
+.mediform-time-picker .react-clock {
+  border-color: rgb(186 230 253);
+  border-radius: 9999px;
+  background: white;
+  box-shadow: 0 12px 30px rgb(15 23 42 / 0.18);
+}
+
+.mediform-time-picker .react-clock__face {
+  border-color: rgb(14 116 144);
+}
+
+.mediform-time-picker .react-clock__mark__body,
+.mediform-time-picker .react-clock__hand__body {
+  background-color: rgb(14 116 144);
+}
+
+.mediform-time-picker .react-clock__second-hand__body {
+  background-color: rgb(8 47 73);
+}
