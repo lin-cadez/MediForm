@@ -17,8 +17,7 @@
     "description": "Dokumentacija zdravstvene nege pacienta ali stanovalca za praktični pouk.",
     "schoolId": "gimnazija-ormoz",
     "schoolName": "Gimnazija Ormož",
-    "professorName": "Katja Skoliber, mag. zdr. ved.",
-    "professorRole": "organizatorica praktičnega pouka",
+    "professorName": "Katja Skoliber",
     "subject": "Zdravstvena nega",
     "documentNameHint": "npr. Pacient Ormož 01",
     "url": "/obrazec/gimnazija-ormoz-zdravstvena-nega"
