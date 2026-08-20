@@ -3,12 +3,14 @@
   "reportType": "healthcare_ormoz",
   "url": "gimnazija-ormoz-zdravstvena-nega",
   "title": "Dokumentacija zdravstvene nege",
+  "pdfTitle": "Poročilo o zdravstveni negi pacienta",
   "description": "Dokumentacija zdravstvene nege pacienta ali stanovalca za praktični pouk Gimnazije Ormož.",
   "predmet": "Zdravstvena nega",
   "schoolName": "Gimnazija Ormož",
   "professorName": "Katja Skoliber",
   "categories": {
     "1": {
+      "categoryType": "patient_data",
       "title": "PODATKI O PACIENTU / STANOVALCU",
       "description": "Osnovni podatki ob začetku obravnave",
       "url": "podatki-o-pacientu",

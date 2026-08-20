@@ -38,6 +38,7 @@ interface Category {
     description: string;
     url?: string;
     color?: string;
+    categoryType?: string;
     subcategories: Record<string, Subcategory>;
 }
 
@@ -58,9 +59,11 @@ interface JsonData {
     id?: string;
     reportType?: string;
     title: string;
+    pdfTitle?: string;
     description: string;
     predmet?: string;
     schoolName?: string;
+    professorName?: string;
     educationProgram?: string;
     patient_data?: PatientData;
     categories: Record<string, Category>;
@@ -1160,15 +1163,17 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
     // Load and embed logos
     let logoImage = null;
-    try {
-        const logoBytes = await fetchImage("/logo_only.png");
-        logoImage = await pdfDoc.embedPng(logoBytes);
-    } catch (e) {
-        console.warn("Could not load logo:", e);
+    if (!isOrmozHealthReport) {
+        try {
+            const logoBytes = await fetchImage("/logo_only.png");
+            logoImage = await pdfDoc.embedPng(logoBytes);
+        } catch (e) {
+            console.warn("Could not load logo:", e);
+        }
     }
 
     // Draw logos centered
-    if (logoImage) {
+    if (!isOrmozHealthReport && logoImage) {
         const logoHeight = 60;
         const logoWidth = (logoImage.width / logoImage.height) * logoHeight;
         const logoCenterX = pageWidth / 2 - logoWidth / 2;
@@ -1180,17 +1185,27 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             height: logoHeight,
         });
         yOffset -= logoHeight + 20;
-    } else {
+    } else if (!isOrmozHealthReport) {
         // Fallback: draw MediForm text
         drawCenteredText(coverPage, "MediForm", yOffset - 30, fontBold, 24, [0.07, 0.45, 0.50]);
         yOffset -= 60;
+    } else {
+        yOffset -= 10;
     }
 
     yOffset -= 20;
 
     // Report title (bold, centered, uppercase)
-    drawCenteredText(coverPage, data.title.toUpperCase(), yOffset, fontBold, 18, [0, 0, 0]);
-    yOffset -= 30;
+    const coverTitle = data.pdfTitle || data.title;
+    drawCenteredText(
+        coverPage,
+        coverTitle.toUpperCase(),
+        yOffset,
+        fontBold,
+        isOrmozHealthReport ? 24 : 18,
+        [0, 0, 0]
+    );
+    yOffset -= isOrmozHealthReport ? 42 : 30;
 
     // Subject (predmet) - bold, centered
     if (data.predmet) {
@@ -1200,10 +1215,11 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
     // ==================== INFO TABLE ====================
     
-    yOffset -= 20;
+    yOffset -= isOrmozHealthReport ? 125 : 20;
     const tableX = margin;
     const tableWidth = pageWidth - 2 * margin;
-    const rowHeight = 25;
+    const rowHeight = isOrmozHealthReport ? 34 : 25;
+    const tableFontSize = isOrmozHealthReport ? 10 : 9;
 
     // Helper to draw a table row
     const drawTableRow = (
@@ -1235,7 +1251,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label} ${value}`, {
                 x: tableX + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1248,7 +1264,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label2} ${value2}`, {
                 x: tableX + colWidth + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1261,7 +1277,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label3} ${value3}`, {
                 x: tableX + 2 * colWidth + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1271,7 +1287,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label} ${value}`, {
                 x: tableX + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1284,7 +1300,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label2} ${value2}`, {
                 x: tableX + colWidth + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1293,7 +1309,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             page.drawText(`${label} ${value}`, {
                 x: tableX + cellPadding,
                 y: y - rowHeight + 8,
-                size: 9,
+                size: tableFontSize,
                 font: font,
                 color: rgb(0, 0, 0),
             });
@@ -1367,6 +1383,62 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         });
 
         // Space for handwritten signature (no line, no name)
+        yOffset -= 50;
+    } else {
+        yOffset = drawTableRow(
+            coverPage,
+            "Šola:",
+            institutionName,
+            yOffset,
+            "Predmet:",
+            data.predmet || "Zdravstvena nega"
+        );
+
+        yOffset = drawTableRow(
+            coverPage,
+            "Profesor/ica:",
+            data.professorName || "/",
+            yOffset,
+            "Datum priprave poročila:",
+            formatDate(new Date())
+        );
+
+        yOffset -= 38;
+
+        const declarationText = "S podpisom se zavezujem, da je poročilo o zdravstveni negi pacienta moj lastni izdelek in bom z njim ravnal kot z zaupnim dokumentom.";
+        const declarationHeight = drawWrappedText(
+            coverPage,
+            declarationText,
+            margin,
+            yOffset,
+            tableWidth,
+            font,
+            10,
+            [0, 0, 0]
+        );
+        yOffset -= declarationHeight + 28;
+
+        coverPage.drawText(`Datum: ${formatDate(new Date())}`, {
+            x: margin,
+            y: yOffset,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        coverPage.drawText("Podpis kandidata:", {
+            x: pageWidth / 2,
+            y: yOffset,
+            size: 10,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        coverPage.drawLine({
+            start: { x: pageWidth / 2 + 92, y: yOffset - 3 },
+            end: { x: pageWidth - margin, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0.45, 0.45, 0.45),
+        });
+
         yOffset -= 50;
     }
 
@@ -1792,6 +1864,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             )
         );
         const categoryTitle = getHealthCategoryTitle(category, hasTableElements, isActivity);
+        const isPatientDataCategory = isOrmozHealthReport && category.categoryType === "patient_data";
 
         if (yOffset - 100 < healthBottom) addHealthPage();
         drawHealthBanner(categoryTitle, bannerColor);
@@ -1919,7 +1992,10 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             if (yOffset - 45 < healthBottom) {
                 drawContinuationBanner(categoryTitle, bannerColor);
             }
-            drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+            const subcategoryBannerColor = isPatientDataCategory
+                ? [0.9, 0.94, 0.98] as [number, number, number]
+                : lightenColor(bannerColor, 0.42);
+            drawHealthBanner(subcategory.title, subcategoryBannerColor, true);
 
             if (subcategory.description) {
                 const descriptionStyles = [{ font, size: 8.5, fill: healthSubheader }];
@@ -1933,7 +2009,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
                 );
                 if (yOffset - descriptionHeight < healthBottom) {
                     drawContinuationBanner(categoryTitle, bannerColor);
-                    drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+                    drawHealthBanner(subcategory.title, subcategoryBannerColor, true);
                 }
                 drawHealthRow(
                     descriptionCells,
@@ -1944,7 +2020,9 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
                 );
             }
 
-            const regularWidths = [healthContentWidth * 0.34, healthContentWidth * 0.66];
+            const regularWidths = isPatientDataCategory
+                ? [healthContentWidth * 0.33, healthContentWidth * 0.67]
+                : [healthContentWidth * 0.34, healthContentWidth * 0.66];
             for (const element of elements) {
                 const cells = [element.title || "/", formatHealthValue(element)];
                 const styles = [
@@ -1954,7 +2032,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
                 const rowHeight = measureHealthRow(cells, regularWidths, styles, 25);
                 if (yOffset - rowHeight < healthBottom) {
                     drawContinuationBanner(categoryTitle, bannerColor);
-                    drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+                    drawHealthBanner(subcategory.title, subcategoryBannerColor, true);
                 }
                 drawPaginatedHealthRow(cells, regularWidths, styles, 25, () => {
                     drawContinuationBanner(categoryTitle, bannerColor);
