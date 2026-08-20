@@ -1403,7 +1403,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
         yOffset = drawTableRow(
             coverPage,
-            "Avtor/ica predloge:",
+            "Mentorica:",
             data.professorName || "/",
             yOffset,
             "Datum priprave poročila:",
