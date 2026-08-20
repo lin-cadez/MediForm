@@ -3333,11 +3333,6 @@
           },
           "title": "Seznam zdravil",
           "description": null
-        },
-        "29.2": {
-          "elements": {},
-          "description": null,
-          "title": "Ocena stopnje samooskrbe"
         }
       },
       "url": "aplikacija-zdravil",

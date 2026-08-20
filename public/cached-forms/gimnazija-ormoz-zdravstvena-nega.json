@@ -1,0 +1,513 @@
+{
+  "id": "gimnazija-ormoz-zdravstvena-nega",
+  "reportType": "healthcare_ormoz",
+  "url": "gimnazija-ormoz-zdravstvena-nega",
+  "title": "Dokumentacija zdravstvene nege",
+  "description": "Dokumentacija zdravstvene nege pacienta ali stanovalca za praktični pouk Gimnazije Ormož.",
+  "predmet": "Zdravstvena nega",
+  "schoolName": "Gimnazija Ormož",
+  "professorName": "Katja Skoliber, mag. zdr. ved.",
+  "professorRole": "organizatorica praktičnega pouka",
+  "categories": {
+    "1": {
+      "title": "PODATKI O PACIENTU / STANOVALCU",
+      "description": "Osnovni podatki ob začetku obravnave",
+      "url": "podatki-o-pacientu",
+      "color": "#DBEAFE",
+      "subcategories": {
+        "1.1": {
+          "title": "Zdravstvena ustanova in oddelek",
+          "description": null,
+          "elements": {
+            "1.1.1": {
+              "title": "Zdravstvena ustanova - oddelek",
+              "unit": null,
+              "hint": "npr. Splošna bolnišnica, internistični oddelek",
+              "type": "str",
+              "value": null
+            }
+          }
+        },
+        "1.2": {
+          "title": "Osnovni podatki",
+          "description": "Uporabite samo začetnici imena in priimka ter ne vpisujte osebnih podatkov, ki bi omogočali neposredno identifikacijo pacienta.",
+          "elements": {
+            "1.2.1": {
+              "title": "Začetnici imena in priimka",
+              "unit": null,
+              "hint": "npr. A. N.",
+              "type": "str",
+              "value": null
+            },
+            "1.2.2": {
+              "title": "Spol",
+              "unit": null,
+              "hint": "Izberite spol",
+              "type": "str",
+              "option_type": "one",
+              "options": [
+                "moški",
+                "ženski"
+              ],
+              "value": null
+            },
+            "1.2.3": {
+              "title": "Starost",
+              "unit": "let",
+              "hint": "npr. 67",
+              "type": "num",
+              "value": null
+            },
+            "1.2.4": {
+              "title": "Dan hospitalizacije",
+              "unit": "dan",
+              "hint": "npr. 3",
+              "type": "num",
+              "value": null
+            },
+            "1.2.5": {
+              "title": "Dan po operaciji",
+              "unit": "dan",
+              "hint": "npr. 1",
+              "type": "num",
+              "value": null
+            },
+            "1.2.6": {
+              "title": "Dan posega",
+              "unit": null,
+              "hint": null,
+              "type": "date",
+              "value": null
+            },
+            "1.2.7": {
+              "title": "Vzrok hospitalizacije",
+              "unit": null,
+              "hint": "Opišite razlog sprejema ali hospitalizacije.",
+              "type": "longtext",
+              "value": null
+            },
+            "1.2.8": {
+              "title": "Zdravniška diagnoza",
+              "unit": null,
+              "hint": "Vpišite zdravniško diagnozo.",
+              "type": "longtext",
+              "value": null
+            }
+          }
+        }
+      }
+    },
+    "2": {
+      "title": "OCENA STOPNJE SAMOOSKRBE PRED HOSPITALIZACIJO / NEGOVALNA ANAMNEZA",
+      "description": "Podatki o stanju, navadah in bivalnih razmerah pred hospitalizacijo",
+      "url": "negovalna-anamneza",
+      "color": "#DCFCE7",
+      "subcategories": {
+        "2.1": {
+          "title": "Negovalna anamneza",
+          "description": null,
+          "elements": {
+            "2.1.1": {
+              "title": "Alergije",
+              "unit": null,
+              "hint": "Vpišite znane alergije ali navedite, da niso znane.",
+              "type": "longtext",
+              "value": null
+            },
+            "2.1.2": {
+              "title": "Prehranski status",
+              "unit": null,
+              "hint": "Izberite ali vpišite prehranski status.",
+              "type": "str",
+              "option_type": "one",
+              "options": [
+                "normalno prehranjen/a",
+                "podhranjen/a",
+                "prekomerno prehranjen/a",
+                "debelost",
+                "ni ocenjeno"
+              ],
+              "value": null
+            },
+            "2.1.3": {
+              "title": "Posebne razvade ali navade",
+              "unit": null,
+              "hint": "Izberite ali vpišite posebnost.",
+              "type": "str",
+              "option_type": "multiple",
+              "options": [
+                "kajenje",
+                "uživanje alkohola",
+                "posebne prehranske navade",
+                "brez posebnosti"
+              ],
+              "value": []
+            },
+            "2.1.4": {
+              "title": "Bivanjske razmere",
+              "unit": null,
+              "hint": "Opišite bivanjske razmere in razpoložljivo pomoč.",
+              "type": "longtext",
+              "value": null
+            },
+            "2.1.5": {
+              "title": "Druga opažanja ali posebnosti",
+              "unit": null,
+              "hint": "Vpišite druga pomembna opažanja, posebnosti ali podatke o obiskih.",
+              "type": "longtext",
+              "value": null
+            }
+          }
+        }
+      }
+    },
+    "3": {
+      "title": "OPAZOVANJE ZAVESTI",
+      "description": "Ocena stanja zavesti pacienta ali stanovalca",
+      "url": "opazovanje-zavesti",
+      "color": "#E0E7FF",
+      "subcategories": {
+        "3.1": {
+          "title": "Stanje zavesti",
+          "description": null,
+          "elements": {
+            "3.1.1": {
+              "title": "Ocena zavesti",
+              "unit": null,
+              "hint": "Izberite oceno zavesti.",
+              "type": "str",
+              "option_type": "one",
+              "options": [
+                "normalna zavest",
+                "kvalitativne motnje zavesti",
+                "kvantitativne motnje zavesti"
+              ],
+              "value": null
+            },
+            "3.1.2": {
+              "title": "Opis motnje ali opažanja",
+              "unit": null,
+              "hint": "Opišite opaženo motnjo zavesti ali druga pomembna opažanja.",
+              "type": "longtext",
+              "value": null
+            }
+          }
+        }
+      }
+    },
+    "4": {
+      "title": "VITALNE FUNKCIJE",
+      "description": "Meritve vitalnih funkcij in strokovna opredelitev izmerjenih vrednosti",
+      "url": "vitalne-funkcije",
+      "color": "#FEF3C7",
+      "subcategories": {
+        "4.1": {
+          "title": "Meritve vitalnih funkcij",
+          "description": null,
+          "elements": {
+            "4.1.1": {
+              "title": "Vitalne funkcije",
+              "type": "table",
+              "columns": [
+                {
+                  "key": "vitalna_funkcija",
+                  "title": "Vitalna funkcija",
+                  "hint": "Vrsta meritve"
+                },
+                {
+                  "key": "cas_merjenja",
+                  "title": "Čas merjenja",
+                  "hint": "npr. 08:00"
+                },
+                {
+                  "key": "izmerjena_vrednost_1",
+                  "title": "Izmerjena vrednost 1",
+                  "hint": "Vrednost in enota"
+                },
+                {
+                  "key": "izmerjena_vrednost_2",
+                  "title": "Izmerjena vrednost 2",
+                  "hint": "Dodatna vrednost"
+                },
+                {
+                  "key": "normalna_vrednost",
+                  "title": "Normalna vrednost",
+                  "hint": "Referenčna vrednost"
+                },
+                {
+                  "key": "strokovni_izraz",
+                  "title": "Strokovni izraz za izmerjeno vrednost",
+                  "hint": "Strokovna opredelitev"
+                }
+              ],
+              "rows": [
+                {
+                  "vitalna_funkcija": "Arterijski krvni tlak",
+                  "cas_merjenja": "",
+                  "izmerjena_vrednost_1": "",
+                  "izmerjena_vrednost_2": "",
+                  "normalna_vrednost": "",
+                  "strokovni_izraz": ""
+                },
+                {
+                  "vitalna_funkcija": "Pulz",
+                  "cas_merjenja": "",
+                  "izmerjena_vrednost_1": "",
+                  "izmerjena_vrednost_2": "",
+                  "normalna_vrednost": "",
+                  "strokovni_izraz": ""
+                },
+                {
+                  "vitalna_funkcija": "Dihanje",
+                  "cas_merjenja": "",
+                  "izmerjena_vrednost_1": "",
+                  "izmerjena_vrednost_2": "",
+                  "normalna_vrednost": "",
+                  "strokovni_izraz": ""
+                },
+                {
+                  "vitalna_funkcija": "Saturacija (SpO2)",
+                  "cas_merjenja": "",
+                  "izmerjena_vrednost_1": "",
+                  "izmerjena_vrednost_2": "",
+                  "normalna_vrednost": "",
+                  "strokovni_izraz": ""
+                },
+                {
+                  "vitalna_funkcija": "Telesna temperatura (način merjenja)",
+                  "cas_merjenja": "",
+                  "izmerjena_vrednost_1": "",
+                  "izmerjena_vrednost_2": "",
+                  "normalna_vrednost": "",
+                  "strokovni_izraz": ""
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "5": {
+      "title": "TERAPIJA",
+      "description": "Podatki o predpisani terapiji in aplikaciji zdravil",
+      "url": "terapija",
+      "color": "#FED7AA",
+      "subcategories": {
+        "5.1": {
+          "title": "Seznam terapije",
+          "description": null,
+          "elements": {
+            "5.1.1": {
+              "title": "Terapija pacienta ali stanovalca",
+              "type": "table",
+              "columns": [
+                {
+                  "key": "ime_zdravila",
+                  "title": "Ime zdravila",
+                  "hint": "npr. Lekadol"
+                },
+                {
+                  "key": "atc_klasifikacija",
+                  "title": "ATC klasifikacija",
+                  "hint": "npr. analgetik"
+                },
+                {
+                  "key": "odmerek",
+                  "title": "Odmerek",
+                  "hint": "npr. 1 x zjutraj"
+                },
+                {
+                  "key": "oblika",
+                  "title": "Oblika",
+                  "hint": "npr. tableta"
+                },
+                {
+                  "key": "nacin_aplikacije",
+                  "title": "Način aplikacije",
+                  "hint": "npr. per os"
+                },
+                {
+                  "key": "cas_aplikacije",
+                  "title": "Čas aplikacije",
+                  "hint": "npr. 08:05"
+                },
+                {
+                  "key": "posebnosti",
+                  "title": "Posebnosti",
+                  "hint": "/ če ni posebnosti"
+                }
+              ],
+              "rows": [
+                {
+                  "ime_zdravila": "",
+                  "atc_klasifikacija": "",
+                  "odmerek": "",
+                  "oblika": "",
+                  "nacin_aplikacije": "",
+                  "cas_aplikacije": "",
+                  "posebnosti": ""
+                },
+                {
+                  "ime_zdravila": "",
+                  "atc_klasifikacija": "",
+                  "odmerek": "",
+                  "oblika": "",
+                  "nacin_aplikacije": "",
+                  "cas_aplikacije": "",
+                  "posebnosti": ""
+                },
+                {
+                  "ime_zdravila": "",
+                  "atc_klasifikacija": "",
+                  "odmerek": "",
+                  "oblika": "",
+                  "nacin_aplikacije": "",
+                  "cas_aplikacije": "",
+                  "posebnosti": ""
+                },
+                {
+                  "ime_zdravila": "",
+                  "atc_klasifikacija": "",
+                  "odmerek": "",
+                  "oblika": "",
+                  "nacin_aplikacije": "",
+                  "cas_aplikacije": "",
+                  "posebnosti": ""
+                },
+                {
+                  "ime_zdravila": "",
+                  "atc_klasifikacija": "",
+                  "odmerek": "",
+                  "oblika": "",
+                  "nacin_aplikacije": "",
+                  "cas_aplikacije": "",
+                  "posebnosti": ""
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "6": {
+      "title": "OPIS PROCESA ZDRAVSTVENE NEGE",
+      "description": "Ocena samooskrbe, načrtovanje in izvedba intervencij zdravstvene nege",
+      "url": "proces-zdravstvene-nege",
+      "color": "#E0E7FF",
+      "subcategories": {
+        "6.1": {
+          "title": "Temeljne življenjske aktivnosti",
+          "description": null,
+          "elements": {
+            "6.1.1": {
+              "title": "Proces zdravstvene nege po temeljnih življenjskih aktivnostih",
+              "type": "table",
+              "columns": [
+                {
+                  "key": "temeljna_aktivnost",
+                  "title": "Temeljna življenjska aktivnost",
+                  "hint": "Aktivnost"
+                },
+                {
+                  "key": "ocena_samooskrbe",
+                  "title": "Ocena stopnje samooskrbe pacienta",
+                  "hint": "Opišite stopnjo samooskrbe"
+                },
+                {
+                  "key": "nacrtovanje_intervencij",
+                  "title": "Načrtovanje intervencij zdravstvene nege",
+                  "hint": "Načrtovane intervencije"
+                },
+                {
+                  "key": "izvedba_intervencij",
+                  "title": "Izvedba intervencij zdravstvene nege (čas)",
+                  "hint": "Izvedene intervencije in čas"
+                }
+              ],
+              "rows": [
+                {
+                  "temeljna_aktivnost": "Dihanje in krvni obtok",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Prehranjevanje in pitje",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Izločanje in odvajanje",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Gibanje in ustrezna lega",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Spanje in počitek",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Oblačenje in slačenje",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Vzdrževanje normalne telesne temperature",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Osebna higiena in urejenost",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Izogibanje nevarnostim v okolju",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Komunikacija, odnosi z ljudmi in izražanje čustev, občutkov ter potreb",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Delo in ustvarjalna zaposlitev",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Razvedrilo in rekreacija",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                },
+                {
+                  "temeljna_aktivnost": "Učenje in skrb za lastno zdravje",
+                  "ocena_samooskrbe": "",
+                  "nacrtovanje_intervencij": "",
+                  "izvedba_intervencij": ""
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

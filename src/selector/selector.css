@@ -131,11 +131,11 @@
 }
 
 .template-card-meta {
-    min-height: 5.5rem;
+    min-height: 6.5rem;
 }
 
 .template-author-row {
-    min-height: 1.5rem;
+    min-height: 2.5rem;
 }
 
 .template-card-content > :last-child {

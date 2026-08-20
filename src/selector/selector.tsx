@@ -44,6 +44,7 @@ interface FormTemplate {
     schoolName: string;
     schoolAddress?: string;
     professorName?: string;
+    professorRole?: string;
     subject?: string;
     documentNameHint?: string;
 }
@@ -249,6 +250,7 @@ export default function Selector() {
                     schoolName: form.schoolName || DEFAULT_SCHOOL.name,
                     schoolAddress: form.schoolAddress || DEFAULT_SCHOOL.address,
                     professorName: form.professorName || form.teacherName || form.createdBy || undefined,
+                    professorRole: form.professorRole || undefined,
                     subject: form.subject || form.predmet || null,
                     documentNameHint: form.documentNameHint || undefined,
                 }));
@@ -637,7 +639,14 @@ export default function Selector() {
                                                 </div>
                                                 <div className={`template-author-row flex items-start gap-3 ${template.professorName ? "" : "invisible"}`}>
                                                     <User className="mt-1.5 h-4 w-4 shrink-0 text-slate-500" />
-                                                    <span>{template.professorName || "Avtor"}</span>
+                                                    <span className="min-w-0">
+                                                        <span className="block">{template.professorName || "Avtor"}</span>
+                                                        {template.professorRole && (
+                                                            <span className="block text-xs text-slate-500">
+                                                                {template.professorRole}
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                 </div>
                                             </div>
                                             <div className="border-t border-slate-200 pt-4">

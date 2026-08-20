@@ -496,6 +496,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
             return `ZOBOTEHNIK-POROCILO-${dateStr}-${timeStr}`;
         }
 
+        if (list?.reportType === "healthcare_ormoz") {
+            return `ZN-GIMNAZIJA-ORMOZ-${dateStr}-${timeStr}`;
+        }
+
         const age = list?.patient_data?.starost || "neznano";
         return `OBRAVNAVA-${dateStr}-${timeStr}-${age}let`;
     };
