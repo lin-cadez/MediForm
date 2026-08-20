@@ -161,7 +161,8 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     const margin = 40;
     
     // Get institution name from user info or use default
-    const institutionName = userInfo?.sola || "Srednja zdravstvena šola Ljubljana";
+    const institutionName = data.schoolName || userInfo?.sola || "Srednja zdravstvena šola Ljubljana";
+    const isOrmozHealthReport = data.reportType === "healthcare_ormoz";
 
     // ==================== HELPER FUNCTIONS ====================
     
@@ -1314,61 +1315,63 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         getSchoolYear()
     );
 
-    // Row 2: Područje, Datum obravnave
-    yOffset = drawTableRow(
-        coverPage,
-        "Področje izvajanja zdravstvene nege:",
-        userInfo?.podrocje || "",
-        yOffset,
-        "Datum obravnave pacienta:",
-        data.patient_data?.datum_obravnave || ""
-    );
+    if (!isOrmozHealthReport) {
+        // Row 2: Področje, Datum obravnave
+        yOffset = drawTableRow(
+            coverPage,
+            "Področje izvajanja zdravstvene nege:",
+            userInfo?.podrocje || "",
+            yOffset,
+            "Datum obravnave pacienta:",
+            data.patient_data?.datum_obravnave || ""
+        );
 
-    // Row 3: Mentor, Datum oddaje
-    yOffset = drawTableRow(
-        coverPage,
-        "Mentor/ica praktičnega pouka:",
-        data.patient_data?.mentor || "",
-        yOffset,
-        "Datum oddaje poročila:",
-        data.patient_data?.datum_oddaje || ""
-    );
+        // Row 3: Mentor, Datum oddaje
+        yOffset = drawTableRow(
+            coverPage,
+            "Mentor/ica praktičnega pouka:",
+            data.patient_data?.mentor || "",
+            yOffset,
+            "Datum oddaje poročila:",
+            data.patient_data?.datum_oddaje || ""
+        );
 
-    yOffset -= 30;
+        yOffset -= 30;
 
-    // ==================== DECLARATION TEXT ====================
-    
-    const declarationText = "S podpisom se zavezujem, da je Poročilo o zdravstveni negi pacienta moj lastni izdelek in bom z njim ravnal kot z zaupnim dokumentom.";
-    const declarationHeight = drawWrappedText(
-        coverPage,
-        declarationText,
-        margin,
-        yOffset,
-        tableWidth,
-        font,
-        10,
-        [0, 0, 0]
-    );
-    yOffset -= declarationHeight + 20;
+        // ==================== DECLARATION TEXT ====================
 
-    // Datum and Podpis row
-    coverPage.drawText(`Datum: ${formatDate(new Date())}`, {
-        x: margin,
-        y: yOffset,
-        size: 10,
-        font: font,
-        color: rgb(0, 0, 0),
-    });
-    coverPage.drawText("Podpis kandidata:", {
-        x: pageWidth / 2,
-        y: yOffset,
-        size: 10,
-        font: font,
-        color: rgb(0, 0, 0),
-    });
-    
-    // Space for handwritten signature (no line, no name)
-    yOffset -= 50;
+        const declarationText = "S podpisom se zavezujem, da je Poročilo o zdravstveni negi pacienta moj lastni izdelek in bom z njim ravnal kot z zaupnim dokumentom.";
+        const declarationHeight = drawWrappedText(
+            coverPage,
+            declarationText,
+            margin,
+            yOffset,
+            tableWidth,
+            font,
+            10,
+            [0, 0, 0]
+        );
+        yOffset -= declarationHeight + 20;
+
+        // Datum and Podpis row
+        coverPage.drawText(`Datum: ${formatDate(new Date())}`, {
+            x: margin,
+            y: yOffset,
+            size: 10,
+            font: font,
+            color: rgb(0, 0, 0),
+        });
+        coverPage.drawText("Podpis kandidata:", {
+            x: pageWidth / 2,
+            y: yOffset,
+            size: 10,
+            font: font,
+            color: rgb(0, 0, 0),
+        });
+
+        // Space for handwritten signature (no line, no name)
+        yOffset -= 50;
+    }
 
     // ==================== PATIENT DATA SECTION ====================
     
@@ -1440,375 +1443,532 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         );
     }
 
-    // ==================== CONTENT PAGES ====================
-    
-    let page = pdfDoc.addPage([pageWidth, pageHeight]);
-    yOffset = pageHeight - margin;
+    // ==================== HEALTH REPORT CONTENT PAGES ====================
 
-    // Draw content header (on all content pages)
-    const drawContentHeader = (currentPage: PDFPage) => {
-        // Institution name - top left
+    // Health content is intentionally landscape: long care descriptions and
+    // medication tables stay readable without reducing the type excessively.
+    const healthPageWidth = pageHeight;
+    const healthPageHeight = pageWidth;
+    const healthMargin = 24;
+    const healthContentWidth = healthPageWidth - healthMargin * 2;
+    const healthBottom = 24;
+    const healthDefaultBanner: [number, number, number] = [0.87, 0.94, 0.97];
+    const healthSubheader: [number, number, number] = [0.95, 0.97, 0.98];
+
+    let page = pdfDoc.addPage([healthPageWidth, healthPageHeight]);
+    yOffset = healthPageHeight - 44;
+
+    const drawHealthPageHeader = (currentPage: PDFPage) => {
         currentPage.drawText(institutionName, {
-            x: margin,
-            y: pageHeight - 20,
-            size: 8,
-            font: font,
-            color: rgb(0.4, 0.4, 0.4),
+            x: healthMargin,
+            y: healthPageHeight - 18,
+            size: 7.5,
+            font,
+            color: rgb(0.35, 0.35, 0.35),
         });
-        
-        // Date - top right
-        currentPage.drawText(formatDate(new Date()), {
-            x: pageWidth - margin - 60,
-            y: pageHeight - 20,
-            size: 9,
-            font: font,
-            color: rgb(0.4, 0.4, 0.4),
+
+        const headerDate = formatDate(new Date());
+        const headerDateWidth = font.widthOfTextAtSize(headerDate, 7.5);
+        currentPage.drawText(headerDate, {
+            x: healthPageWidth - healthMargin - headerDateWidth,
+            y: healthPageHeight - 18,
+            size: 7.5,
+            font,
+            color: rgb(0.35, 0.35, 0.35),
+        });
+
+        currentPage.drawLine({
+            start: { x: healthMargin, y: healthPageHeight - 25 },
+            end: { x: healthPageWidth - healthMargin, y: healthPageHeight - 25 },
+            thickness: 0.5,
+            color: rgb(0.72, 0.76, 0.79),
         });
     };
 
-    drawContentHeader(page);
-    yOffset -= 30;
-
-    // Draw table with color support (only for headers)
-    const drawTable = (
-        currentPage: PDFPage,
-        tableData: string[][],
-        x: number,
-        y: number,
-        colWidths: number[],
-        headerColor?: [number, number, number],
-        isHeaderOnly?: boolean
-    ): { newY: number; newPage: PDFPage } => {
-        let currentY = y;
-        let activePage = currentPage;
-
-        tableData.forEach((row, rowIndex) => {
-            let currentX = x;
-            let rowHeightCalc = 20;
-
-            // Calculate row height
-            row.forEach((cell, colIndex) => {
-                const lines = wrapText(cell || "—", colWidths[colIndex] - 20, font, 10);
-                const cellHeight = lines.length * 12 + 10;
-                rowHeightCalc = Math.max(rowHeightCalc, cellHeight);
-            });
-
-            // Check if we need a new page
-            if (currentY - rowHeightCalc < margin) {
-                activePage = pdfDoc.addPage([pageWidth, pageHeight]);
-                currentY = pageHeight - margin;
-                drawContentHeader(activePage);
-                currentY -= 30;
-            }
-
-            // Draw row background ONLY for header row (rowIndex === 0) when isHeaderOnly is true
-            if (rowIndex === 0 && headerColor && isHeaderOnly) {
-                activePage.drawRectangle({
-                    x: x,
-                    y: currentY - rowHeightCalc,
-                    width: colWidths.reduce((a, b) => a + b, 0),
-                    height: rowHeightCalc,
-                    color: rgb(...headerColor),
-                });
-            }
-
-            // Draw cells
-            row.forEach((cell, colIndex) => {
-                const lines = wrapText(cell || "—", colWidths[colIndex] - 20, font, 10);
-                lines.forEach((line, lineIndex) => {
-                    activePage.drawText(line, {
-                        x: currentX + 10,
-                        y: currentY - 15 - lineIndex * 12,
-                        size: 10,
-                        font: colIndex === 0 ? font : fontBold,
-                        color: rgb(0, 0, 0),
-                    });
-                });
-
-                activePage.drawRectangle({
-                    x: currentX,
-                    y: currentY - rowHeightCalc,
-                    width: colWidths[colIndex],
-                    height: rowHeightCalc,
-                    borderColor: rgb(0, 0, 0),
-                    borderWidth: 0.5,
-                });
-                currentX += colWidths[colIndex];
-            });
-
-            currentY -= rowHeightCalc;
-        });
-
-        return { newY: currentY - 5, newPage: activePage };
+    const addHealthPage = () => {
+        page = pdfDoc.addPage([healthPageWidth, healthPageHeight]);
+        drawHealthPageHeader(page);
+        yOffset = healthPageHeight - 44;
     };
 
-    // Process categories
+    drawHealthPageHeader(page);
+
+    const formatHealthDate = (value: string): string => {
+        if (!value || value === "/") return "/";
+        if (value === "danes") return formatDate(new Date());
+        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!match) return value;
+        return `${Number(match[3])}. ${Number(match[2])}. ${match[1]}`;
+    };
+
+    const formatHealthValue = (element: Element): string => {
+        const rawValue = element.value ?? element.defaultValue;
+        let value = "/";
+
+        if (typeof rawValue === "boolean") {
+            value = rawValue ? "DA" : "NE";
+        } else if (Array.isArray(rawValue)) {
+            value = rawValue.length ? rawValue.join(", ") : "/";
+        } else if (rawValue !== null && rawValue !== undefined && rawValue !== "") {
+            value = String(rawValue);
+        }
+
+        if (element.type === "date") value = formatHealthDate(value);
+        return element.unit && value !== "/" ? `${value} ${element.unit}` : value;
+    };
+
+    type HealthCellStyle = {
+        font: PDFFont;
+        size: number;
+        fill?: [number, number, number];
+        color?: [number, number, number];
+    };
+
+    const wrapHealthText = (
+        text: string,
+        maxWidth: number,
+        fontToUse: PDFFont,
+        fontSize: number
+    ): string[] => {
+        const wrappedLines: string[] = [];
+        const paragraphs = String(text || "/").replace(/\r/g, "").split("\n");
+
+        const breakLongWord = (word: string): string[] => {
+            const parts: string[] = [];
+            let part = "";
+
+            for (const character of word) {
+                if (part && fontToUse.widthOfTextAtSize(part + character, fontSize) > maxWidth) {
+                    parts.push(part);
+                    part = character;
+                } else {
+                    part += character;
+                }
+            }
+            if (part) parts.push(part);
+            return parts;
+        };
+
+        paragraphs.forEach((paragraph) => {
+            const words = paragraph.trim().split(/\s+/).filter(Boolean);
+            if (!words.length) {
+                wrappedLines.push("");
+                return;
+            }
+
+            let currentLine = "";
+            words.forEach((word) => {
+                const candidate = currentLine ? `${currentLine} ${word}` : word;
+                if (fontToUse.widthOfTextAtSize(candidate, fontSize) <= maxWidth) {
+                    currentLine = candidate;
+                    return;
+                }
+
+                if (currentLine) {
+                    wrappedLines.push(currentLine);
+                    currentLine = "";
+                }
+
+                const wordParts = breakLongWord(word);
+                if (wordParts.length > 1) {
+                    wrappedLines.push(...wordParts.slice(0, -1));
+                    currentLine = wordParts[wordParts.length - 1];
+                } else {
+                    currentLine = wordParts[0] || "";
+                }
+            });
+
+            if (currentLine) wrappedLines.push(currentLine);
+        });
+
+        return wrappedLines.length ? wrappedLines : ["/"];
+    };
+
+    const measureHealthRow = (
+        cells: string[],
+        widths: number[],
+        styles: HealthCellStyle[],
+        minHeight = 24
+    ): number => {
+        return Math.max(
+            minHeight,
+            ...cells.map((cell, index) => {
+                const style = styles[index];
+                const lines = wrapHealthText(cell || "/", widths[index] - 12, style.font, style.size);
+                return lines.length * (style.size + 2.4) + 10;
+            })
+        );
+    };
+
+    const drawHealthLineRow = (
+        lineCells: string[][],
+        widths: number[],
+        styles: HealthCellStyle[],
+        rowHeight: number
+    ) => {
+        let cellX = healthMargin;
+
+        lineCells.forEach((lines, index) => {
+            const style = styles[index];
+            if (style.fill) {
+                page.drawRectangle({
+                    x: cellX,
+                    y: yOffset - rowHeight,
+                    width: widths[index],
+                    height: rowHeight,
+                    color: rgb(...style.fill),
+                });
+            }
+
+            page.drawRectangle({
+                x: cellX,
+                y: yOffset - rowHeight,
+                width: widths[index],
+                height: rowHeight,
+                borderColor: rgb(0.15, 0.15, 0.15),
+                borderWidth: 0.55,
+            });
+
+            lines.forEach((line, lineIndex) => {
+                page.drawText(line, {
+                    x: cellX + 6,
+                    y: yOffset - 7 - style.size - lineIndex * (style.size + 2.4),
+                    size: style.size,
+                    font: style.font,
+                    color: rgb(...(style.color || [0, 0, 0])),
+                });
+            });
+
+            cellX += widths[index];
+        });
+
+        yOffset -= rowHeight;
+    };
+
+    const drawHealthRow = (
+        cells: string[],
+        widths: number[],
+        styles: HealthCellStyle[],
+        minHeight = 24,
+        forcedHeight?: number
+    ) => {
+        const rowHeight = forcedHeight || measureHealthRow(cells, widths, styles, minHeight);
+        const lineCells = cells.map((cell, index) =>
+            wrapHealthText(cell || "/", widths[index] - 12, styles[index].font, styles[index].size)
+        );
+        drawHealthLineRow(lineCells, widths, styles, rowHeight);
+    };
+
+    const drawPaginatedHealthRow = (
+        cells: string[],
+        widths: number[],
+        styles: HealthCellStyle[],
+        minHeight: number,
+        onPageBreak: () => void
+    ) => {
+        const allLines = cells.map((cell, index) =>
+            wrapHealthText(cell || "/", widths[index] - 12, styles[index].font, styles[index].size)
+        );
+        const offsets = allLines.map(() => 0);
+
+        while (allLines.some((lines, index) => offsets[index] < lines.length)) {
+            const availableHeight = yOffset - healthBottom;
+            const maxLineHeight = Math.max(...styles.map((style) => style.size + 2.4));
+            const availableLineCount = Math.floor((availableHeight - 10) / maxLineHeight);
+
+            if (availableHeight < minHeight || availableLineCount < 1) {
+                onPageBreak();
+                continue;
+            }
+
+            const remainingLineCount = Math.max(
+                ...allLines.map((lines, index) => lines.length - offsets[index])
+            );
+            const chunkLineCount = Math.min(availableLineCount, remainingLineCount);
+            const lineCells = allLines.map((lines, index) => {
+                const chunk = lines.slice(offsets[index], offsets[index] + chunkLineCount);
+                offsets[index] += chunk.length;
+                return chunk;
+            });
+            const rowHeight = Math.max(
+                minHeight,
+                ...lineCells.map((lines, index) =>
+                    lines.length * (styles[index].size + 2.4) + 10
+                )
+            );
+
+            drawHealthLineRow(lineCells, widths, styles, rowHeight);
+
+            if (allLines.some((lines, index) => offsets[index] < lines.length)) {
+                onPageBreak();
+            }
+        }
+    };
+
+    const getCategoryBannerColor = (category: Category): [number, number, number] => {
+        if (!category.color) return healthDefaultBanner;
+        const color = hexToRgb(category.color);
+        const luminance = color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114;
+        return lightenColor(color, luminance < 0.68 ? 0.5 : 0.12);
+    };
+
+    const drawHealthBanner = (
+        title: string,
+        bannerColor: [number, number, number],
+        compact = false
+    ) => {
+        const size = compact ? 9.5 : 11;
+        const lines = wrapHealthText(title, healthContentWidth - 14, fontBold, size);
+        const bannerHeight = Math.max(compact ? 22 : 25, lines.length * (size + 2) + 9);
+
+        if (yOffset - bannerHeight < healthBottom) addHealthPage();
+
+        page.drawRectangle({
+            x: healthMargin,
+            y: yOffset - bannerHeight,
+            width: healthContentWidth,
+            height: bannerHeight,
+            color: rgb(...bannerColor),
+            borderColor: rgb(0.15, 0.15, 0.15),
+            borderWidth: 0.55,
+        });
+
+        lines.forEach((line, index) => {
+            page.drawText(line, {
+                x: healthMargin + 7,
+                y: yOffset - 7 - size - index * (size + 2),
+                size,
+                font: fontBold,
+                color: rgb(0, 0, 0),
+            });
+        });
+
+        yOffset -= bannerHeight;
+    };
+
+    const drawContinuationBanner = (
+        title: string,
+        bannerColor: [number, number, number]
+    ) => {
+        addHealthPage();
+        drawHealthBanner(`${title} (nadaljevanje)`, bannerColor, true);
+    };
+
+    const getWeightedColumnWidths = (columnCount: number): number[] => {
+        const weightsByCount: Record<number, number[]> = {
+            2: [0.9, 1.6],
+            3: [1.05, 1.65, 0.75],
+            4: [1.05, 0.75, 1.35, 1.2],
+            7: [1.2, 0.9, 1.45, 0.85, 1, 1.1, 1.45],
+        };
+        const weights = weightsByCount[columnCount] || Array(columnCount).fill(1);
+        const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+        return weights.map((weight) => healthContentWidth * (weight / totalWeight));
+    };
+
+    const isHealthActivityCategory = (category: Category): boolean =>
+        category.title.toLowerCase().startsWith("aktivnosti zdravstvene nege");
+
+    const getHealthCategoryTitle = (
+        category: Category,
+        hasTableElements: boolean,
+        isActivity: boolean
+    ): string => {
+        if (isActivity && category.title.trim().toLowerCase() === "aktivnosti zdravstvene nege" && category.description) {
+            return `${category.title} pri življenjski aktivnosti ${category.description.toLowerCase()}`;
+        }
+        if (!isActivity && !hasTableElements && category.description) {
+            return `${category.title} - ${category.description}`;
+        }
+        return category.title;
+    };
+
     const categories = sortKeys(Object.keys(data.categories));
     for (const categoryKey of categories) {
         const category = data.categories[categoryKey];
-        const categoryColor = category.color ? hexToRgb(category.color) : undefined;
-
-        // Check space for category header
-        if (yOffset - 60 < margin) {
-            page = pdfDoc.addPage([pageWidth, pageHeight]);
-            yOffset = pageHeight - margin;
-            drawContentHeader(page);
-            yOffset -= 30;
-        }
-
-        // Category header with lightened color background
-        if (categoryColor) {
-            const lightenedColor = lightenColor(categoryColor, 0.3);
-            page.drawRectangle({
-                x: margin,
-                y: yOffset - 18,
-                width: pageWidth - 2 * margin,
-                height: 25,
-                color: rgb(...lightenedColor),
-            });
-        }
-
-        // Draw text AFTER background so it's on top (always black)
-        page.drawText(category.title, {
-            x: margin + 5,
-            y: yOffset - 13,
-            size: 12,
-            font: fontBold,
-            color: rgb(0, 0, 0),
-        });
-        yOffset -= 30;
-
-        // Category description
-        if (category.description) {
-            const descHeight = drawWrappedText(
-                page,
-                category.description,
-                margin,
-                yOffset,
-                pageWidth - 2 * margin,
-                font,
-                10,
-                [0.3, 0.3, 0.3]
-            );
-            yOffset -= descHeight + 10;
-        }
-
-        // Process subcategories
+        const bannerColor = getCategoryBannerColor(category);
+        const isActivity = isHealthActivityCategory(category);
         const subcategories = sortKeys(Object.keys(category.subcategories));
+        const hasTableElements = subcategories.some((subcategoryKey) =>
+            Object.values(category.subcategories[subcategoryKey].elements || {}).some(
+                (element) => (element as TableElement).type === "table"
+            )
+        );
+        const categoryTitle = getHealthCategoryTitle(category, hasTableElements, isActivity);
+
+        if (yOffset - 100 < healthBottom) addHealthPage();
+        drawHealthBanner(categoryTitle, bannerColor);
+
         for (const subcategoryKey of subcategories) {
             const subcategory = category.subcategories[subcategoryKey];
+            const elementKeys = sortKeys(Object.keys(subcategory.elements || {}));
+            if (!elementKeys.length) continue;
 
-            // Check if subcategory contains a table element
-            const hasTableElement = Object.values(subcategory.elements).some(
-                (el) => (el as any).type === "table"
+            const tableElements = elementKeys
+                .map((elementKey) => subcategory.elements[elementKey] as Element | TableElement)
+                .filter((element): element is TableElement => element.type === "table");
+
+            if (tableElements.length) {
+                for (const tableElement of tableElements) {
+                    const columnWidths = getWeightedColumnWidths(tableElement.columns.length);
+                    const headerCells = tableElement.columns.map((column) => column.title);
+                    const headerStyles = headerCells.map(() => ({
+                        font: fontBold,
+                        size: tableElement.columns.length >= 6 ? 7.2 : 8,
+                        fill: healthSubheader,
+                    }));
+                    const tableContextTitle = tableElement.title || subcategory.title || categoryTitle;
+                    const contextTitleLines = wrapHealthText(
+                        tableContextTitle,
+                        healthContentWidth - 14,
+                        fontBold,
+                        9.5
+                    );
+                    const contextTitleHeight = Math.max(22, contextTitleLines.length * 11.5 + 9);
+                    const headerHeight = measureHealthRow(headerCells, columnWidths, headerStyles, 28);
+
+                    const drawTableContext = () => {
+                        drawHealthBanner(tableContextTitle, lightenColor(bannerColor, 0.35), true);
+                        drawHealthRow(headerCells, columnWidths, headerStyles, 28, headerHeight);
+                    };
+
+                    if (yOffset - contextTitleHeight - headerHeight - 26 < healthBottom) {
+                        drawContinuationBanner(categoryTitle, bannerColor);
+                    }
+                    drawTableContext();
+
+                    const rows = tableElement.rows?.length ? tableElement.rows : [];
+                    for (const row of rows) {
+                        const cells = tableElement.columns.map((column) => row[column.key] || "/");
+                        const dataStyles = cells.map(() => ({
+                            font: fontBold,
+                            size: tableElement.columns.length >= 6 ? 7.3 : 8.2,
+                        }));
+                        const rowHeight = measureHealthRow(cells, columnWidths, dataStyles, 26);
+
+                        if (yOffset - rowHeight < healthBottom) {
+                            drawContinuationBanner(categoryTitle, bannerColor);
+                            drawTableContext();
+                        }
+                        drawPaginatedHealthRow(cells, columnWidths, dataStyles, 26, () => {
+                            drawContinuationBanner(categoryTitle, bannerColor);
+                            drawTableContext();
+                        });
+                    }
+                }
+
+                yOffset -= 12;
+                continue;
+            }
+
+            const elements = elementKeys.map(
+                (elementKey) => subcategory.elements[elementKey] as Element
             );
 
-            if (hasTableElement) {
-                // Handle table type elements
-                for (const elementKey of sortKeys(Object.keys(subcategory.elements))) {
-                    const element = subcategory.elements[elementKey] as TableElement;
-                    if (element.type === "table") {
-                        // Check space for table header
-                        if (yOffset - 100 < margin) {
-                            page = pdfDoc.addPage([pageWidth, pageHeight]);
-                            yOffset = pageHeight - margin;
-                            drawContentHeader(page);
-                            yOffset -= 30;
-                        }
+            if (isActivity) {
+                const dateElement = elements.find(
+                    (element) => element.type === "date" || element.title.toLowerCase().includes("datum izvedbe")
+                );
+                const activityElements = elements.filter((element) => element !== dateElement);
+                const dateText = dateElement ? `Datum izvedbe: ${formatHealthValue(dateElement)}` : "";
+                const hasDate = Boolean(dateElement);
+                const headerWidths = hasDate
+                    ? [healthContentWidth * 0.35, healthContentWidth * 0.45, healthContentWidth * 0.2]
+                    : [healthContentWidth * 0.38, healthContentWidth * 0.62];
+                const headerCells = hasDate
+                    ? [
+                        subcategory.title || "Aktivnosti zdravstvene nege",
+                        "Podatki o izvedeni aktivnosti zdravstvene nege",
+                        dateText,
+                    ]
+                    : [
+                        subcategory.title || "Aktivnosti zdravstvene nege",
+                        "Podatki o izvedeni aktivnosti zdravstvene nege",
+                    ];
+                const headerStyles = headerCells.map(() => ({
+                    font,
+                    size: 8.7,
+                    fill: healthSubheader,
+                }));
+                const headerHeight = measureHealthRow(headerCells, headerWidths, headerStyles, 25);
 
-                        // Subcategory title with lightened color background
-                        if (categoryColor) {
-                            const lightenedColor = lightenColor(categoryColor, 0.5);
-                            page.drawRectangle({
-                                x: margin + 10,
-                                y: yOffset - 13,
-                                width: pageWidth - 2 * margin - 20,
-                                height: 20,
-                                color: rgb(...lightenedColor),
-                            });
-                        }
-                        // Draw text AFTER background (always black)
-                        page.drawText(subcategory.title, {
-                            x: margin + 15,
-                            y: yOffset - 8,
-                            size: 11,
-                            font: fontBold,
-                            color: rgb(0, 0, 0),
-                        });
-                        yOffset -= 25;
+                if (yOffset - headerHeight < healthBottom) {
+                    drawContinuationBanner(categoryTitle, bannerColor);
+                }
+                drawHealthRow(headerCells, headerWidths, headerStyles, 25, headerHeight);
 
-                        // Draw table header
-                        const numCols = element.columns.length;
-                        const tableWidth = pageWidth - 2 * margin - 20;
-                        const colWidth = tableWidth / numCols;
-
-                        // Header row
-                        let headerX = margin + 10;
-                        const headerRowHeight = 25;
-                        
-                        if (categoryColor) {
-                            const lightenedColor = lightenColor(categoryColor, 0.5);
-                            page.drawRectangle({
-                                x: margin + 10,
-                                y: yOffset - headerRowHeight,
-                                width: tableWidth,
-                                height: headerRowHeight,
-                                color: rgb(...lightenedColor),
-                            });
-                        }
-
-                        element.columns.forEach((col) => {
-                            const lines = wrapText(col.title, colWidth - 10, font, 8);
-                            lines.forEach((line, lineIdx) => {
-                                page.drawText(line, {
-                                    x: headerX + 5,
-                                    y: yOffset - 10 - lineIdx * 10,
-                                    size: 8,
-                                    font: fontBold,
-                                    color: rgb(0, 0, 0),
-                                });
-                            });
-                            page.drawRectangle({
-                                x: headerX,
-                                y: yOffset - headerRowHeight,
-                                width: colWidth,
-                                height: headerRowHeight,
-                                borderColor: rgb(0, 0, 0),
-                                borderWidth: 0.5,
-                            });
-                            headerX += colWidth;
-                        });
-                        yOffset -= headerRowHeight;
-
-                        // Data rows
-                        if (element.rows && element.rows.length > 0) {
-                            for (const row of element.rows) {
-                                let rowHeight = 20;
-                                
-                                // Calculate max row height
-                                element.columns.forEach((col) => {
-                                    const cellValue = row[col.key] || "—";
-                                    const lines = wrapText(cellValue, colWidth - 10, font, 8);
-                                    rowHeight = Math.max(rowHeight, lines.length * 10 + 10);
-                                });
-
-                                // Check for new page
-                                if (yOffset - rowHeight < margin) {
-                                    page = pdfDoc.addPage([pageWidth, pageHeight]);
-                                    yOffset = pageHeight - margin;
-                                    drawContentHeader(page);
-                                    yOffset -= 30;
-                                }
-
-                                let cellX = margin + 10;
-                                element.columns.forEach((col) => {
-                                    const cellValue = row[col.key] || "—";
-                                    const lines = wrapText(cellValue, colWidth - 10, font, 8);
-                                    lines.forEach((line, lineIdx) => {
-                                        page.drawText(line, {
-                                            x: cellX + 5,
-                                            y: yOffset - 10 - lineIdx * 10,
-                                            size: 8,
-                                            font: font,
-                                            color: rgb(0, 0, 0),
-                                        });
-                                    });
-                                    page.drawRectangle({
-                                        x: cellX,
-                                        y: yOffset - rowHeight,
-                                        width: colWidth,
-                                        height: rowHeight,
-                                        borderColor: rgb(0, 0, 0),
-                                        borderWidth: 0.5,
-                                    });
-                                    cellX += colWidth;
-                                });
-                                yOffset -= rowHeight;
-                            }
-                        }
-                        yOffset -= 15;
+                const activityWidths = [healthContentWidth * 0.35, healthContentWidth * 0.65];
+                for (const element of activityElements) {
+                    const cells = [element.title || "/", formatHealthValue(element)];
+                    const styles = [
+                        { font: fontBold, size: 8.8 },
+                        { font: fontBold, size: 8.8 },
+                    ];
+                    const rowHeight = measureHealthRow(cells, activityWidths, styles, 26);
+                    if (yOffset - rowHeight < healthBottom) {
+                        drawContinuationBanner(categoryTitle, bannerColor);
+                        drawHealthRow(headerCells, headerWidths, headerStyles, 25, headerHeight);
                     }
-                }
-            } else {
-                // Regular elements handling
-                const tableData: string[][] = [];
-                for (const elementKey of sortKeys(Object.keys(subcategory.elements))) {
-                    const element = subcategory.elements[elementKey] as Element;
-                    let valueWithUnit = "";
-
-                    if (typeof element.value === "boolean") {
-                        valueWithUnit = element.value ? "DA" : "NE";
-                    } else if (Array.isArray(element.value)) {
-                        valueWithUnit = element.value.join(", ");
-                    } else {
-                        valueWithUnit = `${element.value || "—"} ${element.unit || ""}`.trim();
-                    }
-
-                    tableData.push([element.title || "—", valueWithUnit]);
-                }
-
-                const colWidths = [200, 315];
-                const estimatedTableHeight = tableData.length * 25 + 30;
-
-                if (yOffset - estimatedTableHeight < margin) {
-                    page = pdfDoc.addPage([pageWidth, pageHeight]);
-                    yOffset = pageHeight - margin;
-                    drawContentHeader(page);
-                    yOffset -= 30;
-                }
-
-                // Subcategory title with lightened color background
-                if (categoryColor) {
-                    const lightenedColor = lightenColor(categoryColor, 0.5);
-                    page.drawRectangle({
-                        x: margin + 10,
-                        y: yOffset - 13,
-                        width: pageWidth - 2 * margin - 20,
-                        height: 20,
-                        color: rgb(...lightenedColor),
+                    drawPaginatedHealthRow(cells, activityWidths, styles, 26, () => {
+                        drawContinuationBanner(categoryTitle, bannerColor);
+                        drawHealthRow(headerCells, headerWidths, headerStyles, 25, headerHeight);
                     });
                 }
-                // Draw text AFTER background (always black)
-                page.drawText(subcategory.title, {
-                    x: margin + 15,
-                    y: yOffset - 8,
-                    size: 11,
-                    font: fontBold,
-                    color: rgb(0, 0, 0),
-                });
-                yOffset -= 20;
 
-                // Subcategory description
-                if (subcategory.description) {
-                    const subDescHeight = drawWrappedText(
-                        page,
-                        subcategory.description,
-                        margin + 10,
-                        yOffset,
-                        pageWidth - 2 * margin - 10,
-                        font,
-                        9,
-                        [0.4, 0.4, 0.4]
-                    );
-                    yOffset -= subDescHeight + 5;
-                }
-
-                // Draw table (no color on data rows)
-                const tableResult = drawTable(page, tableData, margin + 10, yOffset, colWidths, undefined);
-                yOffset = tableResult.newY;
-                page = tableResult.newPage;
-                yOffset -= 15;
+                yOffset -= 12;
+                continue;
             }
+
+            if (yOffset - 45 < healthBottom) {
+                drawContinuationBanner(categoryTitle, bannerColor);
+            }
+            drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+
+            if (subcategory.description) {
+                const descriptionStyles = [{ font, size: 8.5, fill: healthSubheader }];
+                const descriptionCells = [subcategory.description];
+                const descriptionWidths = [healthContentWidth];
+                const descriptionHeight = measureHealthRow(
+                    descriptionCells,
+                    descriptionWidths,
+                    descriptionStyles,
+                    24
+                );
+                if (yOffset - descriptionHeight < healthBottom) {
+                    drawContinuationBanner(categoryTitle, bannerColor);
+                    drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+                }
+                drawHealthRow(
+                    descriptionCells,
+                    descriptionWidths,
+                    descriptionStyles,
+                    24,
+                    descriptionHeight
+                );
+            }
+
+            const regularWidths = [healthContentWidth * 0.34, healthContentWidth * 0.66];
+            for (const element of elements) {
+                const cells = [element.title || "/", formatHealthValue(element)];
+                const styles = [
+                    { font: fontBold, size: 8.8 },
+                    { font, size: 8.8 },
+                ];
+                const rowHeight = measureHealthRow(cells, regularWidths, styles, 25);
+                if (yOffset - rowHeight < healthBottom) {
+                    drawContinuationBanner(categoryTitle, bannerColor);
+                    drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+                }
+                drawPaginatedHealthRow(cells, regularWidths, styles, 25, () => {
+                    drawContinuationBanner(categoryTitle, bannerColor);
+                    drawHealthBanner(subcategory.title, lightenColor(bannerColor, 0.42), true);
+                });
+            }
+
+            yOffset -= 10;
         }
 
-        // Category separator
-        page.drawLine({
-            start: { x: margin, y: yOffset },
-            end: { x: pageWidth - margin, y: yOffset },
-            thickness: 1,
-            color: rgb(0.8, 0.8, 0.8),
-        });
-        yOffset -= 20;
+        yOffset -= 6;
     }
 
     // ==================== FINAL PAGE - SCORING ====================
@@ -1816,57 +1976,111 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     page = pdfDoc.addPage([pageWidth, pageHeight]);
     yOffset = pageHeight - margin;
 
-    page.drawText("Število doseženih točk:", {
-        x: margin,
-        y: yOffset,
-        size: 12,
-        font: fontBold,
-        color: rgb(0, 0, 0),
-    });
-    
-    // Line for points
-    page.drawLine({
-        start: { x: margin + 150, y: yOffset - 3 },
-        end: { x: margin + 250, y: yOffset - 3 },
-        thickness: 0.5,
-        color: rgb(0, 0, 0),
-    });
-
-    page.drawText("Podpis mentorice / mentorja:", {
-        x: pageWidth / 2,
-        y: yOffset,
-        size: 12,
-        font: fontBold,
-        color: rgb(0, 0, 0),
-    });
-    
-    // Line for mentor signature
-    page.drawLine({
-        start: { x: pageWidth / 2 + 160, y: yOffset - 3 },
-        end: { x: pageWidth - margin, y: yOffset - 3 },
-        thickness: 0.5,
-        color: rgb(0, 0, 0),
-    });
-
-    yOffset -= 50;
-
-    page.drawText("Opombe:", {
-        x: margin,
-        y: yOffset,
-        size: 12,
-        font: fontBold,
-        color: rgb(0, 0, 0),
-    });
-
-    // Draw lines for notes
-    for (let i = 0; i < 10; i++) {
-        yOffset -= 30;
-        page.drawLine({
-            start: { x: margin, y: yOffset },
-            end: { x: pageWidth - margin, y: yOffset },
-            thickness: 0.5,
-            color: rgb(0.7, 0.7, 0.7),
+    if (isOrmozHealthReport) {
+        page.drawText("PODPISI IN OCENA", {
+            x: margin,
+            y: yOffset,
+            size: 14,
+            font: fontBold,
+            color: rgb(0, 0, 0),
         });
+        yOffset -= 55;
+
+        page.drawText("Podpis dijaka/dijakinje:", {
+            x: margin,
+            y: yOffset,
+            size: 11,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        page.drawLine({
+            start: { x: margin + 135, y: yOffset - 3 },
+            end: { x: pageWidth / 2 - 15, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        page.drawText("Podpis mentorja/ice:", {
+            x: pageWidth / 2 + 10,
+            y: yOffset,
+            size: 11,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        page.drawLine({
+            start: { x: pageWidth / 2 + 130, y: yOffset - 3 },
+            end: { x: pageWidth - margin, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        yOffset -= 55;
+        page.drawText("Ocena:", {
+            x: margin,
+            y: yOffset,
+            size: 11,
+            font,
+            color: rgb(0, 0, 0),
+        });
+        page.drawLine({
+            start: { x: margin + 45, y: yOffset - 3 },
+            end: { x: margin + 145, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+    } else {
+        page.drawText("Število doseženih točk:", {
+            x: margin,
+            y: yOffset,
+            size: 12,
+            font: fontBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Line for points
+        page.drawLine({
+            start: { x: margin + 150, y: yOffset - 3 },
+            end: { x: margin + 250, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        page.drawText("Podpis mentorice / mentorja:", {
+            x: pageWidth / 2,
+            y: yOffset,
+            size: 12,
+            font: fontBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Line for mentor signature
+        page.drawLine({
+            start: { x: pageWidth / 2 + 160, y: yOffset - 3 },
+            end: { x: pageWidth - margin, y: yOffset - 3 },
+            thickness: 0.5,
+            color: rgb(0, 0, 0),
+        });
+
+        yOffset -= 50;
+
+        page.drawText("Opombe:", {
+            x: margin,
+            y: yOffset,
+            size: 12,
+            font: fontBold,
+            color: rgb(0, 0, 0),
+        });
+
+        // Draw lines for notes
+        for (let i = 0; i < 10; i++) {
+            yOffset -= 30;
+            page.drawLine({
+                start: { x: margin, y: yOffset },
+                end: { x: pageWidth - margin, y: yOffset },
+                thickness: 0.5,
+                color: rgb(0.7, 0.7, 0.7),
+            });
+        }
     }
 
     const pdfBytes = await pdfDoc.save();
