@@ -18,7 +18,6 @@ interface UserInfo {
     priimek: string;
     razred: string;
     sola: string;
-    podrocje?: string;
     email?: string;
 }
 
@@ -38,7 +37,10 @@ function AppContent() {
                     const parsed = JSON.parse(savedUserInfo);
                     // Only set userInfo if we have at least name and surname
                     if (parsed && parsed.ime && parsed.priimek) {
-                        setUserInfo(parsed);
+                        const { podrocje: _removedPodrocje, email: _removedEmail, ...profile } = parsed;
+                        void _removedPodrocje;
+                        void _removedEmail;
+                        setUserInfo(profile);
                     } else {
                         // Invalid userInfo, clear it
                         localStorage.removeItem("userInfo");

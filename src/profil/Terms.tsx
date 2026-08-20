@@ -44,7 +44,7 @@ export default function TermsOfUse() {
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
                                 <li>Vsi podatki o obrazcih se hranijo <strong>izključno v vašem brskalniku</strong> (localStorage).</li>
                                 <li>Podatki o izpolnjenih obrazcih se <strong>nikoli ne pošiljajo na strežnik</strong>.</li>
-                                <li>Profil dijaka (ime, priimek, razred, šola in področje) se pošlje prek obstoječega API endpointa <code>/exports</code>, namenjeno izključno evidentiranju prijavitelja.</li>
+                                <li>Profil dijaka (ime, priimek, razred in šola) se pošlje prek obstoječega API endpointa <code>/exports</code>, namenjeno izključno evidentiranju prijavitelja.</li>
                                 <li>Tudi izvoz (PDF ali JSON) poteka izključno lokalno v vašem brskalniku in se nikamor ne arhivira.</li>
                                 <li>Vsak dokument ima <strong>rok veljavnosti dveh mesecev (60 dni)</strong>. Po poteku se samodejno izbriše.</li>
                                 <li>Ob odjavi iz aplikacije se <strong>izbrišejo vsi lokalno shranjeni podatki</strong>, vključno z dokumenti in podatki o seji.</li>
@@ -63,7 +63,7 @@ export default function TermsOfUse() {
                                 Vaši podatki se shranjujejo na naslednje načine:
                             </p>
                             <ul className="list-disc pl-6 text-slate-600 mt-2">
-                                <li><strong>Podatki dijaka (ime, priimek, razred, šola, področje):</strong> Shranjeni lokalno v brskalniku in poslani prek API endpointa <code>/exports</code> za evidenco prijavitelja.</li>
+                                <li><strong>Podatki dijaka (ime, priimek, razred, šola):</strong> Shranjeni lokalno v brskalniku in poslani prek API endpointa <code>/exports</code> za evidenco prijavitelja.</li>
                                 <li><strong>Izpolnjeni obrazci:</strong> Shranjeni lokalno v brskalniku z rokom veljavnosti 60 dni. Po izteku se samodejno izbrišejo.</li>
                                 <li><strong>Izvoz:</strong> PDF ali JSON se ustvari samo v brskalniku dijaka. Aplikacija izvoza ne pošlje na Firebase, backend ali drug zunanji strežnik in ga nikjer ne arhivira.</li>
                                 <li><strong>Odjava:</strong> Odjava iz aplikacije trajno izbriše piškotke seje in vse lokalno shranjene podatke iz brskalnika.</li>

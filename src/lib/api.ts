@@ -298,7 +298,6 @@ export interface StudentProfileData {
     priimek: string;
     razred: string;
     sola: string;
-    podrocje?: string;
 }
 
 const sanitizeStudentProfile = (profile: StudentProfileData): StudentProfileData => ({
@@ -306,7 +305,6 @@ const sanitizeStudentProfile = (profile: StudentProfileData): StudentProfileData
     priimek: profile.priimek.trim(),
     razred: profile.razred.trim(),
     sola: profile.sola.trim(),
-    podrocje: profile.podrocje?.trim() || "",
 });
 
 export const saveStudentProfile = async (

@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
                             <p className="text-slate-600">Zbiramo naslednje osebne podatke:</p>
                             <ul className="list-disc pl-6 text-slate-600">
                                 <li><strong>Identifikacijski podatki dijaka:</strong> Ime in priimek</li>
-                                <li><strong>Izobraževalni podatki:</strong> Razred, šola, področje usposabljanja</li>
+                                <li><strong>Izobraževalni podatki:</strong> Razred in šola</li>
                                 <li><strong>Uporabniški podatki:</strong> Izpolnjeni obrazci in podatki o pacientovi obravnavi – izključuje neposredno identifikacijo pacienta in ne sme vsebovati njegovih resničnih osebnih podatkov (npr. imena)</li>
                                 <li><strong>Tehnični podatki:</strong> Piškotek za shranjevanje soglasja s pogoji uporabe in politiko zasebnosti</li>
                             </ul>
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
                                 <h3 className="text-md font-semibold text-green-800 mb-2">🔒 Izključno lokalna obdelava</h3>
                                 <p className="text-green-700 text-sm">
                                     Aplikacija je zasnovana tako, da se izpolnjeni obrazci in izvozi <strong>ne pošiljajo na Firebase, naše strežnike 
-                                    ali kateri koli zunanji sistem</strong>. Profil dijaka (ime, priimek, razred, šola in področje) se pošlje prek API endpointa 
+                                    ali kateri koli zunanji sistem</strong>. Profil dijaka (ime, priimek, razred in šola) se pošlje prek API endpointa 
                                     <code>/exports</code> za evidenco prijavitelja. Izpolnjeni obrazci se hranijo lokalno v 
                                     lokalnem pomnilniku (localStorage) vaše naprave. Pri tem velja dodati:
                                 </p>

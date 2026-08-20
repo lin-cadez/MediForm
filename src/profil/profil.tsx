@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { ArrowLeft, User, LogOut, GraduationCap, School, Building2, Check, Save } from "lucide-react";
+import { ArrowLeft, User, LogOut, GraduationCap, School, Check, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,6 @@ interface UserInfo {
     priimek: string;
     razred: string;
     sola: string;
-    podrocje?: string;
 }
 
 interface ProfilProps {
@@ -41,7 +40,6 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
         priimek: initialUserInfo?.priimek || "",
         razred: initialUserInfo?.razred || "",
         sola: SCHOOL_NAME,
-        podrocje: initialUserInfo?.podrocje || "",
     });
     const [errors, setErrors] = useState<Partial<UserInfo>>({});
     const [saved, setSaved] = useState(false);
@@ -52,8 +50,9 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
         const savedUserInfo = localStorage.getItem("userInfo");
         if (savedUserInfo) {
             const parsed = JSON.parse(savedUserInfo);
-            const { email: _removedEmail, ...infoWithoutEmail } = parsed;
+            const { email: _removedEmail, podrocje: _removedPodrocje, ...infoWithoutEmail } = parsed;
             void _removedEmail;
+            void _removedPodrocje;
             setUserInfo({
                 ...infoWithoutEmail,
                 sola: SCHOOL_NAME,
@@ -279,29 +278,6 @@ export default function Profil({ userInfo: initialUserInfo }: ProfilProps) {
                                             {errors.sola}
                                         </p>
                                     )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label
-                                        htmlFor="podrocje"
-                                        className="text-sm font-medium text-slate-700 flex items-center gap-2"
-                                    >
-                                        <Building2 className="h-4 w-4 text-ocean-teal" />
-                                        Področje izvajanja zdravstvene nege
-                                    </Label>
-                                    <Input
-                                        id="podrocje"
-                                        type="text"
-                                        value={userInfo.podrocje}
-                                        onChange={(e) =>
-                                            handleInputChange(
-                                                "podrocje",
-                                                e.target.value
-                                            )
-                                        }
-                                        placeholder="npr. Interna klinika, UKC Ljubljana"
-                                        className="transition-all duration-200 focus:ring-2 focus:ring-ocean-surf/20 focus:border-ocean-surf border-ocean-frost"
-                                    />
                                 </div>
 
                                 <Button

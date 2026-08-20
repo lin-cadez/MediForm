@@ -44,7 +44,6 @@ interface UserInfo {
     priimek: string;
     razred: string;
     sola?: string;
-    podrocje?: string;
 }
 
 interface JsonData {

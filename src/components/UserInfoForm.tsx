@@ -15,7 +15,6 @@ interface UserInfo {
     priimek: string
     razred: string
     sola: string
-    podrocje: string
 }
 
 interface UserInfoFormProps {
@@ -30,7 +29,6 @@ export default function UserInfoForm({ onSubmit }: UserInfoFormProps) {
     priimek: "",
     razred: "",
     sola: SCHOOL_NAME,
-    podrocje: "",
   });
   const [errors, setErrors] = useState<Partial<UserInfo>>({})
   const [isSaving, setIsSaving] = useState(false)
@@ -42,14 +40,14 @@ export default function UserInfoForm({ onSubmit }: UserInfoFormProps) {
     
     if (savedInfo) {
       const parsed = JSON.parse(savedInfo);
-      const { email: _removedEmail, ...infoWithoutEmail } = parsed;
+      const { email: _removedEmail, podrocje: _removedPodrocje, ...infoWithoutEmail } = parsed;
       void _removedEmail;
+      void _removedPodrocje;
       setUserInfo({
         ime: infoWithoutEmail.ime || "",
         priimek: infoWithoutEmail.priimek || "",
         razred: infoWithoutEmail.razred || "",
         sola: SCHOOL_NAME,
-        podrocje: infoWithoutEmail.podrocje || "",
       });
     }
   }, []);
@@ -153,17 +151,6 @@ export default function UserInfoForm({ onSubmit }: UserInfoFormProps) {
                   >
                     <option value={SCHOOL_NAME}>{SCHOOL_NAME}</option>
                   </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="podrocje">Področje</Label>
-                  <Input
-                    id="podrocje"
-                    value={userInfo.podrocje}
-                    onChange={(e) => setUserInfo({ ...userInfo, podrocje: e.target.value })}
-                    placeholder="Npr. Zdravstvena nega"
-                    className="bg-white/80"
-                  />
                 </div>
 
                 <Button type="submit" className="w-full bg-gradient-to-r from-ocean-deep to-ocean-teal hover:from-ocean-deep hover:to-ocean-surf text-white" disabled={isSaving || saveSuccess}>

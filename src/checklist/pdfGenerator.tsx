@@ -71,7 +71,6 @@ interface UserInfo {
     priimek: string;
     razred: string;
     sola: string;
-    podrocje?: string;
 }
 
 const fetchFont = async (url: string): Promise<Uint8Array> => {
@@ -1316,24 +1315,22 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     );
 
     if (!isOrmozHealthReport) {
-        // Row 2: Področje, Datum obravnave
+        // Row 2: Datum obravnave, Mentor
         yOffset = drawTableRow(
             coverPage,
-            "Področje izvajanja zdravstvene nege:",
-            userInfo?.podrocje || "",
-            yOffset,
             "Datum obravnave pacienta:",
-            data.patient_data?.datum_obravnave || ""
+            data.patient_data?.datum_obravnave || "",
+            yOffset,
+            "Mentor/ica praktičnega pouka:",
+            data.patient_data?.mentor || ""
         );
 
-        // Row 3: Mentor, Datum oddaje
+        // Row 3: Datum oddaje
         yOffset = drawTableRow(
             coverPage,
-            "Mentor/ica praktičnega pouka:",
-            data.patient_data?.mentor || "",
-            yOffset,
             "Datum oddaje poročila:",
-            data.patient_data?.datum_oddaje || ""
+            data.patient_data?.datum_oddaje || "",
+            yOffset
         );
 
         yOffset -= 30;
