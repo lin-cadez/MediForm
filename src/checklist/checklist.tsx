@@ -38,6 +38,7 @@ import MultiSelectInput from "./MultiSelectInput";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFormById } from "@/lib/formsCache";
 import { TimePicker } from "@/components/ui/time-picker";
+import { separateOrmozInstitutionCategory } from "@/lib/formStructure";
 
 interface UserInfo {
     ime: string;
@@ -92,6 +93,7 @@ interface TableColumn {
     key: string;
     title: string;
     hint?: string;
+    type?: string;
 }
 
 interface TableRow {
@@ -115,6 +117,8 @@ interface Category {
     title: string;
     description: string;
     url: string;
+    color?: string;
+    categoryType?: string;
     subcategories: Record<string, Subcategory>;
 }
 
@@ -186,6 +190,39 @@ const normalizeDateInputValue = (value: unknown): string => {
     return `${year}-${month}-${day}`;
 };
 
+const getCategoryStyles = (categoryType?: string) => {
+    if (categoryType === "patient_data") {
+        return {
+            card: "shadow-sm bg-blue-50/90 backdrop-blur-sm hover:shadow-lg hover:bg-blue-50 transition-all duration-300 border border-blue-200 overflow-hidden",
+            header: "hover:bg-blue-100/60",
+            title: "text-blue-950",
+            icon: "text-blue-600",
+            description: "text-blue-700",
+            content: "bg-white/75 border-blue-100",
+        };
+    }
+
+    if (categoryType === "institution_data") {
+        return {
+            card: "shadow-sm bg-teal-50/90 backdrop-blur-sm hover:shadow-lg hover:bg-teal-50 transition-all duration-300 border border-teal-200 overflow-hidden",
+            header: "hover:bg-teal-100/60",
+            title: "text-teal-950",
+            icon: "text-teal-600",
+            description: "text-teal-700",
+            content: "bg-white/75 border-teal-100",
+        };
+    }
+
+    return {
+        card: "shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-ocean-frost overflow-hidden",
+        header: "hover:bg-gradient-to-r hover:from-ocean-light/50 hover:to-ocean-frost/50",
+        title: "text-slate-900",
+        icon: "text-slate-500",
+        description: "text-slate-500",
+        content: "bg-gradient-to-r from-ocean-light/30 to-ocean-frost/30 border-ocean-frost/50",
+    };
+};
+
 export default function Checklist({ userInfo }: ChecklistProps) {
     const [list, setList] = useState<List | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -250,7 +287,14 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                     if (parsedStored.expires && Date.now() > parsedStored.expires) {
                         localStorage.removeItem(storageKey);
                     } else {
-                        const parsedData = parsedStored.state || parsedStored; // Podpora za stare podakte
+                        const storedState = parsedStored.state || parsedStored; // Podpora za stare podatke
+                        const parsedData = separateOrmozInstitutionCategory(storedState);
+                        if (parsedData !== storedState) {
+                            localStorage.setItem(storageKey, JSON.stringify({
+                                state: parsedData,
+                                expires: parsedStored.expires || Date.now() + 60 * 24 * 60 * 60 * 1000,
+                            }));
+                        }
                         Object.values(parsedData.categories).forEach((category) => {
                             Object.values((category as Category).subcategories).forEach(
                                 (subcategory) => {
@@ -291,7 +335,10 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         // If no saved document data, load template from cached forms
         try {
             console.log("Loading form from cached forms...");
-            const formData = await getFormById(formId) as List | null;
+            const cachedFormData = await getFormById(formId) as List | null;
+            const formData = cachedFormData
+                ? separateOrmozInstitutionCategory(cachedFormData)
+                : null;
             if (formData) {
                 Object.values(formData.categories || {}).forEach((category: any) => {
                     Object.values(category.subcategories || {}).forEach(
@@ -617,6 +664,23 @@ export default function Checklist({ userInfo }: ChecklistProps) {
         });
     };
 
+    const formatTimeInput = (input: string): string => {
+        const digits = input.replace(/\D/g, "").slice(0, 4);
+        if (!digits) return "";
+        if (Number(digits.slice(0, 1)) > 2) return "";
+        if (digits.length === 1) return digits;
+
+        const hours = Number(digits.slice(0, 2));
+        if (hours > 23) return digits.slice(0, 1);
+        if (digits.length === 2) return digits;
+
+        const minuteTens = Number(digits.slice(2, 3));
+        if (minuteTens > 5) return `${digits.slice(0, 2)}:`;
+        if (digits.length === 3) return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+
+        return `${digits.slice(0, 2)}:${digits.slice(2, 4)}`;
+    };
+
     const renderTableElement = (
         categoryId: string,
         subcategoryId: string,
@@ -659,20 +723,39 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                     <tr key={rowIndex} className="hover:bg-gray-50">
                                         {element.columns.map((col) => (
                                             <td key={col.key} className="px-2 py-1">
-                                                <Input
-                                                    type="text"
-                                                    value={row[col.key] || ""}
-                                                    onChange={(e) => updateTableCell(
-                                                        categoryId,
-                                                        subcategoryId,
-                                                        elementId,
-                                                        rowIndex,
-                                                        col.key,
-                                                        e.target.value
-                                                    )}
-                                                    placeholder={col.hint || ""}
-                                                    className="text-sm h-8"
-                                                />
+                                                {col.type === "time" ? (
+                                                    <Input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        value={row[col.key] || ""}
+                                                        onChange={(e) => updateTableCell(
+                                                            categoryId,
+                                                            subcategoryId,
+                                                            elementId,
+                                                            rowIndex,
+                                                            col.key,
+                                                            formatTimeInput(e.target.value)
+                                                        )}
+                                                        placeholder={col.hint || "Izberite čas..."}
+                                                        maxLength={5}
+                                                        className="text-sm h-8"
+                                                    />
+                                                ) : (
+                                                    <Input
+                                                        type="text"
+                                                        value={row[col.key] || ""}
+                                                        onChange={(e) => updateTableCell(
+                                                            categoryId,
+                                                            subcategoryId,
+                                                            elementId,
+                                                            rowIndex,
+                                                            col.key,
+                                                            e.target.value
+                                                        )}
+                                                        placeholder={col.hint || ""}
+                                                        className="text-sm h-8"
+                                                    />
+                                                )}
                                             </td>
                                         ))}
                                         <td className="px-2 py-1">
@@ -1438,13 +1521,13 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                         ([categoryId, category]) => (
                             <Card
                                 key={categoryId}
-                                className="border-0 shadow-sm bg-white/80 backdrop-blur-sm hover:shadow-lg hover:bg-white/90 transition-all duration-300 border border-ocean-frost overflow-hidden"
+                                className={getCategoryStyles(category.categoryType).card}
                             >
                                 <CardHeader
-                                    className="cursor-pointer select-none hover:bg-gradient-to-r hover:from-ocean-light/50 hover:to-ocean-frost/50 transition-colors duration-200 rounded-t-lg p-3 sm:p-6"
+                                    className={`cursor-pointer select-none transition-colors duration-200 rounded-t-lg p-3 sm:p-6 ${getCategoryStyles(category.categoryType).header}`}
                                     onClick={() => toggleCategory(categoryId)}
                                 >
-                                    <CardTitle className="flex items-center gap-2 sm:gap-3 text-slate-900">
+                                    <CardTitle className={`flex items-center gap-2 sm:gap-3 ${getCategoryStyles(category.categoryType).title}`}>
                                         <motion.div
                                             animate={{
                                                 rotate: openCategories[
@@ -1459,7 +1542,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                             }}
                                             className="flex-shrink-0"
                                         >
-                                            <ChevronRight className="h-5 w-5 text-slate-500" />
+                                            <ChevronRight className={`h-5 w-5 ${getCategoryStyles(category.categoryType).icon}`} />
                                         </motion.div>
                                         <span className="font-semibold flex-1 text-sm sm:text-base">
                                             {category.title}
@@ -1469,7 +1552,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                         )}
                                     </CardTitle>
                                     {category.description && (
-                                        <p className="text-xs sm:text-sm text-slate-500 ml-7 sm:ml-8 mt-1">
+                                        <p className={`text-xs sm:text-sm ml-7 sm:ml-8 mt-1 ${getCategoryStyles(category.categoryType).description}`}>
                                             {category.description}
                                         </p>
                                     )}
@@ -1512,7 +1595,7 @@ export default function Checklist({ userInfo }: ChecklistProps) {
                                                                 duration: 0.3,
                                                                 delay: 0.1,
                                                             }}
-                                                            className="bg-gradient-to-r from-ocean-light/30 to-ocean-frost/30 rounded-lg p-3 sm:p-5 space-y-3 sm:space-y-4 border border-ocean-frost/50"
+                                                            className={`rounded-lg p-3 sm:p-5 space-y-3 sm:space-y-4 border ${getCategoryStyles(category.categoryType).content}`}
                                                         >
                                                             <div className="flex items-start justify-between gap-2">
                                                                 <div className="flex-1 min-w-0">

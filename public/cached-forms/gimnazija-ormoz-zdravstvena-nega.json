@@ -9,12 +9,12 @@
   "schoolName": "Gimnazija Ormož",
   "professorName": "Katja Skoliber",
   "categories": {
-    "1": {
-      "categoryType": "patient_data",
-      "title": "PODATKI O PACIENTU / STANOVALCU",
-      "description": "Osnovni podatki ob začetku obravnave",
-      "url": "podatki-o-pacientu",
-      "color": "#DBEAFE",
+    "0": {
+      "categoryType": "institution_data",
+      "title": "PODATKI O ZDRAVSTVENI USTANOVI",
+      "description": "Ustanova in oddelek izvajanja praktičnega pouka",
+      "url": "podatki-o-ustanovi",
+      "color": "#DFF4F1",
       "subcategories": {
         "1.1": {
           "title": "Zdravstvena ustanova in oddelek",
@@ -28,7 +28,16 @@
               "value": null
             }
           }
-        },
+        }
+      }
+    },
+    "1": {
+      "categoryType": "patient_data",
+      "title": "PODATKI O PACIENTU / STANOVALCU",
+      "description": "Osnovni podatki ob začetku obravnave",
+      "url": "podatki-o-pacientu",
+      "color": "#DBEAFE",
+      "subcategories": {
         "1.2": {
           "title": "Osnovni podatki",
           "description": "Uporabite samo začetnici imena in priimka ter ne vpisujte osebnih podatkov, ki bi omogočali neposredno identifikacijo pacienta.",
@@ -111,9 +120,19 @@
             "2.1.1": {
               "title": "Alergije",
               "unit": null,
-              "hint": "Vpišite znane alergije ali navedite, da niso znane.",
-              "type": "longtext",
-              "value": null
+              "hint": "Vpišite ali izberite znane alergije.",
+              "type": "str",
+              "option_type": "multiple",
+              "options": [
+                "ni znanih alergij",
+                "alergija na penicilin",
+                "alergija na lateks",
+                "alergija na jod ali kontrastno sredstvo",
+                "alergija na hrano",
+                "alergija na obliže ali lepilni material",
+                "alergija ni zanesljivo potrjena"
+              ],
+              "value": []
             },
             "2.1.2": {
               "title": "Prehranski status",
@@ -147,16 +166,37 @@
             "2.1.4": {
               "title": "Bivanjske razmere",
               "unit": null,
-              "hint": "Opišite bivanjske razmere in razpoložljivo pomoč.",
-              "type": "longtext",
-              "value": null
+              "hint": "Vpišite ali izberite bivanjske razmere in razpoložljivo pomoč.",
+              "type": "str",
+              "option_type": "multiple",
+              "options": [
+                "živi sam/a",
+                "živi z družino",
+                "urejene bivanjske razmere",
+                "ima pomoč svojcev",
+                "ima pomoč patronažne službe",
+                "potrebuje pomoč pri osnovnih dnevnih aktivnostih",
+                "uporablja pripomočke za gibanje",
+                "bivanjske razmere niso znane"
+              ],
+              "value": []
             },
             "2.1.5": {
               "title": "Druga opažanja ali posebnosti",
               "unit": null,
-              "hint": "Vpišite druga pomembna opažanja, posebnosti ali podatke o obiskih.",
-              "type": "longtext",
-              "value": null
+              "hint": "Vpišite ali izberite druga pomembna opažanja.",
+              "type": "str",
+              "option_type": "multiple",
+              "options": [
+                "brez posebnosti",
+                "redni obiski svojcev",
+                "pacient sodeluje pri pogovoru",
+                "potrebuje dodatno razlago navodil",
+                "prisotna bolečina",
+                "izraža strah ali zaskrbljenost",
+                "potreben je pogovor z mentorjem ali zdravstvenim timom"
+              ],
+              "value": []
             }
           }
         }
@@ -188,9 +228,19 @@
             "3.1.2": {
               "title": "Opis motnje ali opažanja",
               "unit": null,
-              "hint": "Opišite opaženo motnjo zavesti ali druga pomembna opažanja.",
-              "type": "longtext",
-              "value": null
+              "hint": "Vpišite ali izberite opaženo motnjo zavesti oziroma pomembno opažanje.",
+              "type": "str",
+              "option_type": "multiple",
+              "options": [
+                "orientiran/a v času, prostoru in osebi",
+                "občasno zmeden/a",
+                "dezorientiran/a",
+                "somnolenten/a",
+                "nemiren/nemirna",
+                "upočasnjeni odgovori",
+                "brez posebnih opažanj"
+              ],
+              "value": []
             }
           }
         }
@@ -218,7 +268,8 @@
                 {
                   "key": "cas_merjenja",
                   "title": "Čas merjenja",
-                  "hint": "npr. 08:00"
+                  "hint": "npr. 08:00",
+                  "type": "time"
                 },
                 {
                   "key": "izmerjena_vrednost_1",

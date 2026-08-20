@@ -108,6 +108,7 @@ const getElementSchema = (element: any) => {
                     key: column?.key || null,
                     title: column?.title || null,
                     hint: column?.hint || null,
+                    type: column?.type || null,
                 }))
                 : [],
         };

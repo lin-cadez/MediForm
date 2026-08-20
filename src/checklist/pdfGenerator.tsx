@@ -1,5 +1,6 @@
 import { PDFDocument, rgb, PDFPage, PDFFont } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
+import { separateOrmozInstitutionCategory } from "@/lib/formStructure";
 
 interface Element {
     title: string;
@@ -150,6 +151,8 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         throw new Error("Invalid data: 'categories' key is missing.");
     }
 
+    data = separateOrmozInstitutionCategory(data);
+
     const pdfDoc = await PDFDocument.create();
     pdfDoc.registerFontkit(fontkit);
 
@@ -162,8 +165,8 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     const pageHeight = 842; // A4 height in points
     const margin = 40;
     
-    // Get institution name from user info or use default
-    const institutionName = data.schoolName || userInfo?.sola || "Srednja zdravstvena šola Ljubljana";
+    // Use the school selected in the student profile. Template school is only a fallback.
+    const institutionName = userInfo?.sola || data.schoolName || "Srednja zdravstvena šola Ljubljana";
     const isOrmozHealthReport = data.reportType === "healthcare_ormoz";
 
     // ==================== HELPER FUNCTIONS ====================
@@ -216,11 +219,12 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         y: number,
         fontToUse: PDFFont,
         fontSize: number,
-        color: [number, number, number] = [0, 0, 0]
+        color: [number, number, number] = [0, 0, 0],
+        width = pageWidth
     ) => {
         const textWidth = fontToUse.widthOfTextAtSize(text, fontSize);
         page.drawText(text, {
-            x: (pageWidth - textWidth) / 2,
+            x: (width - textWidth) / 2,
             y,
             size: fontSize,
             font: fontToUse,
@@ -232,7 +236,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         let pudPage = pdfDoc.addPage([pageWidth, pageHeight]);
         let pudY = pageHeight - margin;
         const contentWidth = pageWidth - 2 * margin;
-        const pudInstitutionName = data.schoolName || institutionName || "Srednja šola test";
+        const pudInstitutionName = institutionName || data.schoolName || "Srednja šola test";
 
         const formatValue = (value: Element["value"] | undefined): string => {
             if (typeof value === "boolean") return value ? "DA" : "NE";
@@ -709,7 +713,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         let dentalPage = pdfDoc.addPage([pageWidth, pageHeight]);
         let dentalY = pageHeight - margin;
         const contentWidth = pageWidth - 2 * margin;
-        const dentalInstitutionName = data.schoolName || institutionName || "Srednja šola test";
+        const dentalInstitutionName = institutionName || data.schoolName || "Srednja šola test";
 
         const formatDentalValue = (value: Element["value"] | undefined): string => {
             if (typeof value === "boolean") return value ? "DA" : "NE";
@@ -1148,8 +1152,10 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
     // ==================== COVER PAGE ====================
     
-    const coverPage = pdfDoc.addPage([pageWidth, pageHeight]);
-    let yOffset = pageHeight - margin;
+    const coverPageWidth = isOrmozHealthReport ? pageHeight : pageWidth;
+    const coverPageHeight = isOrmozHealthReport ? pageWidth : pageHeight;
+    const coverPage = pdfDoc.addPage([coverPageWidth, coverPageHeight]);
+    let yOffset = coverPageHeight - margin;
 
     // Institution name (top left, on every page will be added in header)
     coverPage.drawText(institutionName, {
@@ -1203,21 +1209,22 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         yOffset,
         fontBold,
         isOrmozHealthReport ? 24 : 18,
-        [0, 0, 0]
+        [0, 0, 0],
+        coverPageWidth
     );
     yOffset -= isOrmozHealthReport ? 42 : 30;
 
     // Subject (predmet) - bold, centered
     if (data.predmet) {
-        drawCenteredText(coverPage, data.predmet, yOffset, fontBold, 14, [0.2, 0.2, 0.2]);
+        drawCenteredText(coverPage, data.predmet, yOffset, fontBold, 14, [0.2, 0.2, 0.2], coverPageWidth);
         yOffset -= 40;
     }
 
     // ==================== INFO TABLE ====================
     
-    yOffset -= isOrmozHealthReport ? 125 : 20;
+    yOffset -= isOrmozHealthReport ? 85 : 20;
     const tableX = margin;
-    const tableWidth = pageWidth - 2 * margin;
+    const tableWidth = coverPageWidth - 2 * margin;
     const rowHeight = isOrmozHealthReport ? 34 : 25;
     const tableFontSize = isOrmozHealthReport ? 10 : 9;
 
@@ -1321,7 +1328,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
     // Row 1: Name, Class, School Year
     yOffset = drawTableRow(
         coverPage,
-        "Ime in priimek dijaka:",
+        isOrmozHealthReport ? "Ime in priimek dijaka/dijakinje:" : "Ime in priimek dijaka:",
         userInfo ? `${userInfo.ime} ${userInfo.priimek}` : "",
         yOffset,
         "Razred:",
@@ -1396,7 +1403,7 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
         yOffset = drawTableRow(
             coverPage,
-            "Profesor/ica:",
+            "Avtor/ica predloge:",
             data.professorName || "/",
             yOffset,
             "Datum priprave poročila:",
@@ -1426,15 +1433,15 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             color: rgb(0, 0, 0),
         });
         coverPage.drawText("Podpis kandidata:", {
-            x: pageWidth / 2,
+            x: coverPageWidth / 2,
             y: yOffset,
             size: 10,
             font,
             color: rgb(0, 0, 0),
         });
         coverPage.drawLine({
-            start: { x: pageWidth / 2 + 92, y: yOffset - 3 },
-            end: { x: pageWidth - margin, y: yOffset - 3 },
+            start: { x: coverPageWidth / 2 + 92, y: yOffset - 3 },
+            end: { x: coverPageWidth - margin, y: yOffset - 3 },
             thickness: 0.5,
             color: rgb(0.45, 0.45, 0.45),
         });
@@ -2048,8 +2055,10 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
 
     // ==================== FINAL PAGE - SCORING ====================
     
-    page = pdfDoc.addPage([pageWidth, pageHeight]);
-    yOffset = pageHeight - margin;
+    const finalPageWidth = isOrmozHealthReport ? healthPageWidth : pageWidth;
+    const finalPageHeight = isOrmozHealthReport ? healthPageHeight : pageHeight;
+    page = pdfDoc.addPage([finalPageWidth, finalPageHeight]);
+    yOffset = finalPageHeight - margin;
 
     if (isOrmozHealthReport) {
         page.drawText("PODPISI IN OCENA", {
@@ -2070,27 +2079,27 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
         });
         page.drawLine({
             start: { x: margin + 135, y: yOffset - 3 },
-            end: { x: pageWidth / 2 - 15, y: yOffset - 3 },
+            end: { x: finalPageWidth / 2 - 15, y: yOffset - 3 },
             thickness: 0.5,
             color: rgb(0, 0, 0),
         });
 
-        page.drawText("Podpis mentorja/ice:", {
-            x: pageWidth / 2 + 10,
+        page.drawText("Podpis mentorja/mentorice:", {
+            x: finalPageWidth / 2 + 10,
             y: yOffset,
             size: 11,
             font,
             color: rgb(0, 0, 0),
         });
         page.drawLine({
-            start: { x: pageWidth / 2 + 130, y: yOffset - 3 },
-            end: { x: pageWidth - margin, y: yOffset - 3 },
+            start: { x: finalPageWidth / 2 + 165, y: yOffset - 3 },
+            end: { x: finalPageWidth - margin, y: yOffset - 3 },
             thickness: 0.5,
             color: rgb(0, 0, 0),
         });
 
         yOffset -= 55;
-        page.drawText("Ocena:", {
+        page.drawText("Ocena mentorja/mentorice:", {
             x: margin,
             y: yOffset,
             size: 11,
@@ -2098,8 +2107,8 @@ export const generatePdfFromJson = async (data: JsonData, userInfo?: UserInfo): 
             color: rgb(0, 0, 0),
         });
         page.drawLine({
-            start: { x: margin + 45, y: yOffset - 3 },
-            end: { x: margin + 145, y: yOffset - 3 },
+            start: { x: margin + 155, y: yOffset - 3 },
+            end: { x: margin + 285, y: yOffset - 3 },
             thickness: 0.5,
             color: rgb(0, 0, 0),
         });
