@@ -10,27 +10,5 @@
     "subject": "Zdravstvena nega",
     "documentNameHint": "npr. Pacient UKC 01",
     "url": "/obrazec/zdravstvena-nega"
-  },
-  {
-    "id": "gimnazija-ormoz-zdravstvena-nega",
-    "title": "Dokumentacija zdravstvene nege",
-    "description": "Dokumentacija zdravstvene nege pacienta ali stanovalca za praktični pouk.",
-    "schoolId": "gimnazija-ormoz",
-    "schoolName": "Gimnazija Ormož",
-    "professorName": "Katja Skoliber",
-    "subject": "Zdravstvena nega",
-    "documentNameHint": "npr. Pacient Ormož 01",
-    "url": "/obrazec/gimnazija-ormoz-zdravstvena-nega"
-  },
-  {
-    "id": "predsolska-vzgoja-demo",
-    "title": "Predšolska vzgoja SŠ Demo",
-    "description": "Demo dnevno poročilo praktičnega usposabljanja z delom za program predšolska vzgoja.",
-    "schoolId": "predsolska-demo",
-    "schoolName": "Srednja šola test",
-    "professorName": "MediForm",
-    "subject": "Predšolska vzgoja",
-    "documentNameHint": "Vrtec Petre Mavčič Junij 2026",
-    "url": "/obrazec/predsolska-vzgoja-demo"
   }
 ]
